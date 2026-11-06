@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id            String         @id @default(cuid())
+  slug          String         @unique
+  titleRu       String
+  titleKk       String
+  descRu        String
+  descKk        String
+  category      String // Учёба, Культура, Спорт, Благотворительность
+  date          DateTime
+  location      String
+  image         String         @default("")
+  maxSeats      Int            @default(100)
+  programRu     String         @default("")
+  programKk     String         @default("")
+  gallery       String         @default("[]") // JSON array of image URLs
+  archived      Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  registrations Registration[]
+}
+
+model Registration {
+  id        String   @id @default(cuid())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name      String
+  grade     String // e.g. "9A"
+  phone     String   @default("")
+  createdAt DateTime @default(now())
+
+  @@unique([eventId, name, grade])
+}
+
+model Member {
+  id        String   @id @default(cuid())
+  nameRu    String
+  nameKk    String
+  roleRu    String
+  roleKk    String
+  quoteRu   String   @default("")
+  quoteKk   String   @default("")
+  bioRu     String   @default("")
+  bioKk     String   @default("")
+  photo     String   @default("")
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TimelineItem {
+  id        String   @id @default(cuid())
+  titleRu   String
+  titleKk   String
+  descRu    String   @default("")
+  descKk    String   @default("")
+  month     Int // 1-12
+  year      Int      @default(2025)
+  icon      String   @default("📌")
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model News {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  titleRu   String
+  titleKk   String
+  contentRu String
+  contentKk String
+  excerpt   String   @default("")
+  image     String   @default("")
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Poll {
+  id         String       @id @default(cuid())
+  questionRu String
+  questionKk String
+  active     Boolean      @default(true)
+  createdAt  DateTime     @default(now())
+  options    PollOption[]
+}
+
+model PollOption {
+  id     String @id @default(cuid())
+  pollId String
+  poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  textRu String
+  textKk String
+  votes  Vote[]
+}
+
+model Vote {
+  id        String     @id @default(cuid())
+  optionId  String
+  option    PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  ip        String
+  createdAt DateTime   @default(now())
+
+  @@unique([optionId, ip])
+}
+
+model Suggestion {
+  id        String   @id @default(cuid())
+  text      String
+  author    String   @default("Аноним")
+  status    String   @default("pending") // pending, approved, rejected
+  createdAt DateTime @default(now())
+}
+
+model Appeal {
+  id        String   @id @default(cuid())
+  type      String // proposal, complaint, join
+  name      String   @default("")
+  grade     String   @default("")
+  text      String
+  anonymous Boolean  @default(false)
+  status    String   @default("new") // new, in_progress, resolved
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Stat {
+  id      String @id @default(cuid())
+  key     String @unique
+  value   Int    @default(0)
+  labelRu String @default("")
+  labelKk String @default("")
+}
