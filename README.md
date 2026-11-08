@@ -1,36 +1,173 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏛️ Школьный Парламент (School Parliament) — VIP / Luxury Edition
 
-## Getting Started
+> Полнофункциональный портал школьного парламента в тёмной премиум-стилистике с золотыми акцентами, анимациями, интерактивным голосованием, системой регистрации на мероприятия и защищённой админ-панелью.
 
-First, run the development server:
+---
 
+## ✨ Особенности дизайна и функционала
+
+- **Дизайн VIP / Luxury**:
+  - Глубокий тёмный фон `#06080f` с золотыми переливами (`#f3d98b` → `#b8893a`)
+  - Эффект стеклянных карточек (**Glassmorphism**, `backdrop-blur-md`, золотая рамка `rgba(212,175,95,.22)`)
+  - Шрифты **Playfair Display** (заголовки) и **Inter** (основной текст)
+  - Анимированный перелив золотого градиента на ключевых заголовках
+  - Интерактивный **Canvas со звёздной пылью** и поднимающимися частицами золота
+  - Мягкие размытые плавающие световые пятна (Ambient Glow)
+  - **Кастомный курсор** с ореолом и золотым свечением (только desktop)
+  - Бегущая премиум-лента (*«Лидерство ✦ Инициатива ✦ Ответственность ✦ Команда»*)
+  - Адаптивность mobile-first и поддержка `prefers-reduced-motion`
+
+- **Страницы и модули**:
+  1. **Hero-секция**: заголовок *«Власть учеников»*, подзаголовок, призывы к действию и **живой таймер обратного отсчёта** до ближайшего события из базы данных.
+  2. **Статистика**: 4 анимированных счётчика (мероприятия, члены парламента, ученики, инициативы), редактируемые в админке.
+  3. **Афиша мероприятий**:
+     - Фильтры по категориям (*Учёба, Культура, Спорт, Благотворительность*)
+     - Карточки с подсчётом свободных мест и статусом *«Мест нет»*
+     - Модальное окно записи с валидацией Zod, защитой от ботов (Honeypot) и защитой от повторной регистрации (1 ученик = 1 запись)
+     - Переключатель *Архив* для просмотра прошедших событий
+     - Отдельная страница `/events/[slug]` с таймлайном программы, галереей и локацией
+  4. **План года (Timeline)**: вертикальная таймлайн-лента с сентября по май с неоновым золотым стержнем.
+  5. **Команда парламента**: карточки членов совета с должностью, фото/аватаром, цитатой и модальным окном биографии.
+  6. **Интерактивное голосование**: *«Что провести следующим?»* с подсчётом процентов в реальном времени, ограничением 1 голос с устройства/IP и формой предложений от учеников на модерацию.
+  7. **Обращения**: форма *«Предложение / Жалоба / Вступить»* с возможностью анонимной отправки и Honeypot.
+  8. **Новости**: хроника работы парламента и страницы статей `/news/[slug]`.
+  9. **Контакты и футер**: карта, контакты, соцсети.
+
+- **Админ-панель (`/admin`)**:
+  - Вход по паролю из `.env`, сессия в защищённой `httpOnly` cookie
+  - Полный CRUD мероприятий и просмотр списков участников
+  - **Экспорт участников в CSV** (с поддержкой UTF-8 BOM для Excel)
+  - Входящие обращения учеников со статусами (*новое / в работе / решено*)
+  - Модерация предложений для опросов (*одобрить / отклонить*)
+  - Управление счётчиками на главной странице
+  - Интерактивный дашборд статистики
+
+- **Мультиязычность**:
+  - Русский (**RU**) и Казахский (**KK**) языки через `next-intl`
+  - Переключатель языков в шапке сайта (по умолчанию RU)
+
+---
+
+## 🛠️ Технологический стек
+
+- **Фреймворк**: Next.js 14 (App Router) + TypeScript
+- **Стилизация**: Tailwind CSS + кастомные CSS переменные и утилиты
+- **База данных и ORM**: SQLite + Prisma 5 (лёгкий переход на PostgreSQL при деплое)
+- **Интернационализация**: `next-intl` (RU / KK)
+- **Безопасность**: Zod-валидация, In-memory Rate Limiting, Honeypot, httpOnly cookies
+- **SEO**: Dynamic Metadata, OpenGraph, dynamic `sitemap.xml`, `robots.txt`
+
+---
+
+## 🚀 Быстрый запуск (Локально)
+
+### 1. Установка зависимостей
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Настройка переменных окружения
+Создайте файл `.env` (скопируйте из `.env.example`):
+```env
+DATABASE_URL="file:./dev.db"
+ADMIN_PASSWORD="parliament2025"
+NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Инициализация базы данных и сидинг
+```bash
+npx prisma db push
+npx --yes tsx prisma/seed.ts
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+*Сид создаёт 6 мероприятий, 6 членов команды, 9 пунктов плана года, 2 новости, активный опрос и статистику.*
 
-## Learn More
+### 4. Запуск сервера разработки
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Откройте [http://localhost:3000](http://localhost:3000) в браузере.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🔐 Доступ в админ-панель
 
-## Deploy on Vercel
+- **URL**: [http://localhost:3000/admin](http://localhost:3000/admin)
+- **Пароль по умолчанию**: `parliament2025` *(настраивается в переменной `ADMIN_PASSWORD` в `.env`)*
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🚢 Деплой
+
+### Вариант 1: Vercel (Рекомендуемый для фронтенда)
+1. Создайте репозиторий на GitHub и отправьте код:
+   ```bash
+   git add .
+   git commit -m "feat: School Parliament VIP Edition"
+   git push origin main
+   ```
+2. Импортируйте репозиторий в [Vercel](https://vercel.com).
+3. Для продакшн базы данных подключите **Vercel Postgres** или **Supabase** / **Neon**:
+   - В `prisma/schema.prisma` смените `provider = "sqlite"` на `provider = "postgresql"`.
+   - В Vercel Settings → Environment Variables укажите:
+     - `DATABASE_URL`: строка подключения к PostgreSQL
+     - `ADMIN_PASSWORD`: сложный пароль администратора
+     - `NEXT_PUBLIC_SITE_URL`: URL вашего домена Vercel (например, `https://parliament.vercel.app`)
+4. Добавьте в `package.json` build-скрипт:
+   ```json
+   "build": "prisma generate && prisma db push && next build"
+   ```
+
+### Вариант 2: Railway (Всё в одном контейнере)
+1. Создайте проект на [Railway](https://railway.app).
+2. Добавьте сервис PostgreSQL.
+3. Подключите GitHub репозиторий.
+4. В переменных окружения добавьте:
+   - `DATABASE_URL`: `${{Postgres.DATABASE_URL}}`
+   - `ADMIN_PASSWORD`: ваш пароль
+   - `NEXT_PUBLIC_SITE_URL`: ваш Railway домен
+5. Railway автоматически соберёт проект и запустит `npm start`.
+
+---
+
+## 📁 Структура проекта
+
+```
+├── messages/               # Переводы i18n (ru.json, kk.json)
+├── prisma/
+│   ├── schema.prisma       # Схема базы данных (10 моделей)
+│   └── seed.ts             # Демо-данные для наполнения
+├── src/
+│   ├── app/
+│   │   ├── [locale]/       # Мультиязычные маршруты Next.js
+│   │   │   ├── events/[slug] # Страница мероприятия (программа, запись)
+│   │   │   ├── news/[slug]   # Страница новости
+│   │   │   ├── layout.tsx
+│   │   │   └── page.tsx      # Главная страница с VIP блоками
+│   │   ├── admin/          # Панель управления (CMS)
+│   │   │   ├── login/      # Страница авторизации
+│   │   │   ├── AdminClient.tsx
+│   │   │   └── page.tsx
+│   │   ├── api/            # API эндпоинты (регистрация, голосование, админка)
+│   │   ├── globals.css     # VIP Luxury дизайн-токены и стили
+│   │   ├── layout.tsx
+│   │   ├── robots.ts
+│   │   └── sitemap.ts
+│   ├── components/         # UI компоненты
+│   │   ├── BackgroundEffects.tsx # Canvas звёзды + золотая пыль
+│   │   ├── CustomCursor.tsx      # Кастомный курсор со следом
+│   │   ├── Header.tsx            # Навбар с переключателем RU/KK
+│   │   ├── HeroSection.tsx       # Таймер обратного отсчёта и заголовок
+│   │   ├── Marquee.tsx           # Бегущая золотая лента
+│   │   ├── StatsSection.tsx      # 4 анимированных счётчика
+│   │   ├── EventsSection.tsx     # Афиша + фильтры + архив
+│   │   ├── RegistrationModal.tsx # Модалка записи на событие
+│   │   ├── TimelineSection.tsx   # План года (сентябрь-май)
+│   │   ├── TeamSection.tsx       # Члены парламента + модалка
+│   │   ├── VotingSection.tsx     # Голосование + идеи учеников
+│   │   ├── AppealsSection.tsx    # Обращения (предложения, жалобы)
+│   │   ├── NewsSection.tsx       # Блок новостей
+│   │   └── Footer.tsx            # Подвал, контакты, соцсети
+│   └── lib/                # Утилиты, валидации Zod, Prisma клиент, Rate Limit, Auth
+```

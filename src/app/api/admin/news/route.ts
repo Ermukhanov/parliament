@@ -1,0 +1,65 @@
+import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
+import { getSessionInfo } from '@/lib/auth';
+import { newsSchema } from '@/lib/validations';
+
+export async function GET() {
+  const session = await getSessionInfo();
+  if (!session) {
+    return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
+  }
+
+  const news = await prisma.news.findMany({
+    where: session.hasFullAccess ? undefined : { ministry: session.login },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return NextResponse.json({ news });
+}
+
+export async function POST(req: NextRequest) {
+  const session = await getSessionInfo();
+  if (!session) {
+    return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
+  }
+
+  try {
+    const body = await req.json();
+    const validated = newsSchema.parse(body);
+
+    const article = await prisma.news.create({
+      data: {
+        ...validated,
+        ministry: session.hasFullAccess ? validated.ministry : session.login,
+      },
+    });
+
+    return NextResponse.json({ success: true, article }, { status: 201 });
+  } catch {
+    return NextResponse.json({ error: 'Неверные данные новости' }, { status: 400 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  const session = await getSessionInfo();
+  if (!session) {
+    return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get('id');
+
+  if (!id) {
+    return NextResponse.json({ error: 'ID не указан' }, { status: 400 });
+  }
+
+  if (!session.hasFullAccess) {
+    const existing = await prisma.news.findUnique({ where: { id } });
+    if (!existing || existing.ministry !== session.login) {
+      return NextResponse.json({ error: 'Доступ только к новостям своей фракции' }, { status: 403 });
+    }
+  }
+
+  await prisma.news.delete({ where: { id } });
+  return NextResponse.json({ success: true });
+}

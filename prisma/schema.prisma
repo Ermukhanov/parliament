@@ -14,14 +14,15 @@ model Event {
   titleKk       String
   descRu        String
   descKk        String
-  category      String // Учёба, Культура, Спорт, Благотворительность
+  category      String         @default("Учёба") // Учёба, Культура, Спорт, Благотворительность
+  ministry      String         @default("general")
   date          DateTime
   location      String
   image         String         @default("")
   maxSeats      Int            @default(100)
   programRu     String         @default("")
   programKk     String         @default("")
-  gallery       String         @default("[]") // JSON array of image URLs
+  gallery       String         @default("[]")
   archived      Boolean        @default(false)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -33,7 +34,7 @@ model Registration {
   eventId   String
   event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   name      String
-  grade     String // e.g. "9A"
+  grade     String
   phone     String   @default("")
   createdAt DateTime @default(now())
 
@@ -41,19 +42,26 @@ model Registration {
 }
 
 model Member {
-  id        String   @id @default(cuid())
-  nameRu    String
-  nameKk    String
-  roleRu    String
-  roleKk    String
-  quoteRu   String   @default("")
-  quoteKk   String   @default("")
-  bioRu     String   @default("")
-  bioKk     String   @default("")
-  photo     String   @default("")
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String   @id @default(cuid())
+  login          String   @unique
+  password       String   @default("parliament2025")
+  ministry       String   @default("general")
+  ministryNameRu String   @default("Президиум Парламента")
+  ministryNameKk String   @default("Парламент Төралқасы")
+  nameRu         String   @default("")
+  nameKk         String   @default("")
+  grade          String   @default("")
+  roleRu         String
+  roleKk         String
+  quoteRu        String   @default("")
+  quoteKk        String   @default("")
+  bioRu          String   @default("")
+  bioKk          String   @default("")
+  assistants     String   @default("[]") // JSON string of assistants: [{name: string, grade: string, role?: string}]
+  photo          String   @default("")
+  order          Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 model TimelineItem {
@@ -62,7 +70,8 @@ model TimelineItem {
   titleKk   String
   descRu    String   @default("")
   descKk    String   @default("")
-  month     Int // 1-12
+  ministry  String   @default("general")
+  month     Int
   year      Int      @default(2025)
   icon      String   @default("📌")
   order     Int      @default(0)
@@ -79,7 +88,8 @@ model News {
   contentKk String
   excerpt   String   @default("")
   image     String   @default("")
-  published Boolean  @default(false)
+  ministry  String   @default("general")
+  published Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -123,6 +133,7 @@ model Suggestion {
 model Appeal {
   id        String   @id @default(cuid())
   type      String // proposal, complaint, join
+  ministry  String   @default("general")
   name      String   @default("")
   grade     String   @default("")
   text      String

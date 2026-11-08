@@ -1,0 +1,119 @@
+{
+  "meta": {
+    "title": "AQL Council",
+    "description": "AQL Council — Official School Parliament Portal"
+  },
+  "nav": {
+    "home": "Home",
+    "events": "Events",
+    "team": "Factions",
+    "news": "Media",
+    "voting": "Voting",
+    "appeals": "Inquiries",
+    "contacts": "Contacts"
+  },
+  "hero": {
+    "title": "Student Voice & Leadership",
+    "subtitle": "AQL Council is the open digital platform where every faction and student collaborates to lead school life.",
+    "cta": "Learn more",
+    "nextEvent": "Upcoming event in",
+    "days": "days",
+    "hours": "hours",
+    "minutes": "min",
+    "seconds": "sec"
+  },
+  "stats": {
+    "events": "Events held",
+    "members": "Factions & leaders",
+    "students": "Active students",
+    "initiatives": "Completed initiatives"
+  },
+  "events": {
+    "title": "Events Board",
+    "all": "All",
+    "study": "Academics",
+    "culture": "Culture & Arts",
+    "sport": "Sports",
+    "charity": "Volunteering",
+    "register": "Register",
+    "noSeats": "No seats left",
+    "seatsLeft": "Seats remaining",
+    "archive": "Archive",
+    "details": "Details",
+    "program": "Schedule",
+    "gallery": "Gallery",
+    "location": "Location",
+    "registerTitle": "Event Registration",
+    "name": "Full Name",
+    "grade": "Grade",
+    "phone": "Phone (optional)",
+    "submit": "Confirm Registration",
+    "success": "You have successfully registered!",
+    "alreadyRegistered": "You are already registered for this event",
+    "eventFull": "Sorry, all seats are occupied"
+  },
+  "timeline": {
+    "title": "Annual Plan",
+    "subtitle": "Roadmap from September to May"
+  },
+  "team": {
+    "title": "Parliament Team",
+    "subtitle": "President, Vice President and 7 Factions",
+    "readMore": "Learn more"
+  },
+  "voting": {
+    "title": "Open Voting",
+    "subtitle": "What should we organize next?",
+    "vote": "Vote",
+    "voted": "You have voted",
+    "votes": "votes",
+    "suggest": "Suggest an Idea",
+    "suggestionPlaceholder": "Describe your event or initiative...",
+    "sendSuggestion": "Submit Idea",
+    "suggestionSent": "Idea submitted for moderation"
+  },
+  "appeals": {
+    "title": "School Inquiries & Petitions",
+    "subtitle": "Direct feedback to factions and leadership",
+    "proposal": "Proposal",
+    "complaint": "Issue / Question",
+    "join": "Join Team",
+    "name": "Your Name",
+    "grade": "Grade",
+    "message": "Your Message",
+    "anonymous": "Submit Anonymously",
+    "submit": "Send Message",
+    "success": "Your inquiry has been sent to the selected faction!",
+    "honeypot": "Leave this field empty"
+  },
+  "news": {
+    "title": "Media & News",
+    "readMore": "Read full article",
+    "backToList": "Back to all news"
+  },
+  "contacts": {
+    "title": "Contacts",
+    "address": "School Address",
+    "email": "Email",
+    "social": "Social Media"
+  },
+  "footer": {
+    "rights": "All rights reserved",
+    "disclaimer": "Official Student Self-Government Portal",
+    "parliament": "School Parliament",
+    "madeWith": "Made with dedication for AQL"
+  },
+  "marquee": {
+    "text": "Leadership ✦ Initiative ✦ Responsibility ✦ Teamwork"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "close": "Close",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create"
+  }
+}
