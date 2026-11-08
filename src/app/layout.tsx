@@ -14,8 +14,6 @@ export const metadata: Metadata = {
   },
 };
 
-const splashScript = `try{if(sessionStorage.getItem('aql_splash_seen')==='1')document.documentElement.classList.add('splash-seen')}catch(e){}`;
-
 export default function RootLayout({
   children,
 }: {
@@ -25,7 +23,6 @@ export default function RootLayout({
     <html lang="kk" className="scroll-smooth" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
-        <script dangerouslySetInnerHTML={{ __html: splashScript }} />
       </head>
       <body className="font-sans bg-[#ffffff] text-[#0f172a] antialiased">{children}</body>
     </html>
