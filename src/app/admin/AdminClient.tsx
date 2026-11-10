@@ -556,26 +556,26 @@ export default function AdminClient() {
   // =========================================================================
   if (!authenticated) {
     return (
-      <div className="min-h-screen bg-[#070d18] text-slate-100 flex items-center justify-center p-4 relative overflow-hidden select-none">
-        {/* Ambient Dark Glows */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-[#00afca]/15 blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-10 left-10 w-72 h-72 rounded-full bg-[#0ea5e9]/10 blur-[100px] pointer-events-none" />
+      <div className="min-h-screen bg-gradient-to-br from-[#f0f9ff] via-[#ffffff] to-[#e0f2fe] text-slate-800 flex items-center justify-center p-4 relative overflow-hidden select-none">
+        {/* Ambient Bright Glows */}
+        <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#00afca]/15 blur-[120px] pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-[#0284c7]/15 blur-[120px] pointer-events-none" />
 
         <div className="relative z-10 w-full max-w-md">
-          {/* Card Box with Dark Frosted Glass */}
-          <div className="bg-[#0e1726]/90 border border-slate-800 rounded-3xl p-8 sm:p-10 shadow-2xl backdrop-blur-xl">
+          {/* Card Box with Crisp White & Blue Accent */}
+          <div className="bg-white/95 border border-sky-100 rounded-3xl p-8 sm:p-10 shadow-[0_20px_60px_-15px_rgba(0,175,202,0.18)] backdrop-blur-xl">
             {/* Crest Logo & Title */}
             <div className="text-center mb-8">
-              <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/15 p-2.5 mx-auto mb-4 flex items-center justify-center shadow-lg">
+              <div className="w-16 h-16 rounded-2xl bg-[#00afca] border border-sky-200 p-2 mx-auto mb-4 flex items-center justify-center shadow-lg shadow-sky-500/25">
                 <SchoolLogo className="w-full h-full object-contain" variant="white-on-blue" priority />
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                 AQL Council
               </h1>
-              <p className="text-xs uppercase font-bold text-[#38bdf8] tracking-widest mt-1">
+              <p className="text-xs uppercase font-extrabold text-[#00afca] tracking-widest mt-1.5">
                 Басқару Панеліне Кіру
               </p>
-              <p className="text-xs text-slate-400 mt-2 font-light">
+              <p className="text-xs text-slate-500 mt-2 font-normal">
                 Президент, Вице-президент және 7 фракция министрлері
               </p>
             </div>
@@ -583,7 +583,7 @@ export default function AdminClient() {
             {/* Login Form */}
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                   Логин
                 </label>
                 <div className="relative">
@@ -593,13 +593,13 @@ export default function AdminClient() {
                     value={loginInput}
                     onChange={(e) => setLoginInput(e.target.value)}
                     placeholder="Логинді енгізіңіз (мысалы: it, media, president)..."
-                    className="w-full px-4 py-3 rounded-xl bg-[#141f33] border border-slate-700/80 text-white placeholder-slate-500 text-sm font-medium focus:outline-none focus:border-[#38bdf8] focus:ring-1 focus:ring-[#38bdf8] transition-all"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm font-medium focus:bg-white focus:outline-none focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                   Құпиясөз
                 </label>
                 <div className="relative">
@@ -609,12 +609,12 @@ export default function AdminClient() {
                     value={passwordInput}
                     onChange={(e) => setPasswordInput(e.target.value)}
                     placeholder="Құпиясөзді енгізіңіз..."
-                    className="w-full px-4 py-3 rounded-xl bg-[#141f33] border border-slate-700/80 text-white placeholder-slate-500 text-sm font-medium focus:outline-none focus:border-[#38bdf8] focus:ring-1 focus:ring-[#38bdf8] transition-all pr-10"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm font-medium focus:bg-white focus:outline-none focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 transition-all pr-12"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs font-bold"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#00afca] text-xs font-bold transition-colors"
                   >
                     {showPassword ? 'Жабу' : 'Көру'}
                   </button>
@@ -622,7 +622,7 @@ export default function AdminClient() {
               </div>
 
               {loginError && (
-                <div className="p-3 rounded-xl bg-red-950/60 border border-red-800 text-red-200 text-xs font-semibold text-center animate-in fade-in">
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold text-center animate-in fade-in">
                   {loginError}
                 </div>
               )}
@@ -630,16 +630,16 @@ export default function AdminClient() {
               <button
                 type="submit"
                 disabled={loginLoading}
-                className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-[#0284c7] to-[#0ea5e9] hover:from-[#0369a1] hover:to-[#0284c7] text-white font-bold text-sm tracking-wide shadow-lg shadow-sky-900/40 transition-all active:scale-[0.98] disabled:opacity-50"
+                className="w-full mt-2 py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#00afca] to-[#0284c7] hover:from-[#0099b0] hover:to-[#0369a1] text-white font-bold text-sm tracking-wide shadow-lg shadow-sky-500/25 transition-all active:scale-[0.98] disabled:opacity-50"
               >
                 {loginLoading ? 'Тексерілуде...' : 'Панельге кіру →'}
               </button>
             </form>
 
-            <div className="mt-8 pt-6 border-t border-slate-800/80 text-center">
+            <div className="mt-8 pt-6 border-t border-slate-100 text-center">
               <Link
                 href="/kk"
-                className="text-xs font-semibold text-slate-400 hover:text-[#38bdf8] transition-colors"
+                className="text-xs font-semibold text-slate-500 hover:text-[#00afca] transition-colors"
               >
                 ← Негізгі сайтқа оралу
               </Link>
@@ -654,21 +654,21 @@ export default function AdminClient() {
   // 2. DASHBOARD VIEW (PERSONALIZED PER USER, DARK HIGH-END PALETTE)
   // =========================================================================
   return (
-    <div className="min-h-screen bg-[#070d18] text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans">
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-40 bg-[#0e1726]/95 border-b border-slate-800 backdrop-blur-md px-4 sm:px-8 py-3.5 flex items-center justify-between">
+      <header className="sticky top-0 z-40 bg-white/95 border-b border-slate-200 shadow-sm backdrop-blur-md px-4 sm:px-8 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/15 p-1 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-xl bg-[#00afca] border border-sky-200 p-1 flex items-center justify-center shadow-sm">
             <SchoolLogo className="w-full h-full object-contain" variant="white-on-blue" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-black text-sm tracking-tight text-white">AQL Council</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-slate-800 text-[#38bdf8] border border-slate-700">
+              <span className="font-black text-sm tracking-tight text-slate-900">AQL Council</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-sky-50 text-[#00afca] border border-sky-200">
                 {hasFullAccess ? 'Басшылық' : 'Фракция министрі'}
               </span>
             </div>
-            <div className="text-[11px] text-slate-400 font-medium">
+            <div className="text-[11px] text-slate-500 font-medium">
               {currentRoleLabel}
             </div>
           </div>
@@ -677,13 +677,13 @@ export default function AdminClient() {
         <div className="flex items-center gap-3">
           <Link
             href="/kk"
-            className="text-xs font-bold text-slate-300 hover:text-white px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors hidden sm:inline-block"
+            className="text-xs font-bold text-slate-700 hover:text-[#00afca] px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-sky-50 border border-slate-200 hover:border-sky-200 transition-colors hidden sm:inline-block"
           >
             Сайтқа өту ↗
           </Link>
           <button
             onClick={handleLogout}
-            className="text-xs font-bold text-red-400 hover:text-red-300 px-3 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-950/80 border border-red-900/60 transition-colors"
+            className="text-xs font-bold text-rose-600 hover:text-rose-700 px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors"
           >
             Шығу
           </button>
@@ -693,15 +693,15 @@ export default function AdminClient() {
       {/* Main Container */}
       <div className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 space-y-6">
         {/* Navigation Tabs Bar */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-800 scrollbar-none">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-200 scrollbar-none">
           {hasFullAccess ? (
             <>
               <button
                 onClick={() => setActiveTab('overview')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   activeTab === 'overview'
-                    ? 'bg-[#0ea5e9] text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
                 }`}
               >
                 📊 Шолу (KPI)
@@ -710,8 +710,8 @@ export default function AdminClient() {
                 onClick={() => setActiveTab('ministers')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   activeTab === 'ministers'
-                    ? 'bg-[#0ea5e9] text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
                 }`}
               >
                 👥 Министрлер & Фракциялар ({members.length})
@@ -720,8 +720,8 @@ export default function AdminClient() {
                 onClick={() => setActiveTab('events')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   activeTab === 'events'
-                    ? 'bg-[#0ea5e9] text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
                 }`}
               >
                 📅 Барлық іс-шаралар ({events.length})
@@ -730,8 +730,8 @@ export default function AdminClient() {
                 onClick={() => setActiveTab('timeline')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   activeTab === 'timeline'
-                    ? 'bg-[#0ea5e9] text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
                 }`}
               >
                 🗺️ Жыл жоспары ({timeline.length})
@@ -740,8 +740,8 @@ export default function AdminClient() {
                 onClick={() => setActiveTab('polls')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   activeTab === 'polls'
-                    ? 'bg-[#0ea5e9] text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
                 }`}
               >
                 🗳️ Сауалнамалар ({polls.length})
@@ -750,8 +750,8 @@ export default function AdminClient() {
                 onClick={() => setActiveTab('suggestions')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   activeTab === 'suggestions'
-                    ? 'bg-[#0ea5e9] text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
                 }`}
               >
                 💡 Ұсыныстар ({suggestions.length})
@@ -760,8 +760,8 @@ export default function AdminClient() {
                 onClick={() => setActiveTab('appeals')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   activeTab === 'appeals'
-                    ? 'bg-[#0ea5e9] text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
                 }`}
               >
                 📨 Өтініштер ({appeals.length})
@@ -770,8 +770,8 @@ export default function AdminClient() {
                 onClick={() => setActiveTab('news')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   activeTab === 'news'
-                    ? 'bg-[#0ea5e9] text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
                 }`}
               >
                 📰 Жаңалықтар ({news.length})
@@ -780,8 +780,8 @@ export default function AdminClient() {
                 onClick={() => setActiveTab('stats')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   activeTab === 'stats'
-                    ? 'bg-[#0ea5e9] text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
                 }`}
               >
                 📈 Сандық көрсеткіштер
@@ -794,8 +794,8 @@ export default function AdminClient() {
                 onClick={() => setActiveTab('ministers')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   activeTab === 'ministers'
-                    ? 'bg-[#0ea5e9] text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
                 }`}
               >
                 🛡️ Менің фракциям & Көмекшілер
@@ -804,8 +804,8 @@ export default function AdminClient() {
                 onClick={() => setActiveTab('events')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   activeTab === 'events'
-                    ? 'bg-[#0ea5e9] text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
                 }`}
               >
                 📅 Фракция іс-шаралары ({events.length})
@@ -814,8 +814,8 @@ export default function AdminClient() {
                 onClick={() => setActiveTab('appeals')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   activeTab === 'appeals'
-                    ? 'bg-[#0ea5e9] text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
                 }`}
               >
                 📨 Бізге түскен өтініштер ({appeals.length})
@@ -824,8 +824,8 @@ export default function AdminClient() {
                 onClick={() => setActiveTab('news')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   activeTab === 'news'
-                    ? 'bg-[#0ea5e9] text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
                 }`}
               >
                 📰 Фракция жаңалықтары ({news.length})
@@ -840,71 +840,71 @@ export default function AdminClient() {
         {activeTab === 'overview' && hasFullAccess && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-5 rounded-2xl bg-[#0f192b] border border-slate-800 shadow-sm">
-                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                   Барлық фракциялар
                 </div>
-                <div className="text-3xl font-black text-white mt-1">7</div>
-                <div className="text-[11px] text-[#38bdf8] font-semibold mt-1">
+                <div className="text-3xl font-black text-slate-900 mt-1">7</div>
+                <div className="text-[11px] text-[#00afca] font-bold mt-1">
                   Барлық министрлер тағайындалған
                 </div>
               </div>
 
-              <div className="p-5 rounded-2xl bg-[#0f192b] border border-slate-800 shadow-sm">
-                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                   Жоспарланған іс-шаралар
                 </div>
-                <div className="text-3xl font-black text-white mt-1">{events.length}</div>
-                <div className="text-[11px] text-slate-400 font-semibold mt-1">
+                <div className="text-3xl font-black text-slate-900 mt-1">{events.length}</div>
+                <div className="text-[11px] text-slate-500 font-semibold mt-1">
                   Тіркелген оқушылар саны
                 </div>
               </div>
 
-              <div className="p-5 rounded-2xl bg-[#0f192b] border border-slate-800 shadow-sm">
-                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                   Кері байланыс / Өтініштер
                 </div>
-                <div className="text-3xl font-black text-white mt-1">{appeals.length}</div>
-                <div className="text-[11px] text-emerald-400 font-semibold mt-1">
+                <div className="text-3xl font-black text-slate-900 mt-1">{appeals.length}</div>
+                <div className="text-[11px] text-emerald-600 font-bold mt-1">
                   {appeals.filter((a) => a.status === 'new').length} жаңа өтініш
                 </div>
               </div>
 
-              <div className="p-5 rounded-2xl bg-[#0f192b] border border-slate-800 shadow-sm">
-                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                   Оқушылар ұсыныстары
                 </div>
-                <div className="text-3xl font-black text-white mt-1">{suggestions.length}</div>
-                <div className="text-[11px] text-amber-400 font-semibold mt-1">
+                <div className="text-3xl font-black text-slate-900 mt-1">{suggestions.length}</div>
+                <div className="text-[11px] text-amber-600 font-bold mt-1">
                   Модерацияны күтуде
                 </div>
               </div>
             </div>
 
             {/* Quick Actions */}
-            <div className="p-6 rounded-2xl bg-[#0e1726] border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h3 className="font-extrabold text-base text-white">Жылдам әрекеттер</h3>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <h3 className="font-extrabold text-base text-slate-900">Жылдам әрекеттер</h3>
+                <p className="text-xs text-slate-500 mt-0.5">
                   Президент және Төралқа құралдары
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   onClick={() => setShowAddEvent(true)}
-                  className="px-4 py-2 rounded-xl bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-xs font-bold transition-all shadow-sm"
+                  className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold transition-all shadow-sm shadow-[#00afca]/25"
                 >
                   + Жаңа іс-шара
                 </button>
                 <button
                   onClick={() => setShowAddPoll(true)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold border border-slate-700 transition-all"
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-all"
                 >
                   + Жаңа сауалнама
                 </button>
                 <button
                   onClick={() => setShowAddNews(true)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold border border-slate-700 transition-all"
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-all"
                 >
                   + Жаңалық жариялау
                 </button>
@@ -921,10 +921,10 @@ export default function AdminClient() {
             {!hasFullAccess ? (
               // Individual Minister's Profile Card & Assistants Editor
               myMember && (
-                <div className="p-6 sm:p-8 rounded-3xl bg-[#0e1726] border border-slate-800 space-y-6">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+                <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 overflow-hidden shrink-0">
+                      <div className="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0">
                         {myMember.photo ? (
                           <img
                             src={myMember.photo}
@@ -938,19 +938,19 @@ export default function AdminClient() {
                         )}
                       </div>
                       <div>
-                        <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#0ea5e9]/20 text-[#38bdf8]">
+                        <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-sky-50 text-[#00afca] border border-sky-200">
                           {myMember.ministryNameKk}
                         </span>
-                        <h2 className="text-xl font-black text-white mt-1">
+                        <h2 className="text-xl font-black text-slate-900 mt-1">
                           {myMember.nameKk || 'Министр'}
                         </h2>
-                        <p className="text-xs text-slate-400">{myMember.roleKk}</p>
+                        <p className="text-xs text-slate-500 font-medium">{myMember.roleKk}</p>
                       </div>
                     </div>
 
                     <button
                       onClick={() => openEditMinister(myMember)}
-                      className="px-4 py-2 rounded-xl bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-xs font-bold transition-all shadow-sm"
+                      className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold transition-all shadow-sm shadow-[#00afca]/25"
                     >
                       ✏️ Профиль мен көмекшілерді өңдеу
                     </button>
@@ -958,28 +958,28 @@ export default function AdminClient() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <div className="text-xs uppercase font-bold text-slate-400">
+                      <div className="text-xs uppercase font-bold text-slate-500">
                         Фракция ұраны / Цитата
                       </div>
-                      <div className="p-3.5 rounded-xl bg-[#141f33] border border-slate-800 text-xs italic text-slate-200">
+                      <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs italic text-slate-700">
                         &ldquo;{myMember.quoteKk || 'Ұран енгізілмеген'}&rdquo;
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <div className="text-xs uppercase font-bold text-slate-400">
+                      <div className="text-xs uppercase font-bold text-slate-500">
                         Міндеттер мен қызметі
                       </div>
-                      <div className="p-3.5 rounded-xl bg-[#141f33] border border-slate-800 text-xs text-slate-300 leading-relaxed">
+                      <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 leading-relaxed">
                         {myMember.bioKk || 'Сипаттама жазылмаған'}
                       </div>
                     </div>
                   </div>
 
                   {/* Assistants List Preview */}
-                  <div className="space-y-3 pt-4 border-t border-slate-800">
+                  <div className="space-y-3 pt-4 border-t border-slate-200">
                     <div className="flex items-center justify-between">
-                      <div className="text-xs uppercase font-bold text-slate-400">
+                      <div className="text-xs uppercase font-bold text-slate-500">
                         Фракция көмекшілерінің құрамы
                       </div>
                       <span className="text-[11px] text-slate-500 font-semibold">
@@ -992,17 +992,17 @@ export default function AdminClient() {
                         {JSON.parse(myMember.assistants).map((ast: AssistantEntry, idx: number) => (
                           <div
                             key={idx}
-                            className="p-3 rounded-xl bg-[#141f33] border border-slate-800 text-xs flex items-center justify-between"
+                            className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs flex items-center justify-between"
                           >
-                            <span className="font-bold text-white">{ast.name}</span>
-                            <span className="text-[11px] text-[#38bdf8] font-semibold">
+                            <span className="font-bold text-slate-900">{ast.name}</span>
+                            <span className="text-[11px] text-[#00afca] font-bold">
                               {ast.grade}
                             </span>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="p-4 rounded-xl bg-[#141f33] border border-slate-800 text-xs text-slate-400 text-center">
+                      <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-500 text-center">
                         Көмекшілер тізімі әзірге бос. «Өңдеу» батырмасы арқылы қоса аласыз.
                       </div>
                     )}
@@ -1013,12 +1013,12 @@ export default function AdminClient() {
               // President Full Roster View
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-extrabold text-lg text-white">
+                  <h3 className="font-extrabold text-lg text-slate-900">
                     Парламент мүшелері мен министрлер тізімі
                   </h3>
                   <button
                     onClick={() => setShowAddMinister(true)}
-                    className="px-4 py-2 rounded-xl bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-xs font-bold transition-all"
+                    className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold transition-all shadow-sm shadow-[#00afca]/25"
                   >
                     + Жаңа мүше қосу
                   </button>
@@ -1028,18 +1028,18 @@ export default function AdminClient() {
                   {members.map((m) => (
                     <div
                       key={m.id}
-                      className="p-5 rounded-2xl bg-[#0e1726] border border-slate-800 flex flex-col justify-between space-y-4"
+                      className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md flex flex-col justify-between space-y-4 transition-shadow"
                     >
                       <div>
-                        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-800 text-[#38bdf8]">
+                        <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-sky-50 text-[#00afca] border border-sky-200">
                             login: {m.login}
                           </span>
-                          <span className="text-xs text-slate-400 font-semibold">{m.grade}</span>
+                          <span className="text-xs text-slate-500 font-semibold">{m.grade}</span>
                         </div>
 
                         <div className="flex items-center gap-3 mt-3">
-                          <div className="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 overflow-hidden shrink-0">
+                          <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0">
                             {m.photo ? (
                               <img src={m.photo} alt={m.nameKk} className="w-full h-full object-cover" />
                             ) : (
@@ -1049,27 +1049,27 @@ export default function AdminClient() {
                             )}
                           </div>
                           <div>
-                            <h4 className="font-bold text-sm text-white">{m.nameKk}</h4>
-                            <p className="text-xs text-slate-400 font-medium">{m.roleKk}</p>
+                            <h4 className="font-bold text-sm text-slate-900">{m.nameKk}</h4>
+                            <p className="text-xs text-slate-500 font-medium">{m.roleKk}</p>
                           </div>
                         </div>
 
-                        <p className="text-xs text-slate-400 line-clamp-2 mt-3 leading-relaxed">
+                        <p className="text-xs text-slate-600 line-clamp-2 mt-3 leading-relaxed">
                           {m.bioKk}
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-2 pt-3 border-t border-slate-800">
+                      <div className="flex items-center gap-2 pt-3 border-t border-slate-200">
                         <button
                           onClick={() => openEditMinister(m)}
-                          className="flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-colors"
+                          className="flex-1 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
                         >
                           Өңдеу
                         </button>
                         {m.login !== 'president' && (
                           <button
                             onClick={() => handleDeleteMinister(m.id)}
-                            className="px-2.5 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-950 text-red-400 text-xs font-bold transition-colors"
+                            className="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold border border-rose-200 transition-colors"
                           >
                             Өшіру
                           </button>
@@ -1090,23 +1090,23 @@ export default function AdminClient() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-extrabold text-lg text-white">
+                <h3 className="font-extrabold text-lg text-slate-900">
                   {hasFullAccess ? 'Барлық іс-шаралар кестесі' : 'Фракцияның іс-шаралары'}
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500">
                   Іс-шараларға тіркелген оқушыларды көру және CSV-ге жүктеу
                 </p>
               </div>
               <button
                 onClick={() => setShowAddEvent(true)}
-                className="px-4 py-2 rounded-xl bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-xs font-bold transition-all"
+                className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold transition-all shadow-sm shadow-[#00afca]/25"
               >
                 + Жаңа іс-шара
               </button>
             </div>
 
             {events.length === 0 ? (
-              <div className="p-8 rounded-2xl bg-[#0e1726] border border-slate-800 text-center text-slate-400 text-xs">
+              <div className="p-8 rounded-2xl bg-white border border-slate-200 text-center text-slate-500 text-xs">
                 Әзірге іс-шаралар жоқ. Жаңа іс-шара қосу үшін батырманы басыңыз.
               </div>
             ) : (
@@ -1116,44 +1116,44 @@ export default function AdminClient() {
                   return (
                     <div
                       key={ev.id}
-                      className="p-5 rounded-2xl bg-[#0e1726] border border-slate-800 flex flex-col justify-between space-y-4"
+                      className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md flex flex-col justify-between space-y-4 transition-shadow"
                     >
                       <div>
-                        <div className="flex items-center justify-between text-xs text-slate-400 pb-3 border-b border-slate-800">
-                          <span className="px-2 py-0.5 rounded-full bg-slate-800 text-[#38bdf8] font-bold text-[10px]">
+                        <div className="flex items-center justify-between text-xs text-slate-500 pb-3 border-b border-slate-200">
+                          <span className="px-2 py-0.5 rounded-full bg-sky-50 text-[#00afca] font-bold text-[10px] border border-sky-200">
                             {ev.category}
                           </span>
                           <span>{new Date(ev.date).toLocaleDateString('kk-KZ')}</span>
                         </div>
 
-                        <h4 className="font-bold text-base text-white mt-3 leading-snug">
+                        <h4 className="font-bold text-base text-slate-900 mt-3 leading-snug">
                           {ev.titleKk || ev.titleRu}
                         </h4>
-                        <p className="text-xs text-slate-400 mt-1 line-clamp-2">{ev.descKk}</p>
+                        <p className="text-xs text-slate-600 mt-1 line-clamp-2">{ev.descKk}</p>
 
-                        <div className="mt-3 p-3 rounded-xl bg-[#141f33] flex items-center justify-between text-xs">
-                          <span className="text-slate-400">Тіркелгендер:</span>
-                          <span className="font-bold text-white">
+                        <div className="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
+                          <span className="text-slate-500">Тіркелгендер:</span>
+                          <span className="font-bold text-[#00afca]">
                             {regCount} / {ev.maxSeats}
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 pt-3 border-t border-slate-800">
+                      <div className="flex items-center gap-2 pt-3 border-t border-slate-200">
                         {ev.registrations && ev.registrations.length > 0 && (
                           <button
                             onClick={() => {
                               setSelectedEventRegs(ev.registrations || []);
                               setSelectedEventTitle(ev.titleKk || ev.titleRu);
                             }}
-                            className="flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-[#38bdf8]"
+                            className="flex-1 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-xs font-bold text-[#00afca] border border-sky-200 transition-colors"
                           >
                             Тіркелгендер ({ev.registrations.length})
                           </button>
                         )}
                         <button
                           onClick={() => handleDeleteEvent(ev.id)}
-                          className="px-3 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-950 text-red-400 text-xs font-bold"
+                          className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold transition-colors"
                         >
                           Өшіру
                         </button>
@@ -1173,24 +1173,24 @@ export default function AdminClient() {
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h3 className="font-extrabold text-lg text-white">
+                <h3 className="font-extrabold text-lg text-slate-900">
                   {hasFullAccess ? 'Оқушылардан түскен барлық өтініштер' : 'Біздің фракцияға түскен өтініштер'}
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500">
                   Мәртебені ауыстыру: Жаңа → Қаралуда → Шешілді
                 </p>
               </div>
 
               {/* Status filter pills */}
-              <div className="flex items-center gap-1.5 bg-[#0e1726] p-1 rounded-xl border border-slate-800 text-xs">
+              <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shadow-sm text-xs">
                 {(['all', 'new', 'in_progress', 'resolved'] as const).map((st) => (
                   <button
                     key={st}
                     onClick={() => setAppealFilter(st)}
                     className={`px-3 py-1 rounded-lg font-bold capitalize transition-all ${
                       appealFilter === st
-                        ? 'bg-[#0ea5e9] text-white'
-                        : 'text-slate-400 hover:text-white'
+                        ? 'bg-[#00afca] text-white shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
                     {st === 'all' ? 'Барлығы' : st === 'new' ? 'Жаңа' : st === 'in_progress' ? 'Қаралуда' : 'Шешілді'}
@@ -1200,7 +1200,7 @@ export default function AdminClient() {
             </div>
 
             {filteredAppeals.length === 0 ? (
-              <div className="p-8 rounded-2xl bg-[#0e1726] border border-slate-800 text-center text-slate-400 text-xs">
+              <div className="p-8 rounded-2xl bg-white border border-slate-200 text-center text-slate-500 text-xs">
                 Бұл санатта өтініштер жоқ.
               </div>
             ) : (
@@ -1208,41 +1208,41 @@ export default function AdminClient() {
                 {filteredAppeals.map((a) => (
                   <div
                     key={a.id}
-                    className="p-5 rounded-2xl bg-[#0e1726] border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                    className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 transition-shadow"
                   >
                     <div className="space-y-1.5 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <span
                           className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                             a.status === 'new'
-                              ? 'bg-amber-950/60 text-amber-300 border border-amber-800'
+                              ? 'bg-amber-50 text-amber-700 border border-amber-200 font-bold'
                               : a.status === 'in_progress'
-                              ? 'bg-sky-950/60 text-sky-300 border border-sky-800'
-                              : 'bg-emerald-950/60 text-emerald-300 border border-emerald-800'
+                              ? 'bg-sky-50 text-sky-700 border border-sky-200 font-bold'
+                              : 'bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold'
                           }`}
                         >
                           {a.status === 'new' ? 'Жаңа' : a.status === 'in_progress' ? 'Қаралуда' : 'Шешілді'}
                         </span>
-                        <span className="text-xs font-bold text-white">
+                        <span className="text-xs font-bold text-slate-900">
                           {a.anonymous ? 'Анонимді оқушы' : `${a.name} (${a.grade})`}
                         </span>
                         <span className="text-[11px] text-slate-500">
                           {new Date(a.createdAt).toLocaleString('kk-KZ')}
                         </span>
                       </div>
-                      <p className="text-sm text-slate-200 leading-relaxed font-normal">{a.text}</p>
+                      <p className="text-sm text-slate-700 leading-relaxed font-normal">{a.text}</p>
                     </div>
 
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleAppealStatus(a.id, 'in_progress')}
-                        className="px-3 py-1.5 rounded-lg bg-sky-950/60 hover:bg-sky-900 border border-sky-800 text-sky-300 text-xs font-bold"
+                        className="px-3 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-700 text-xs font-bold transition-colors"
                       >
                         Қаралуда
                       </button>
                       <button
                         onClick={() => handleAppealStatus(a.id, 'resolved')}
-                        className="px-3 py-1.5 rounded-lg bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 text-xs font-bold"
+                        className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-bold transition-colors"
                       >
                         Шешілді ✓
                       </button>
@@ -1261,20 +1261,20 @@ export default function AdminClient() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-extrabold text-lg text-white">
+                <h3 className="font-extrabold text-lg text-slate-900">
                   {hasFullAccess ? 'Барлық жаңалықтар мақалалары' : 'Фракция жаңалықтары'}
                 </h3>
               </div>
               <button
                 onClick={() => setShowAddNews(true)}
-                className="px-4 py-2 rounded-xl bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-xs font-bold transition-all"
+                className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold transition-all shadow-sm shadow-[#00afca]/25"
               >
                 + Жаңалық жазу
               </button>
             </div>
 
             {news.length === 0 ? (
-              <div className="p-8 rounded-2xl bg-[#0e1726] border border-slate-800 text-center text-slate-400 text-xs">
+              <div className="p-8 rounded-2xl bg-white border border-slate-200 text-center text-slate-500 text-xs">
                 Әзірге жаңалықтар жарияланбаған.
               </div>
             ) : (
@@ -1282,27 +1282,27 @@ export default function AdminClient() {
                 {news.map((item) => (
                   <div
                     key={item.id}
-                    className="p-5 rounded-2xl bg-[#0e1726] border border-slate-800 flex flex-col justify-between space-y-3"
+                    className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md flex flex-col justify-between space-y-3 transition-shadow"
                   >
                     <div>
-                      <div className="flex items-center justify-between pb-2 text-xs text-slate-400 border-b border-slate-800">
-                        <span className="text-[#38bdf8] font-bold text-[10px] uppercase">
+                      <div className="flex items-center justify-between pb-2 text-xs text-slate-500 border-b border-slate-200">
+                        <span className="text-[#00afca] font-bold text-[10px] uppercase">
                           {item.ministry}
                         </span>
                         {item.createdAt && (
                           <span>{new Date(item.createdAt).toLocaleDateString('kk-KZ')}</span>
                         )}
                       </div>
-                      <h4 className="font-bold text-base text-white mt-2 leading-snug">
+                      <h4 className="font-bold text-base text-slate-900 mt-2 leading-snug">
                         {item.titleKk || item.titleRu}
                       </h4>
-                      <p className="text-xs text-slate-400 mt-1 line-clamp-3">{item.excerpt}</p>
+                      <p className="text-xs text-slate-600 mt-1 line-clamp-3">{item.excerpt}</p>
                     </div>
 
-                    <div className="pt-3 border-t border-slate-800 flex justify-end">
+                    <div className="pt-3 border-t border-slate-200 flex justify-end">
                       <button
                         onClick={() => handleDeleteNews(item.id)}
-                        className="px-3 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-950 text-red-400 text-xs font-bold"
+                        className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold transition-colors"
                       >
                         Өшіру
                       </button>
@@ -1320,10 +1320,10 @@ export default function AdminClient() {
         {activeTab === 'timeline' && hasFullAccess && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-extrabold text-lg text-white">Жылдық жоспар (Қыркүйек — Мамыр)</h3>
+              <h3 className="font-extrabold text-lg text-slate-900">Жылдық жоспар (Қыркүйек — Мамыр)</h3>
               <button
                 onClick={() => setShowAddTimeline(true)}
-                className="px-4 py-2 rounded-xl bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-xs font-bold transition-all"
+                className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold transition-all shadow-sm shadow-[#00afca]/25"
               >
                 + Жоспар тармағы
               </button>
@@ -1333,24 +1333,24 @@ export default function AdminClient() {
               {timeline.map((item) => (
                 <div
                   key={item.id}
-                  className="p-5 rounded-2xl bg-[#0e1726] border border-slate-800 flex flex-col justify-between space-y-3"
+                  className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md flex flex-col justify-between space-y-3 transition-shadow"
                 >
                   <div>
-                    <div className="flex items-center justify-between text-xs text-slate-400 pb-2 border-b border-slate-800 font-bold">
-                      <span className="text-[#38bdf8]">
+                    <div className="flex items-center justify-between text-xs text-slate-500 pb-2 border-b border-slate-200 font-bold">
+                      <span className="text-[#00afca]">
                         Ай: {item.month} / Жыл: {item.year}
                       </span>
                       <span>#{item.order}</span>
                     </div>
-                    <h4 className="font-bold text-base text-white mt-2">
+                    <h4 className="font-bold text-base text-slate-900 mt-2">
                       {item.titleKk || item.titleRu}
                     </h4>
-                    <p className="text-xs text-slate-400 mt-1">{item.descKk}</p>
+                    <p className="text-xs text-slate-600 mt-1">{item.descKk}</p>
                   </div>
-                  <div className="pt-2 border-t border-slate-800 flex justify-end">
+                  <div className="pt-2 border-t border-slate-200 flex justify-end">
                     <button
                       onClick={() => handleDeleteTimeline(item.id)}
-                      className="px-3 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-950 text-red-400 text-xs font-bold"
+                      className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold transition-colors"
                     >
                       Өшіру
                     </button>
@@ -1367,10 +1367,10 @@ export default function AdminClient() {
         {activeTab === 'polls' && hasFullAccess && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-extrabold text-lg text-white">Сауалнамалар мен дауыс беру</h3>
+              <h3 className="font-extrabold text-lg text-slate-900">Сауалнамалар мен дауыс беру</h3>
               <button
                 onClick={() => setShowAddPoll(true)}
-                className="px-4 py-2 rounded-xl bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-xs font-bold transition-all"
+                className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold transition-all shadow-sm shadow-[#00afca]/25"
               >
                 + Жаңа сауалнама
               </button>
@@ -1380,13 +1380,13 @@ export default function AdminClient() {
               {polls.map((poll) => (
                 <div
                   key={poll.id}
-                  className="p-5 rounded-2xl bg-[#0e1726] border border-slate-800 space-y-4"
+                  className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md space-y-4 transition-shadow"
                 >
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-                    <h4 className="font-bold text-base text-white">{poll.questionKk}</h4>
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                    <h4 className="font-bold text-base text-slate-900">{poll.questionKk}</h4>
                     <button
                       onClick={() => handleDeletePoll(poll.id)}
-                      className="text-xs text-red-400 hover:text-red-300 font-bold"
+                      className="text-xs text-rose-600 hover:text-rose-700 font-bold"
                     >
                       Өшіру
                     </button>
@@ -1398,10 +1398,10 @@ export default function AdminClient() {
                       return (
                         <div
                           key={opt.id}
-                          className="p-3 rounded-xl bg-[#141f33] border border-slate-800 flex items-center justify-between text-xs"
+                          className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs"
                         >
-                          <span className="font-semibold text-slate-200">{opt.textKk}</span>
-                          <span className="font-black text-[#38bdf8]">{v} дауыс</span>
+                          <span className="font-semibold text-slate-800">{opt.textKk}</span>
+                          <span className="font-black text-[#00afca]">{v} дауыс</span>
                         </div>
                       );
                     })}
@@ -1417,11 +1417,11 @@ export default function AdminClient() {
            =================================================================== */}
         {activeTab === 'suggestions' && hasFullAccess && (
           <div className="space-y-4">
-            <h3 className="font-extrabold text-lg text-white">
+            <h3 className="font-extrabold text-lg text-slate-900">
               Оқушылардың идеялары мен бастамалары
             </h3>
             {suggestions.length === 0 ? (
-              <div className="p-8 rounded-2xl bg-[#0e1726] border border-slate-800 text-center text-slate-400 text-xs">
+              <div className="p-8 rounded-2xl bg-white border border-slate-200 text-center text-slate-500 text-xs">
                 Әзірге жаңа ұсыныстар жоқ.
               </div>
             ) : (
@@ -1429,28 +1429,28 @@ export default function AdminClient() {
                 {suggestions.map((sg) => (
                   <div
                     key={sg.id}
-                    className="p-5 rounded-2xl bg-[#0e1726] border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                    className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 transition-shadow"
                   >
                     <div>
                       <div className="text-xs font-bold text-white">
                         {sg.author || 'Оқушы'} •{' '}
-                        <span className="text-[#38bdf8] uppercase text-[10px]">
+                        <span className="text-[#00afca] uppercase text-[10px] font-extrabold">
                           {sg.status || 'Жаңа'}
                         </span>
                       </div>
-                      <p className="text-sm text-slate-200 mt-1">{sg.text}</p>
+                      <p className="text-sm text-slate-700 mt-1">{sg.text}</p>
                     </div>
 
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleSuggestionStatus(sg.id, 'approved')}
-                        className="px-3 py-1.5 rounded-lg bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 text-xs font-bold"
+                        className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-bold transition-colors"
                       >
                         Мақұлдау ✓
                       </button>
                       <button
                         onClick={() => handleSuggestionStatus(sg.id, 'rejected')}
-                        className="px-3 py-1.5 rounded-lg bg-red-950/60 hover:bg-red-900 border border-red-800 text-red-300 text-xs font-bold"
+                        className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 text-xs font-bold transition-colors"
                       >
                         Қабылдамау ✕
                       </button>
@@ -1467,18 +1467,18 @@ export default function AdminClient() {
            =================================================================== */}
         {activeTab === 'stats' && hasFullAccess && (
           <div className="space-y-4">
-            <h3 className="font-extrabold text-lg text-white">Сайттағы сандық көрсеткіштер</h3>
+            <h3 className="font-extrabold text-lg text-slate-900">Сайттағы сандық көрсеткіштер</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {stats.map((st) => (
-                <div key={st.id} className="p-5 rounded-2xl bg-[#0e1726] border border-slate-800 space-y-2">
-                  <div className="text-xs font-bold text-slate-400">{st.labelKk}</div>
+                <div key={st.id} className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2">
+                  <div className="text-xs font-bold text-slate-600">{st.labelKk}</div>
                   <input
                     type="number"
                     defaultValue={st.value}
                     onBlur={(e) => handleStatUpdate(st.key, Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white font-black text-xl"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] font-black text-xl"
                   />
-                  <div className="text-[10px] text-slate-500 font-semibold">
+                  <div className="text-[10px] text-slate-400 font-semibold">
                     Өзгерту үшін санды енгізіп, сыртына басыңыз
                   </div>
                 </div>
@@ -1493,20 +1493,20 @@ export default function AdminClient() {
          ===================================================================== */}
       {editingMinister && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm"
           onClick={() => setEditingMinister(null)}
         >
           <div
-            className="bg-[#0e1726] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto text-slate-100"
+            className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto text-slate-800"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-              <h3 className="font-black text-lg text-white">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200">
+              <h3 className="font-black text-lg text-slate-900">
                 Профильді өңдеу: {editingMinister.nameKk} ({editingMinister.roleKk})
               </h3>
               <button
                 onClick={() => setEditingMinister(null)}
-                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400"
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600"
               >
                 ✕
               </button>
@@ -1515,7 +1515,7 @@ export default function AdminClient() {
             <form onSubmit={handleSaveMinister} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
                     Аты-жөні (Қазақша)
                   </label>
                   <input
@@ -1524,12 +1524,12 @@ export default function AdminClient() {
                     onChange={(e) =>
                       setEditingMinister({ ...editingMinister, nameKk: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs font-bold"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs font-bold"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
                     Сыныбы (Grade)
                   </label>
                   <input
@@ -1538,13 +1538,13 @@ export default function AdminClient() {
                     onChange={(e) =>
                       setEditingMinister({ ...editingMinister, grade: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs font-bold"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs font-bold"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-slate-700 mb-1">
                   Фото URL сілтемесі
                 </label>
                 <input
@@ -1554,12 +1554,12 @@ export default function AdminClient() {
                     setEditingMinister({ ...editingMinister, photo: e.target.value })
                   }
                   placeholder="https://... немесе /members/photo.jpg"
-                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-slate-700 mb-1">
                   Цитата / Ұраны (Қазақша)
                 </label>
                 <input
@@ -1568,12 +1568,12 @@ export default function AdminClient() {
                   onChange={(e) =>
                     setEditingMinister({ ...editingMinister, quoteKk: e.target.value })
                   }
-                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-slate-700 mb-1">
                   Сипаттамасы / Бағыты (Қазақша)
                 </label>
                 <textarea
@@ -1582,14 +1582,14 @@ export default function AdminClient() {
                   onChange={(e) =>
                     setEditingMinister({ ...editingMinister, bioKk: e.target.value })
                   }
-                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                 />
               </div>
 
               {/* Password update if full access */}
               {hasFullAccess && (
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
                     Пароль (Кіру құпиясөзі)
                   </label>
                   <input
@@ -1598,21 +1598,21 @@ export default function AdminClient() {
                     onChange={(e) =>
                       setEditingMinister({ ...editingMinister, password: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs font-mono"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs font-mono"
                   />
                 </div>
               )}
 
               {/* Assistants Editor */}
-              <div className="space-y-3 pt-3 border-t border-slate-800">
+              <div className="space-y-3 pt-3 border-t border-slate-200">
                 <div className="flex items-center justify-between">
-                  <div className="text-xs font-bold text-white">Фракция көмекшілерін басқару</div>
+                  <div className="text-xs font-bold text-slate-900">Фракция көмекшілерін басқару</div>
                   <button
                     type="button"
                     onClick={() =>
                       setEditingAssistants([...editingAssistants, { name: '', grade: '10А' }])
                     }
-                    className="px-3 py-1 rounded-lg bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-xs font-bold"
+                    className="px-3 py-1 rounded-lg bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all"
                   >
                     + Көмекші қосу
                   </button>
@@ -1630,7 +1630,7 @@ export default function AdminClient() {
                           updated[idx].name = e.target.value;
                           setEditingAssistants(updated);
                         }}
-                        className="flex-1 px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                        className="flex-1 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                       />
                       <input
                         type="text"
@@ -1641,14 +1641,14 @@ export default function AdminClient() {
                           updated[idx].grade = e.target.value;
                           setEditingAssistants(updated);
                         }}
-                        className="w-24 px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                        className="w-24 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                       />
                       <button
                         type="button"
                         onClick={() =>
                           setEditingAssistants(editingAssistants.filter((_, i) => i !== idx))
                         }
-                        className="px-3 py-2 rounded-xl bg-red-950/60 hover:bg-red-950 text-red-400 text-xs font-bold"
+                        className="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold"
                       >
                         ✕
                       </button>
@@ -1658,22 +1658,22 @@ export default function AdminClient() {
               </div>
 
               {saveMessage && (
-                <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-800 text-emerald-300 text-xs font-bold text-center">
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold text-xs font-bold text-center">
                   {saveMessage}
                 </div>
               )}
 
-              <div className="pt-4 flex items-center justify-end gap-2 border-t border-slate-800">
+              <div className="pt-4 flex items-center justify-end gap-2 border-t border-slate-200">
                 <button
                   type="button"
                   onClick={() => setEditingMinister(null)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
                 >
                   Болдырмау
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-xs font-bold shadow-md"
+                  className="px-5 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-md shadow-[#00afca]/25 transition-all"
                 >
                   Сақтау ✓
                 </button>
@@ -1688,45 +1688,45 @@ export default function AdminClient() {
          ===================================================================== */}
       {showAddEvent && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm"
           onClick={() => setShowAddEvent(false)}
         >
           <div
-            className="bg-[#0e1726] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 text-slate-100 max-h-[90vh] overflow-y-auto"
+            className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 text-slate-800 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="font-bold text-lg text-white">Жаңа іс-шара қосу</h3>
+            <h3 className="font-bold text-lg text-slate-900">Жаңа іс-шара қосу</h3>
             <form onSubmit={handleCreateEvent} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Сілтеме (Slug)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Сілтеме (Slug)</label>
                 <input
                   type="text"
                   required
                   placeholder="chess-tournament"
                   value={eventForm.slug}
                   onChange={(e) => setEventForm({ ...eventForm, slug: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Атауы (Қазақша)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Атауы (Қазақша)</label>
                 <input
                   type="text"
                   required
                   value={eventForm.titleKk}
                   onChange={(e) => setEventForm({ ...eventForm, titleKk: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Санаты</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Санаты</label>
                   <select
                     value={eventForm.category}
                     onChange={(e) => setEventForm({ ...eventForm, category: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                   >
                     <option value="Учёба">Білім</option>
                     <option value="Культура">Мәдениет</option>
@@ -1735,49 +1735,49 @@ export default function AdminClient() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Орын саны</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Орын саны</label>
                   <input
                     type="number"
                     value={eventForm.maxSeats}
                     onChange={(e) =>
                       setEventForm({ ...eventForm, maxSeats: Number(e.target.value) })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Уақыты мен күні</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Уақыты мен күні</label>
                   <input
                     type="datetime-local"
                     required
                     value={eventForm.date}
                     onChange={(e) => setEventForm({ ...eventForm, date: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Өтетін орны</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Өтетін орны</label>
                   <input
                     type="text"
                     required
                     placeholder="Акт залы"
                     value={eventForm.location}
                     onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Сипаттамасы</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Сипаттамасы</label>
                 <textarea
                   rows={2}
                   value={eventForm.descKk}
                   onChange={(e) => setEventForm({ ...eventForm, descKk: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                 />
               </div>
 
@@ -1785,13 +1785,13 @@ export default function AdminClient() {
                 <button
                   type="button"
                   onClick={() => setShowAddEvent(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
                 >
                   Болдырмау
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-[#0ea5e9] text-white text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all"
                 >
                   Қосу ✓
                 </button>
@@ -1806,16 +1806,16 @@ export default function AdminClient() {
          ===================================================================== */}
       {selectedEventRegs && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm"
           onClick={() => setSelectedEventRegs(null)}
         >
           <div
-            className="bg-[#0e1726] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl space-y-4 text-slate-100 max-h-[85vh] overflow-y-auto"
+            className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl space-y-4 text-slate-800 max-h-[85vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <div>
-                <h3 className="font-bold text-base text-white">Тіркелген оқушылар тізімі</h3>
+                <h3 className="font-bold text-base text-slate-900">Тіркелген оқушылар тізімі</h3>
                 <p className="text-xs text-slate-400">{selectedEventTitle}</p>
               </div>
               <button
@@ -1835,14 +1835,14 @@ export default function AdminClient() {
                 {selectedEventRegs.map((r, i) => (
                   <div
                     key={i}
-                    className="p-3 rounded-xl bg-[#141f33] border border-slate-800 flex items-center justify-between text-xs"
+                    className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs"
                   >
                     <div>
-                      <span className="font-bold text-white">{r.name}</span>
-                      <span className="ml-2 px-2 py-0.5 rounded-full bg-slate-800 text-[#38bdf8] font-bold text-[10px]">
+                      <span className="font-bold text-slate-900">{r.name}</span>
+                      <span className="ml-2 px-2 py-0.5 rounded-full bg-sky-50 text-[#00afca] border border-sky-200 font-bold text-[10px]">
                         {r.grade}
                       </span>
-                      {r.phone && <span className="ml-2 text-slate-400">тел: {r.phone}</span>}
+                      {r.phone && <span className="ml-2 text-slate-500">тел: {r.phone}</span>}
                     </div>
                     <span className="text-[11px] text-slate-500">
                       {new Date(r.createdAt).toLocaleDateString('kk-KZ')}
@@ -1855,7 +1855,7 @@ export default function AdminClient() {
             <div className="pt-2 flex justify-end">
               <button
                 onClick={() => setSelectedEventRegs(null)}
-                className="px-4 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold"
+                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
               >
                 Жабу
               </button>
@@ -1869,57 +1869,57 @@ export default function AdminClient() {
          ===================================================================== */}
       {showAddNews && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm"
           onClick={() => setShowAddNews(false)}
         >
           <div
-            className="bg-[#0e1726] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 text-slate-100 max-h-[90vh] overflow-y-auto"
+            className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 text-slate-800 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="font-bold text-lg text-white">Жаңалық мақаласын жариялау</h3>
+            <h3 className="font-bold text-lg text-slate-900">Жаңалық мақаласын жариялау</h3>
             <form onSubmit={handleCreateNews} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Сілтеме (Slug)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Сілтеме (Slug)</label>
                 <input
                   type="text"
                   required
                   placeholder="autumn-forum-results"
                   value={newsForm.slug}
                   onChange={(e) => setNewsForm({ ...newsForm, slug: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Тақырыбы (Қазақша)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Тақырыбы (Қазақша)</label>
                 <input
                   type="text"
                   required
                   value={newsForm.titleKk}
                   onChange={(e) => setNewsForm({ ...newsForm, titleKk: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Қысқаша аңдатпа (Excerpt)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Қысқаша аңдатпа (Excerpt)</label>
                 <input
                   type="text"
                   required
                   value={newsForm.excerpt}
                   onChange={(e) => setNewsForm({ ...newsForm, excerpt: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Мақала мәтіні</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Мақала мәтіні</label>
                 <textarea
                   rows={4}
                   required
                   value={newsForm.contentKk}
                   onChange={(e) => setNewsForm({ ...newsForm, contentKk: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                 />
               </div>
 
@@ -1927,13 +1927,13 @@ export default function AdminClient() {
                 <button
                   type="button"
                   onClick={() => setShowAddNews(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
                 >
                   Болдырмау
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-[#0ea5e9] text-white text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all"
                 >
                   Жариялау ✓
                 </button>
@@ -1948,17 +1948,17 @@ export default function AdminClient() {
          ===================================================================== */}
       {showAddPoll && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm"
           onClick={() => setShowAddPoll(false)}
         >
           <div
-            className="bg-[#0e1726] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 text-slate-100 max-h-[90vh] overflow-y-auto"
+            className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 text-slate-800 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="font-bold text-lg text-white">Жаңа сауалнама ашу</h3>
+            <h3 className="font-bold text-lg text-slate-900">Жаңа сауалнама ашу</h3>
             <form onSubmit={handleCreatePoll} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-slate-700 mb-1">
                   Сауалнама сұрағы (Қазақша)
                 </label>
                 <input
@@ -1966,12 +1966,12 @@ export default function AdminClient() {
                   required
                   value={pollForm.questionKk}
                   onChange={(e) => setPollForm({ ...pollForm, questionKk: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-slate-700 mb-1">
                   1-нұсқа (Қазақша)
                 </label>
                 <input
@@ -1979,12 +1979,12 @@ export default function AdminClient() {
                   required
                   value={pollForm.option1Kk}
                   onChange={(e) => setPollForm({ ...pollForm, option1Kk: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-slate-700 mb-1">
                   2-нұсқа (Қазақша)
                 </label>
                 <input
@@ -1992,19 +1992,19 @@ export default function AdminClient() {
                   required
                   value={pollForm.option2Kk}
                   onChange={(e) => setPollForm({ ...pollForm, option2Kk: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-slate-700 mb-1">
                   3-нұсқа (міндетті емес)
                 </label>
                 <input
                   type="text"
                   value={pollForm.option3Kk}
                   onChange={(e) => setPollForm({ ...pollForm, option3Kk: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                 />
               </div>
 
@@ -2012,13 +2012,13 @@ export default function AdminClient() {
                 <button
                   type="button"
                   onClick={() => setShowAddPoll(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
                 >
                   Болдырмау
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-[#0ea5e9] text-white text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all"
                 >
                   Ашу ✓
                 </button>
@@ -2033,29 +2033,29 @@ export default function AdminClient() {
          ===================================================================== */}
       {showAddTimeline && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm"
           onClick={() => setShowAddTimeline(false)}
         >
           <div
-            className="bg-[#0e1726] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 text-slate-100 max-h-[90vh] overflow-y-auto"
+            className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 text-slate-800 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="font-bold text-lg text-white">Жыл жоспарына тармақ қосу</h3>
+            <h3 className="font-bold text-lg text-slate-900">Жыл жоспарына тармақ қосу</h3>
             <form onSubmit={handleCreateTimeline} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Атауы (Қазақша)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Атауы (Қазақша)</label>
                 <input
                   type="text"
                   required
                   value={timelineForm.titleKk}
                   onChange={(e) => setTimelineForm({ ...timelineForm, titleKk: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Ай нөмірі (1-12)</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Ай нөмірі (1-12)</label>
                   <input
                     type="number"
                     min={1}
@@ -2064,29 +2064,29 @@ export default function AdminClient() {
                     onChange={(e) =>
                       setTimelineForm({ ...timelineForm, month: Number(e.target.value) })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Жыл</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Жыл</label>
                   <input
                     type="number"
                     value={timelineForm.year}
                     onChange={(e) =>
                       setTimelineForm({ ...timelineForm, year: Number(e.target.value) })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Сипаттамасы</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Сипаттамасы</label>
                 <textarea
                   rows={2}
                   value={timelineForm.descKk}
                   onChange={(e) => setTimelineForm({ ...timelineForm, descKk: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                 />
               </div>
 
@@ -2094,13 +2094,13 @@ export default function AdminClient() {
                 <button
                   type="button"
                   onClick={() => setShowAddTimeline(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
                 >
                   Болдырмау
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-[#0ea5e9] text-white text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all"
                 >
                   Қосу ✓
                 </button>
