@@ -1,7 +1,5 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import EventDetailClient from './EventDetailClient';
 import type { Metadata } from 'next';
 
@@ -48,9 +46,7 @@ export default async function EventPage({
   if (!event) notFound();
 
   return (
-    <main className="relative min-h-screen bg-[#ffffff] text-[#00afca] overflow-x-hidden">
-      <Header locale={locale} />
-
+    <div className="py-8 sm:py-12">
       <EventDetailClient
         locale={locale}
         event={{
@@ -71,8 +67,6 @@ export default async function EventPage({
           registrationsCount: event._count.registrations,
         }}
       />
-
-      <Footer locale={locale} />
-    </main>
+    </div>
   );
 }

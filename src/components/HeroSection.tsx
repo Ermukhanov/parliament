@@ -68,27 +68,27 @@ export default function HeroSection({ locale, nextEvent }: HeroSectionProps) {
   ];
 
   const filterTags = [
-    { labelKk: 'Барлық 7 фракция', labelEn: 'All 7 Factions', href: '#team' },
-    { labelKk: 'IT & Цифрландыру', labelEn: 'IT & Digital', href: '#team' },
-    { labelKk: 'Мәдениет & Өнер', labelEn: 'Culture & Arts', href: '#team' },
-    { labelKk: 'Спорт', labelEn: 'Sports', href: '#team' },
-    { labelKk: 'Еріктілер & Қайырымдылық', labelEn: 'Volunteering', href: '#team' },
-    { labelKk: 'Құқық & Тәртіп', labelEn: 'Law & Order', href: '#team' },
-    { labelKk: 'Медиа', labelEn: 'Media', href: '#team' },
-    { labelKk: 'Білім', labelEn: 'Education', href: '#team' },
+    { labelKk: 'Барлық 7 фракция', labelEn: 'All 7 Factions', href: `/${locale}/team` },
+    { labelKk: 'IT & Цифрландыру', labelEn: 'IT & Digital', href: `/${locale}/team` },
+    { labelKk: 'Мәдениет & Өнер', labelEn: 'Culture & Arts', href: `/${locale}/team` },
+    { labelKk: 'Спорт', labelEn: 'Sports', href: `/${locale}/team` },
+    { labelKk: 'Еріктілер & Қайырымдылық', labelEn: 'Volunteering', href: `/${locale}/team` },
+    { labelKk: 'Құқық & Тәртіп', labelEn: 'Law & Order', href: `/${locale}/team` },
+    { labelKk: 'Медиа', labelEn: 'Media', href: `/${locale}/team` },
+    { labelKk: 'Білім', labelEn: 'Education', href: `/${locale}/team` },
   ];
 
   return (
-    <section className="relative pt-36 pb-16 bg-[#ffffff] overflow-hidden">
+    <section className="relative pt-24 sm:pt-28 pb-16 bg-[#ffffff] overflow-hidden">
       {/* Floating Decorative Badges on Large Screens */}
-      <div className="hidden lg:flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white/90 border border-slate-200/80 shadow-lg absolute top-44 left-[6%] xl:left-[10%] animate-float-slow pointer-events-none z-10">
+      <div className="hidden lg:flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white/90 border border-slate-200/80 shadow-lg absolute top-36 left-[6%] xl:left-[10%] animate-float-slow pointer-events-none z-10">
         <span className="w-2.5 h-2.5 rounded-full bg-[#00afca] animate-pulse-ring" />
         <span className="text-xs font-extrabold text-slate-800 tracking-tight">
           {locale === 'en' ? '7 Active Factions' : '7 Белсенді Фракция'}
         </span>
       </div>
 
-      <div className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-900 text-white shadow-xl absolute top-64 right-[6%] xl:right-[10%] animate-float-reverse pointer-events-none z-10">
+      <div className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-900 text-white shadow-xl absolute top-56 right-[6%] xl:right-[10%] animate-float-reverse pointer-events-none z-10">
         <span className="text-[#00afca] text-sm">👑</span>
         <span className="text-xs font-bold tracking-tight">
           AQL Council • 2025–2026
@@ -142,6 +142,31 @@ export default function HeroSection({ locale, nextEvent }: HeroSectionProps) {
             : 'Президент, вице-президент және 7 негізгі фракция: мектеп өмірін бірлесе дамытып, оқушылардың идеяларын жүзеге асыратын цифрлық кеңістік.'}
         </p>
 
+        {/* Action Buttons to Dedicated Pages */}
+        <div className="flex flex-wrap items-center justify-center gap-3.5 mb-10 animate-entrance-delay-2">
+          <Link
+            href={`/${locale}/events`}
+            prefetch
+            className="px-6 py-3 rounded-full bg-[#00afca] text-white font-bold text-sm hover:bg-[#0099b0] transition-all shadow-[0_4px_20px_rgba(0,175,202,0.35)] hover:-translate-y-0.5 active:scale-95"
+          >
+            {locale === 'en' ? 'Upcoming Events →' : 'Іс-шаралар афишасы →'}
+          </Link>
+          <Link
+            href={`/${locale}/vote`}
+            prefetch
+            className="px-6 py-3 rounded-full bg-[#0f172a] text-white font-bold text-sm hover:bg-slate-800 transition-all shadow-md hover:-translate-y-0.5 active:scale-95"
+          >
+            {locale === 'en' ? 'Student Voting' : 'Ашық дауыс беру'}
+          </Link>
+          <Link
+            href={`/${locale}/appeals`}
+            prefetch
+            className="px-6 py-3 rounded-full bg-slate-100 text-slate-700 font-bold text-sm hover:bg-slate-200 transition-all hover:-translate-y-0.5 active:scale-95"
+          >
+            {locale === 'en' ? 'Submit Inquiry' : 'Өтініш жолдау'}
+          </Link>
+        </div>
+
         {/* Search / Subscribe Input Bar Pill */}
         <div className="max-w-xl mx-auto mb-10 animate-entrance-delay-2">
           {subscribed ? (
@@ -167,17 +192,18 @@ export default function HeroSection({ locale, nextEvent }: HeroSectionProps) {
           )}
         </div>
 
-        {/* Horizontal Category Pill Filter Bar */}
+        {/* Horizontal Category Pill Filter Bar Linking to Team */}
         <div className="flex flex-wrap items-center justify-center gap-2 mb-12 animate-entrance-delay-3">
           {filterTags.map((tag, i) => (
-            <a
+            <Link
               key={i}
               href={tag.href}
+              prefetch
               style={{ animationDelay: `${300 + i * 55}ms` }}
               className="animate-entrance px-4 py-2 rounded-full text-xs sm:text-[13px] font-semibold bg-[#f1f5f9] text-slate-600 hover:bg-[#00afca] hover:text-white hover:-translate-y-1 hover:shadow-md active:scale-95 transition-all duration-200"
             >
               {locale === 'en' ? tag.labelEn : tag.labelKk}
-            </a>
+            </Link>
           ))}
         </div>
 
@@ -192,6 +218,7 @@ export default function HeroSection({ locale, nextEvent }: HeroSectionProps) {
             </div>
             <Link
               href={`/${locale}/events/${nextEvent.slug}`}
+              prefetch
               className="inline-block font-extrabold text-xl text-[#0f172a] hover:text-[#00afca] transition-colors mb-4"
             >
               {nextEvent.titleKk || nextEvent.titleRu}

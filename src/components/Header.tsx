@@ -29,20 +29,28 @@ export default function Header({ locale }: HeaderProps) {
   };
 
   const navLinks = [
-    { href: '#team', labelKk: 'Фракциялар', labelEn: 'Factions' },
-    { href: '#events', labelKk: 'Іс-шаралар', labelEn: 'Events' },
-    { href: '#timeline', labelKk: 'Жыл жоспары', labelEn: 'Annual Plan' },
-    { href: '#voting', labelKk: 'Дауыс беру', labelEn: 'Voting' },
-    { href: '#appeals', labelKk: 'Өтініштер', labelEn: 'Inquiries' },
-    { href: '#news', labelKk: 'Медиа', labelEn: 'Media' },
+    { href: `/${locale}`, labelKk: 'Басты бет', labelEn: 'Home', exact: true },
+    { href: `/${locale}/team`, labelKk: 'Парламент', labelEn: 'Parliament' },
+    { href: `/${locale}/events`, labelKk: 'Іс-шаралар', labelEn: 'Events' },
+    { href: `/${locale}/plan`, labelKk: 'Жыл жоспары', labelEn: 'Plan' },
+    { href: `/${locale}/vote`, labelKk: 'Дауыс беру', labelEn: 'Voting' },
+    { href: `/${locale}/news`, labelKk: 'Жаңалықтар', labelEn: 'News' },
+    { href: `/${locale}/appeals`, labelKk: 'Өтініштер', labelEn: 'Inquiries' },
   ];
+
+  const isLinkActive = (href: string, exact?: boolean) => {
+    if (exact) {
+      return pathname === href || pathname === `/${locale}`;
+    }
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 px-3 sm:px-6 pt-3 pointer-events-none animate-nav-down">
       <div className="max-w-6xl mx-auto pointer-events-auto">
         <div className="bg-[#0b0f17]/95 text-white rounded-2xl sm:rounded-full px-4 sm:px-6 py-2.5 shadow-2xl flex items-center justify-between border border-white/10 backdrop-blur-md transition-all duration-300 hover:border-white/20">
           {/* Brand Logo with Rounded Pill Badge */}
-          <Link href={`/${locale}`} className="flex items-center gap-3 group">
+          <Link href={`/${locale}`} prefetch className="flex items-center gap-3 group">
             <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center p-1.5 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 group-hover:border-[#00afca]/50">
               <SchoolLogo className="w-full h-full object-contain" variant="white-on-blue" priority />
             </div>
@@ -56,24 +64,33 @@ export default function Header({ locale }: HeaderProps) {
             </div>
           </Link>
 
-          {/* Nav links in center */}
-          <nav className="hidden md:flex items-center gap-6">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="nav-link-animated text-[13px] font-medium text-slate-300 hover:text-white transition-colors"
-              >
-                {locale === 'en' ? link.labelEn : link.labelKk}
-              </a>
-            ))}
+          {/* Desktop Nav links with Active Route Indicator */}
+          <nav className="hidden lg:flex items-center gap-1.5 xl:gap-2">
+            {navLinks.map((link) => {
+              const active = isLinkActive(link.href, link.exact);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  prefetch
+                  className={`text-[13px] font-semibold px-3 py-1.5 rounded-full transition-all duration-200 ${
+                    active
+                      ? 'bg-[#00afca] text-white shadow-[0_0_12px_rgba(0,175,202,0.5)]'
+                      : 'text-slate-300 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  {locale === 'en' ? link.labelEn : link.labelKk}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Right Action Buttons */}
           <div className="hidden sm:flex items-center gap-3">
             {/* Minimal Language Switcher: KK / EN */}
-            <div className="flex items-center bg-white/10 rounded-full p-0.5 text-[11px] font-semibold text-slate-300">
+            <div className="flex items-center bg-white/10 rounded-full p-0.5 text-[11px] font-semibold text-slate-300 border border-white/10">
               <button
+                type="button"
                 onClick={() => switchLocale('kk')}
                 className={`px-2.5 py-0.5 rounded-full transition-all ${
                   locale === 'kk' ? 'bg-[#00afca] text-white' : 'hover:text-white'
@@ -82,6 +99,7 @@ export default function Header({ locale }: HeaderProps) {
                 KK
               </button>
               <button
+                type="button"
                 onClick={() => switchLocale('en')}
                 className={`px-2.5 py-0.5 rounded-full transition-all ${
                   locale === 'en' ? 'bg-[#00afca] text-white' : 'hover:text-white'
@@ -91,29 +109,32 @@ export default function Header({ locale }: HeaderProps) {
               </button>
             </div>
 
-            {/* Public Action Button */}
-            <a
-              href="#appeals"
-              className="text-xs font-bold px-4 py-2 rounded-full bg-[#00afca] text-white hover:bg-[#0099b0] transition-all shadow-[0_0_15px_rgba(0,175,202,0.4)]"
+            {/* Direct Inquiry Route */}
+            <Link
+              href={`/${locale}/appeals`}
+              prefetch
+              className="text-xs font-bold px-4 py-2 rounded-full bg-[#00afca] text-white hover:bg-[#0099b0] transition-all shadow-[0_0_15px_rgba(0,175,202,0.4)] active:scale-95"
             >
               {locale === 'en' ? 'Submit Inquiry' : 'Өтініш жазу'}
-            </a>
+            </Link>
           </div>
 
-          {/* Mobile hamburger */}
-          <div className="flex sm:hidden items-center gap-2">
+          {/* Mobile menu controls */}
+          <div className="flex lg:hidden items-center gap-2">
             <button
+              type="button"
               onClick={() => switchLocale(locale === 'kk' ? 'en' : 'kk')}
               className="text-xs font-bold text-[#00afca] bg-white/10 rounded-full px-2.5 py-1"
             >
               {locale === 'kk' ? 'EN' : 'KK'}
             </button>
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-1.5 text-slate-300 hover:text-white focus:outline-none"
               aria-label="Toggle menu"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileMenuOpen ? (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 ) : (
@@ -126,25 +147,34 @@ export default function Header({ locale }: HeaderProps) {
 
         {/* Mobile dropdown */}
         {mobileMenuOpen && (
-          <div className="sm:hidden mt-2 bg-[#0b0f17] border border-white/10 rounded-2xl p-4 shadow-2xl space-y-2 text-white">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-2 text-sm font-medium text-slate-300 hover:text-white border-b border-white/5"
-              >
-                {locale === 'en' ? link.labelEn : link.labelKk}
-              </a>
-            ))}
-            <div className="pt-2">
-              <a
-                href="#appeals"
+          <div className="lg:hidden mt-2 bg-[#0b0f17]/98 border border-white/10 rounded-2xl p-4 shadow-2xl space-y-1 text-white backdrop-blur-xl">
+            {navLinks.map((link) => {
+              const active = isLinkActive(link.href, link.exact);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  prefetch
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`block px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                    active
+                      ? 'bg-[#00afca] text-white'
+                      : 'text-slate-300 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  {locale === 'en' ? link.labelEn : link.labelKk}
+                </Link>
+              );
+            })}
+            <div className="pt-2 border-t border-white/10 mt-2">
+              <Link
+                href={`/${locale}/appeals`}
+                prefetch
                 onClick={() => setMobileMenuOpen(false)}
                 className="block text-center text-xs font-bold py-2.5 rounded-xl bg-[#00afca] text-white"
               >
                 {locale === 'en' ? 'Submit Inquiry' : 'Өтініш жазу'}
-              </a>
+              </Link>
             </div>
           </div>
         )}
