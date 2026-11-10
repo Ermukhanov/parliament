@@ -166,7 +166,7 @@ export default function Header({ locale }: HeaderProps) {
                 </Link>
               );
             })}
-            <div className="pt-2 border-t border-white/10 mt-2">
+            <div className="pt-2 border-t border-white/10 mt-2 flex flex-col gap-2">
               <Link
                 href={`/${locale}/appeals`}
                 prefetch
@@ -174,6 +174,13 @@ export default function Header({ locale }: HeaderProps) {
                 className="block text-center text-xs font-bold py-2.5 rounded-xl bg-[#00afca] text-white"
               >
                 {locale === 'en' ? 'Submit Inquiry' : 'Өтініш жазу'}
+              </Link>
+              <Link
+                href="/admin"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-center text-xs font-semibold py-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all"
+              >
+                {locale === 'en' ? 'Admin Portal' : 'Басқару панелі'}
               </Link>
             </div>
           </div>

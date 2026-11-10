@@ -215,6 +215,17 @@ export default function Footer({ locale }: FooterProps) {
                   {locale === 'en' ? 'Open Voting' : 'Ашық дауыс беру'}
                 </Link>
               </div>
+              <div className="pt-2">
+                <Link
+                  href="/admin"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-[#00afca] border border-white/10 transition-colors text-xs font-semibold"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  <span>{locale === 'en' ? 'Admin Panel' : 'Басқару панелі'}</span>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -222,16 +233,21 @@ export default function Footer({ locale }: FooterProps) {
         {/* Minimalist Bottom Border Line */}
         <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-3">
           <div>
-            <Link href="/admin" className="cursor-default text-slate-400 hover:text-slate-300 transition-colors" aria-label="Copyright">
-              ©
-            </Link>{' '}
-            {new Date().getFullYear()} AQL Council •{' '}
+            © {new Date().getFullYear()} AQL Council •{' '}
             {locale === 'en' ? 'School President' : 'Мектеп Президенті'}
           </div>
-          <div className="text-[11px] text-slate-400 tracking-wider">
-            {locale === 'en'
-              ? 'Official Student Self-Government Portal'
-              : 'Оқушылардың өзін-өзі басқару ресми порталы'}
+          <div className="flex items-center gap-4">
+            <div className="text-[11px] text-slate-400 tracking-wider">
+              {locale === 'en'
+                ? 'Official Student Self-Government Portal'
+                : 'Оқушылардың өзін-өзі басқару ресми порталы'}
+            </div>
+            <Link
+              href="/admin"
+              className="hover:text-[#00afca] transition-colors text-[11px] font-medium text-slate-500 hover:underline"
+            >
+              {locale === 'en' ? 'Admin' : 'Басқару'}
+            </Link>
           </div>
         </div>
       </div>
