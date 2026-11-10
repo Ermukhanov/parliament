@@ -15,13 +15,17 @@ export default function Header({ locale }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const switchLocale = (newLocale: string) => {
-    const segments = pathname.split('/');
-    if (segments[1] === 'kk' || segments[1] === 'en') {
-      segments[1] = newLocale;
-      router.push(segments.join('/'));
-    } else {
-      router.push(`/${newLocale}${pathname}`);
+    if (typeof document !== 'undefined') {
+      document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
     }
+    const segments = pathname.split('/').filter(Boolean);
+    if (segments[0] === 'kk' || segments[0] === 'en') {
+      segments[0] = newLocale;
+    } else {
+      segments.unshift(newLocale);
+    }
+    const currentHash = typeof window !== 'undefined' ? window.location.hash : '';
+    router.push(`/${segments.join('/')}${currentHash}`);
   };
 
   const navLinks = [
