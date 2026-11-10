@@ -128,30 +128,29 @@ export default function Footer({ locale }: FooterProps) {
           <div className="md:col-span-5 space-y-7">
             <div>
               <h3 className="text-white text-base font-semibold tracking-wide mb-3 flex items-center gap-2">
-                <span>✦</span>
                 <span>{locale === 'en' ? '7 School Factions' : '7 Мектеп Фракциясы'}</span>
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-xs text-slate-300">
                 <Link href={`/${locale}/team`} prefetch className="hover:text-white transition-colors">
-                  💻 {locale === 'en' ? 'IT & Digital' : 'IT және цифрландыру'}
+                  {locale === 'en' ? 'IT & Digital' : 'IT және цифрландыру'}
                 </Link>
                 <Link href={`/${locale}/team`} prefetch className="hover:text-white transition-colors">
-                  🎭 {locale === 'en' ? 'Culture & Arts' : 'Мәдениет және өнер'}
+                  {locale === 'en' ? 'Culture & Arts' : 'Мәдениет және өнер'}
                 </Link>
                 <Link href={`/${locale}/team`} prefetch className="hover:text-white transition-colors">
-                  ⚽ {locale === 'en' ? 'Sports Faction' : 'Спорт фракциясы'}
+                  {locale === 'en' ? 'Sports Faction' : 'Спорт фракциясы'}
                 </Link>
                 <Link href={`/${locale}/team`} prefetch className="hover:text-white transition-colors">
-                  🤝 {locale === 'en' ? 'Volunteering & Charity' : 'Еріктілер & қайырымдылық'}
+                  {locale === 'en' ? 'Volunteering & Charity' : 'Еріктілер & қайырымдылық'}
                 </Link>
                 <Link href={`/${locale}/team`} prefetch className="hover:text-white transition-colors">
-                  ⚖️ {locale === 'en' ? 'Law & Order' : 'Құқық және тәртіп'}
+                  {locale === 'en' ? 'Law & Order' : 'Құқық және тәртіп'}
                 </Link>
                 <Link href={`/${locale}/team`} prefetch className="hover:text-white transition-colors">
-                  📸 {locale === 'en' ? 'Media Faction' : 'Медиа фракциясы'}
+                  {locale === 'en' ? 'Media Faction' : 'Медиа фракциясы'}
                 </Link>
                 <Link href={`/${locale}/team`} prefetch className="hover:text-white transition-colors sm:col-span-2">
-                  📚 {locale === 'en' ? 'Education Faction' : 'Білім фракциясы'}
+                  {locale === 'en' ? 'Education Faction' : 'Білім фракциясы'}
                 </Link>
               </div>
             </div>
