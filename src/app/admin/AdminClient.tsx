@@ -5,7 +5,7 @@ import Link from 'next/link';
 import SchoolLogo from '@/components/SchoolLogo';
 
 type Tab =
-  | 'dashboard'
+  | 'overview'
   | 'ministers'
   | 'events'
   | 'timeline'
@@ -58,10 +58,12 @@ interface AdminEvent {
   descRu: string;
   descKk: string;
   category: string;
+  ministry?: string;
   date: string;
   location: string;
   maxSeats: number;
   registrations?: AdminRegistration[];
+  _count?: { registrations: number };
 }
 
 interface AdminTimelineItem {
@@ -70,6 +72,7 @@ interface AdminTimelineItem {
   titleKk: string;
   descRu: string;
   descKk: string;
+  ministry?: string;
   month: number;
   year: number;
   order: number;
@@ -81,6 +84,8 @@ interface AdminNews {
   titleRu: string;
   titleKk: string;
   excerpt: string;
+  ministry?: string;
+  createdAt?: string;
 }
 
 interface AdminPollOption {
@@ -88,12 +93,14 @@ interface AdminPollOption {
   textRu: string;
   textKk: string;
   _count?: { votes: number };
+  votesCount?: number;
 }
 
 interface AdminPoll {
   id: string;
   questionRu: string;
   questionKk: string;
+  active?: boolean;
   options?: AdminPollOption[];
 }
 
@@ -106,6 +113,7 @@ interface AdminAppeal {
   text: string;
   anonymous: boolean;
   status: string;
+  createdAt: string;
 }
 
 interface AdminSuggestion {
@@ -113,6 +121,7 @@ interface AdminSuggestion {
   author: string;
   text: string;
   status: string;
+  createdAt?: string;
 }
 
 interface AdminStat {
@@ -125,13 +134,21 @@ interface AdminStat {
 
 export default function AdminClient() {
   const [authenticated, setAuthenticated] = useState(false);
-  const [loginInput, setLoginInput] = useState('president');
-  const [password, setPassword] = useState('');
-  const [currentRoleLabel, setCurrentRoleLabel] = useState('Мектеп Президенті');
-  const [currentLogin, setCurrentLogin] = useState('president');
-  const [hasFullAccess, setHasFullAccess] = useState(true);
+  const [loadingInitial, setLoadingInitial] = useState(true);
+
+  // Login form state
+  const [loginInput, setLoginInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState<Tab>('ministers');
+  const [loginLoading, setLoginLoading] = useState(false);
+
+  // User state
+  const [currentLogin, setCurrentLogin] = useState('');
+  const [currentRoleLabel, setCurrentRoleLabel] = useState('');
+  const [currentMinistry, setCurrentMinistry] = useState('');
+  const [hasFullAccess, setHasFullAccess] = useState(false);
+  const [activeTab, setActiveTab] = useState<Tab>('overview');
 
   // Data states
   const [members, setMembers] = useState<MinisterItem[]>([]);
@@ -143,12 +160,11 @@ export default function AdminClient() {
   const [suggestions, setSuggestions] = useState<AdminSuggestion[]>([]);
   const [stats, setStats] = useState<AdminStat[]>([]);
 
-  // Editing minister modal state
+  // Modals & forms
   const [editingMinister, setEditingMinister] = useState<MinisterItem | null>(null);
   const [editingAssistants, setEditingAssistants] = useState<AssistantEntry[]>([]);
   const [saveMessage, setSaveMessage] = useState('');
 
-  // New minister form
   const [showAddMinister, setShowAddMinister] = useState(false);
   const [newMinister, setNewMinister] = useState({
     login: '',
@@ -169,7 +185,7 @@ export default function AdminClient() {
     order: 10,
   });
 
-  // New event form
+  const [showAddEvent, setShowAddEvent] = useState(false);
   const [eventForm, setEventForm] = useState({
     slug: '',
     titleRu: '',
@@ -185,7 +201,7 @@ export default function AdminClient() {
     programKk: '',
   });
 
-  // New timeline item form
+  const [showAddTimeline, setShowAddTimeline] = useState(false);
   const [timelineForm, setTimelineForm] = useState({
     titleRu: '',
     titleKk: '',
@@ -197,7 +213,7 @@ export default function AdminClient() {
     order: 1,
   });
 
-  // New news form
+  const [showAddNews, setShowAddNews] = useState(false);
   const [newsForm, setNewsForm] = useState({
     slug: '',
     titleRu: '',
@@ -209,7 +225,7 @@ export default function AdminClient() {
     published: true,
   });
 
-  // New poll form
+  const [showAddPoll, setShowAddPoll] = useState(false);
   const [pollForm, setPollForm] = useState({
     questionRu: '',
     questionKk: '',
@@ -223,7 +239,7 @@ export default function AdminClient() {
 
   const [selectedEventRegs, setSelectedEventRegs] = useState<AdminRegistration[] | null>(null);
   const [selectedEventTitle, setSelectedEventTitle] = useState('');
-  const [appealMinistryFilter, setAppealMinistryFilter] = useState('all');
+  const [appealFilter, setAppealFilter] = useState<'all' | 'new' | 'in_progress' | 'resolved'>('all');
 
   const fetchAllData = useCallback(async () => {
     try {
@@ -240,6 +256,7 @@ export default function AdminClient() {
 
       if (memRes.status === 401) {
         setAuthenticated(false);
+        setLoadingInitial(false);
         return;
       }
 
@@ -253,16 +270,10 @@ export default function AdminClient() {
           const fullAccess = Boolean(memData.currentUser.hasFullAccess);
           setCurrentLogin(memData.currentUser.login);
           setHasFullAccess(fullAccess);
+          setCurrentMinistry(memData.currentUser.ownMinistry || memData.currentUser.ministry);
+          setCurrentRoleLabel(memData.currentUser.role || 'Мектеп Президенті');
           if (!fullAccess) {
             setActiveTab('ministers');
-          }
-          const myMember = memList.find((m) => m.login === memData.currentUser.login);
-          if (myMember) {
-            setCurrentRoleLabel(
-              `${myMember.ministryNameKk || myMember.ministryNameRu} (${myMember.nameKk || myMember.nameRu})`
-            );
-          } else if (memData.currentUser.login === 'admin') {
-            setCurrentRoleLabel('Мектеп Президенті • Толық рұқсат');
           }
         }
       }
@@ -273,7 +284,9 @@ export default function AdminClient() {
       if (sgRes.ok) setSuggestions((await sgRes.json()).suggestions || []);
       if (stRes.ok) setStats((await stRes.json()).stats || []);
     } catch {
-      // ignore initial error
+      // ignore
+    } finally {
+      setLoadingInitial(false);
     }
   }, []);
 
@@ -284,30 +297,45 @@ export default function AdminClient() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
-    const res = await fetch('/api/admin/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ login: loginInput, password }),
-    });
+    setLoginLoading(true);
 
-    const data = await res.json();
-    if (res.ok) {
-      setAuthenticated(true);
-      if (data.role) setCurrentRoleLabel(data.role);
-      if (data.login) setCurrentLogin(data.login);
-      setHasFullAccess(Boolean(data.hasFullAccess));
-      setActiveTab('ministers');
-      fetchAllData();
-    } else {
-      setLoginError(data.error || 'Неверный логин или пароль');
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ login: loginInput, password: passwordInput }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setAuthenticated(true);
+        if (data.role) setCurrentRoleLabel(data.role);
+        if (data.login) setCurrentLogin(data.login);
+        setCurrentMinistry(data.ownMinistry || data.ministry || '');
+        const full = Boolean(data.hasFullAccess);
+        setHasFullAccess(full);
+        setActiveTab(full ? 'overview' : 'ministers');
+        setPasswordInput('');
+        fetchAllData();
+      } else {
+        setLoginError(data.error || 'Логин немесе құпиясөз қате');
+      }
+    } catch {
+      setLoginError('Сервермен байланыс қатесі');
+    } finally {
+      setLoginLoading(false);
     }
   };
 
   const handleLogout = async () => {
     await fetch('/api/admin/logout', { method: 'POST' });
     setAuthenticated(false);
+    setCurrentLogin('');
+    setCurrentRoleLabel('');
     setMembers([]);
-    setActiveTab('ministers');
+    setEvents([]);
+    setAppeals([]);
+    setActiveTab('overview');
   };
 
   const openEditMinister = (m: MinisterItem) => {
@@ -337,8 +365,11 @@ export default function AdminClient() {
     });
 
     if (res.ok) {
-      setSaveMessage('Данные фракции и помощников успешно сохранены!');
-      setEditingMinister(null);
+      setSaveMessage('Мәліметтер сәтті сақталды!');
+      setTimeout(() => {
+        setEditingMinister(null);
+        setSaveMessage('');
+      }, 1000);
       fetchAllData();
     }
   };
@@ -356,29 +387,12 @@ export default function AdminClient() {
 
     if (res.ok) {
       setShowAddMinister(false);
-      setNewMinister({
-        login: '',
-        password: 'parliament2025',
-        ministry: 'general',
-        ministryNameRu: '',
-        ministryNameKk: '',
-        nameRu: '',
-        nameKk: '',
-        grade: '',
-        roleRu: '',
-        roleKk: '',
-        quoteRu: '',
-        quoteKk: '',
-        bioRu: '',
-        bioKk: '',
-        photo: '',
-        order: members.length + 1,
-      });
       fetchAllData();
     }
   };
 
   const handleDeleteMinister = async (id: string) => {
+    if (!confirm('Фракция мүшесін өшіруді растайсыз ба?')) return;
     await fetch(`/api/admin/members?id=${id}`, { method: 'DELETE' });
     fetchAllData();
   };
@@ -390,10 +404,12 @@ export default function AdminClient() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...eventForm,
+        ministry: hasFullAccess ? eventForm.ministry : (currentMinistry || currentLogin),
         maxSeats: Number(eventForm.maxSeats),
       }),
     });
     if (res.ok) {
+      setShowAddEvent(false);
       setEventForm({
         slug: '',
         titleRu: '',
@@ -413,6 +429,7 @@ export default function AdminClient() {
   };
 
   const handleDeleteEvent = async (id: string) => {
+    if (!confirm('Іс-шараны өшіруді растайсыз ба?')) return;
     await fetch(`/api/admin/events?id=${id}`, { method: 'DELETE' });
     fetchAllData();
   };
@@ -430,21 +447,13 @@ export default function AdminClient() {
       }),
     });
     if (res.ok) {
-      setTimelineForm({
-        titleRu: '',
-        titleKk: '',
-        descRu: '',
-        descKk: '',
-        ministry: 'general',
-        month: 9,
-        year: 2025,
-        order: timeline.length + 1,
-      });
+      setShowAddTimeline(false);
       fetchAllData();
     }
   };
 
   const handleDeleteTimeline = async (id: string) => {
+    if (!confirm('Жоспар тармағын өшіруді растайсыз ба?')) return;
     await fetch(`/api/admin/timeline?id=${id}`, { method: 'DELETE' });
     fetchAllData();
   };
@@ -454,68 +463,38 @@ export default function AdminClient() {
     const res = await fetch('/api/admin/news', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newsForm),
+      body: JSON.stringify({
+        ...newsForm,
+        ministry: hasFullAccess ? newsForm.ministry : (currentMinistry || currentLogin),
+      }),
     });
     if (res.ok) {
-      setNewsForm({
-        slug: '',
-        titleRu: '',
-        titleKk: '',
-        contentRu: '',
-        contentKk: '',
-        excerpt: '',
-        ministry: 'press',
-        published: true,
-      });
+      setShowAddNews(false);
       fetchAllData();
     }
   };
 
   const handleDeleteNews = async (id: string) => {
+    if (!confirm('Жаңалықты өшіруді растайсыз ба?')) return;
     await fetch(`/api/admin/news?id=${id}`, { method: 'DELETE' });
     fetchAllData();
   };
 
   const handleCreatePoll = async (e: React.FormEvent) => {
     e.preventDefault();
-    const options = [
-      { textRu: pollForm.option1Ru, textKk: pollForm.option1Kk || pollForm.option1Ru },
-      { textRu: pollForm.option2Ru, textKk: pollForm.option2Kk || pollForm.option2Ru },
-    ];
-    if (pollForm.option3Ru.trim()) {
-      options.push({
-        textRu: pollForm.option3Ru,
-        textKk: pollForm.option3Kk || pollForm.option3Ru,
-      });
-    }
-
     const res = await fetch('/api/admin/polls', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        questionRu: pollForm.questionRu,
-        questionKk: pollForm.questionKk || pollForm.questionRu,
-        active: true,
-        options,
-      }),
+      body: JSON.stringify(pollForm),
     });
-
     if (res.ok) {
-      setPollForm({
-        questionRu: '',
-        questionKk: '',
-        option1Ru: '',
-        option1Kk: '',
-        option2Ru: '',
-        option2Kk: '',
-        option3Ru: '',
-        option3Kk: '',
-      });
+      setShowAddPoll(false);
       fetchAllData();
     }
   };
 
   const handleDeletePoll = async (id: string) => {
+    if (!confirm('Сауалнаманы өшіруді растайсыз ба?')) return;
     await fetch(`/api/admin/polls?id=${id}`, { method: 'DELETE' });
     fetchAllData();
   };
@@ -548,11 +527,11 @@ export default function AdminClient() {
   };
 
   const exportCsv = (eventTitle: string, regs: AdminRegistration[]) => {
-    const header = 'Имя,Класс,Телефон,Дата записи\n';
+    const header = 'Аты-жөні,Сынып,Телефон,Тіркелген уақыты\n';
     const rows = regs
       .map(
         (r) =>
-          `"${r.name}","${r.grade}","${r.phone || ''}","${new Date(r.createdAt).toLocaleString('ru-RU')}"`
+          `"${r.name}","${r.grade}","${r.phone || ''}","${new Date(r.createdAt).toLocaleString('kk-KZ')}"`
       )
       .join('\n');
     const blob = new Blob(['\uFEFF' + header + rows], { type: 'text/csv;charset=utf-8;' });
@@ -563,1383 +542,1573 @@ export default function AdminClient() {
     a.click();
   };
 
-  const leadershipLoginOptions = [
-    { login: 'president', label: '👑 Мектеп Президенті — Хупырұлы Разызаман (Толық рұқсат)' },
-    { login: 'vice', label: '👑 Вице-президент — Асанова Жансая (Толық рұқсат)' },
-  ];
+  // Find my personal member record
+  const myMember = members.find((m) => m.login === currentLogin) || members[0];
 
-  const factionLoginOptions = [
-    { login: 'it', label: '1. 👑 IT және цифрландыру фракциясы — Ермуханов Мернар (Толық рұқсат)' },
-    { login: 'media', label: '2. 🔒 Медиа фракциясы — Асанов Тайыр (Тек өз фракциясы)' },
-    { login: 'volunteers', label: '3. 🔒 Еріктілер және қайырымдылық фракциясы — Әлібек Айымжан (Тек өз фракциясы)' },
-    { login: 'culture', label: '4. 🔒 Мәдениет және өнер фракциясы — Мусағали Айжан (Тек өз фракциясы)' },
-    { login: 'sport', label: '5. 🔒 Спорт фракциясы — Нұрлан Мейірбек (Тек өз фракциясы)' },
-    { login: 'discipline', label: '6. 🔒 Құқық және тәртіп фракциясы — Сәндібаев Едіге (Тек өз фракциясы)' },
-    { login: 'education', label: '7. 🔒 Білім фракциясы — Жансерік Нұрсүгір (Тек өз фракциясы)' },
-  ];
+  // Filter appeals for tab
+  const filteredAppeals = appeals.filter((a) => {
+    if (appealFilter === 'all') return true;
+    return a.status === appealFilter;
+  });
 
+  // =========================================================================
+  // 1. SLEEK, BEAUTIFUL LOGIN SCREEN (NO EXPOSED LOGINS)
+  // =========================================================================
   if (!authenticated) {
     return (
-      <div className="min-h-screen bg-[#ffffff] flex items-center justify-center p-4">
-        <div className="bg-[#ffffff] border-2 border-[#00afca] rounded-2xl p-8 max-w-md w-full shadow-lg">
-          <div className="text-center mb-6">
-            <div className="flex justify-center mb-4">
-              <SchoolLogo className="w-16 h-16" variant="blue-on-white" />
-            </div>
-            <h1 className="font-serif text-3xl font-bold text-[#00afca]">
-              Мектеп Президенті
-            </h1>
-            <p className="text-xs text-[#00afca] mt-1 font-semibold">
-              Президент, Вице-президент және 7 фракция министрлерінің панелі
-            </p>
-          </div>
+      <div className="min-h-screen bg-[#070d18] text-slate-100 flex items-center justify-center p-4 relative overflow-hidden select-none">
+        {/* Ambient Dark Glows */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-[#00afca]/15 blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-10 left-10 w-72 h-72 rounded-full bg-[#0ea5e9]/10 blur-[100px] pointer-events-none" />
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-[#00afca] mb-1.5 font-bold">
-                Лауазымды немесе фракцияны таңдаңыз (7 фракция)
-              </label>
-              <select
-                value={loginInput}
-                onChange={(e) => setLoginInput(e.target.value)}
-                className="form-input font-semibold"
-              >
-                <optgroup label="Басшылық (Толық рұқсат)">
-                  {leadershipLoginOptions.map((opt) => (
-                    <option key={opt.login} value={opt.login}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </optgroup>
-                <optgroup label="7 Фракция министрлері">
-                  {factionLoginOptions.map((opt) => (
-                    <option key={opt.login} value={opt.login}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </optgroup>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-[#00afca] mb-1.5 font-bold">
-                Құпиясөз / Пароль (parliament2025)
-              </label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Құпиясөзді енгізіңіз..."
-                className="form-input"
-              />
-            </div>
-
-            {loginError && (
-              <div className="p-3 rounded-xl border-2 border-[#00afca] text-xs font-bold text-[#00afca]">
-                {loginError}
+        <div className="relative z-10 w-full max-w-md">
+          {/* Card Box with Dark Frosted Glass */}
+          <div className="bg-[#0e1726]/90 border border-slate-800 rounded-3xl p-8 sm:p-10 shadow-2xl backdrop-blur-xl">
+            {/* Crest Logo & Title */}
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/15 p-2.5 mx-auto mb-4 flex items-center justify-center shadow-lg">
+                <SchoolLogo className="w-full h-full object-contain" variant="white-on-blue" priority />
               </div>
-            )}
+              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                AQL Council
+              </h1>
+              <p className="text-xs uppercase font-bold text-[#38bdf8] tracking-widest mt-1">
+                Басқару Панеліне Кіру
+              </p>
+              <p className="text-xs text-slate-400 mt-2 font-light">
+                Президент, Вице-президент және 7 фракция министрлері
+              </p>
+            </div>
 
-            <button type="submit" className="w-full btn-blue py-3 text-sm uppercase tracking-wider">
-              Панельге кіру
-            </button>
-          </form>
+            {/* Login Form */}
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                  Логин
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    required
+                    value={loginInput}
+                    onChange={(e) => setLoginInput(e.target.value)}
+                    placeholder="Логинді енгізіңіз (мысалы: it, media, president)..."
+                    className="w-full px-4 py-3 rounded-xl bg-[#141f33] border border-slate-700/80 text-white placeholder-slate-500 text-sm font-medium focus:outline-none focus:border-[#38bdf8] focus:ring-1 focus:ring-[#38bdf8] transition-all"
+                  />
+                </div>
+              </div>
 
-          <div className="mt-6 text-center">
-            <Link href="/kk" className="text-xs font-bold text-[#00afca] underline">
-              ← Мектеп сайтына оралу
-            </Link>
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                  Құпиясөз
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={passwordInput}
+                    onChange={(e) => setPasswordInput(e.target.value)}
+                    placeholder="Құпиясөзді енгізіңіз..."
+                    className="w-full px-4 py-3 rounded-xl bg-[#141f33] border border-slate-700/80 text-white placeholder-slate-500 text-sm font-medium focus:outline-none focus:border-[#38bdf8] focus:ring-1 focus:ring-[#38bdf8] transition-all pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs font-bold"
+                  >
+                    {showPassword ? 'Жабу' : 'Көру'}
+                  </button>
+                </div>
+              </div>
+
+              {loginError && (
+                <div className="p-3 rounded-xl bg-red-950/60 border border-red-800 text-red-200 text-xs font-semibold text-center animate-in fade-in">
+                  {loginError}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loginLoading}
+                className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-[#0284c7] to-[#0ea5e9] hover:from-[#0369a1] hover:to-[#0284c7] text-white font-bold text-sm tracking-wide shadow-lg shadow-sky-900/40 transition-all active:scale-[0.98] disabled:opacity-50"
+              >
+                {loginLoading ? 'Тексерілуде...' : 'Панельге кіру →'}
+              </button>
+            </form>
+
+            <div className="mt-8 pt-6 border-t border-slate-800/80 text-center">
+              <Link
+                href="/kk"
+                className="text-xs font-semibold text-slate-400 hover:text-[#38bdf8] transition-colors"
+              >
+                ← Негізгі сайтқа оралу
+              </Link>
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
-  const leadershipMembers = members.filter(
-    (m) => m.login === 'president' || m.login === 'vice'
-  );
-  const factionMembers = members.filter(
-    (m) => m.login !== 'president' && m.login !== 'vice'
-  );
-  const myOwnFaction = members.filter((m) => m.login === currentLogin);
-
-  const tabs: { key: Tab; label: string }[] = hasFullAccess
-    ? [
-        { key: 'ministers', label: `7 Фракция және Басшылық (${factionMembers.length} фракция)` },
-        { key: 'events', label: `Іс-шаралар (${events.length})` },
-        { key: 'timeline', label: `Жылдық жоспар (${timeline.length})` },
-        { key: 'news', label: `Жаңалықтар (${news.length})` },
-        { key: 'polls', label: `Дауыс беру (${polls.length})` },
-        { key: 'appeals', label: `Өтініштер (${appeals.length})` },
-        { key: 'suggestions', label: `Идеялар (${suggestions.length})` },
-        { key: 'stats', label: 'Көрсеткіштер' },
-        { key: 'dashboard', label: 'Жалпы есеп' },
-      ]
-    : [{ key: 'ministers', label: 'Менің фракциям' }];
-
-  const filteredAppeals = !hasFullAccess
-    ? appeals
-    : appealMinistryFilter === 'all'
-      ? appeals
-      : appeals.filter((a) => a.ministry === appealMinistryFilter);
-
-  const renderMemberCard = (m: MinisterItem, indexLabel?: string) => {
-    let parsedAssistants: AssistantEntry[] = [];
-    try {
-      parsedAssistants = m.assistants ? JSON.parse(m.assistants) : [];
-    } catch {
-      parsedAssistants = [];
-    }
-    const isLeader = m.login === 'president' || m.login === 'vice';
-
-    return (
-      <div
-        key={m.id}
-        className="rounded-2xl border-2 border-[#00afca] p-6 bg-[#ffffff] flex flex-col justify-between"
-      >
-        <div>
-          <div className="flex items-start justify-between gap-3 pb-3 mb-3 border-b border-[#00afca]">
-            <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-[#00afca]">
-                {indexLabel ? `${indexLabel} • ` : ''}
-                {m.ministryNameKk || m.ministryNameRu}
-              </div>
-              <h3 className="font-serif text-xl font-bold text-[#00afca]">
-                {m.roleKk || m.roleRu}
-              </h3>
-            </div>
-            <span className="px-3 py-1 rounded-full bg-[#00afca] text-[#ffffff] text-xs font-bold shrink-0">
-              {isLeader ? '👑 Басшылық' : `Фракция: ${m.login}`}
-            </span>
-          </div>
-
-          <div className="space-y-2 text-sm text-[#00afca] mb-4">
-            <div>
-              <span className="font-bold">
-                {isLeader ? 'Тұлға: ' : 'Фракция министрі: '}
-              </span>
-              {m.nameKk || m.nameRu ? (
-                <span className="font-semibold">
-                  {m.nameKk || m.nameRu} {m.grade ? `(${m.grade})` : ''}
-                </span>
-              ) : (
-                <span className="underline">Тағайындалмаған</span>
-              )}
-            </div>
-
-            {!isLeader && (
-              <div>
-                <div className="font-bold mb-1">
-                  Фракция көмекшілері ({parsedAssistants.length}):
-                </div>
-                {parsedAssistants.length > 0 ? (
-                  <div className="flex flex-wrap gap-1.5">
-                    {parsedAssistants.map((ast, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2.5 py-1 rounded-lg border border-[#00afca] text-xs font-semibold"
-                      >
-                        {idx + 1}. {ast.name} {ast.grade ? `(${ast.grade})` : ''}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <span className="text-xs">Көмекшілер қосылмаған</span>
-                )}
-              </div>
-            )}
-
-            <p className="text-xs pt-1">{m.bioKk || m.bioRu}</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3 pt-3 border-t border-[#00afca]">
-          <button
-            onClick={() => openEditMinister(m)}
-            className="flex-1 py-2 px-4 rounded-full bg-[#00afca] text-[#ffffff] border-2 border-[#00afca] hover:bg-[#ffffff] hover:text-[#00afca] text-xs font-bold uppercase tracking-wider transition-colors"
-          >
-            {isLeader ? 'Мәліметтерді өзгерту' : 'Фракция мен көмекшілерді өзгерту'}
-          </button>
-          {hasFullAccess && !isLeader && (
-            <button
-              onClick={() => handleDeleteMinister(m.id)}
-              className="py-2 px-4 rounded-full bg-[#ffffff] text-[#00afca] border-2 border-[#00afca] hover:bg-[#00afca] hover:text-[#ffffff] text-xs font-bold uppercase tracking-wider transition-colors"
-            >
-              Жою
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  };
-
+  // =========================================================================
+  // 2. DASHBOARD VIEW (PERSONALIZED PER USER, DARK HIGH-END PALETTE)
+  // =========================================================================
   return (
-    <div className="min-h-screen bg-[#ffffff] text-[#00afca]">
-      {/* Top Admin Header */}
-      <header className="border-b-2 border-[#00afca] bg-[#ffffff] sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <SchoolLogo className="w-10 h-10 shrink-0" variant="blue-on-white" />
-            <div>
-              <div className="font-serif font-bold text-lg text-[#00afca] flex flex-wrap items-center gap-2">
-                <span>Мектеп Президенті • Басқару панелі</span>
-                <span className="px-2.5 py-0.5 rounded-full bg-[#00afca] text-[#ffffff] font-sans text-[11px] font-bold">
-                  {hasFullAccess
-                    ? '👑 Толық рұқсат (Президент / Вице-президент / IT)'
-                    : '🔒 Тек өз фракциясы'}
-                </span>
-              </div>
-              <div className="text-xs font-bold text-[#00afca]">
-                Белсенді профиль: {currentRoleLabel}
-              </div>
+    <div className="min-h-screen bg-[#070d18] text-slate-100 flex flex-col font-sans">
+      {/* Top Navigation Bar */}
+      <header className="sticky top-0 z-40 bg-[#0e1726]/95 border-b border-slate-800 backdrop-blur-md px-4 sm:px-8 py-3.5 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/15 p-1 flex items-center justify-center">
+            <SchoolLogo className="w-full h-full object-contain" variant="white-on-blue" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-black text-sm tracking-tight text-white">AQL Council</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-slate-800 text-[#38bdf8] border border-slate-700">
+                {hasFullAccess ? 'Басшылық' : 'Фракция министрі'}
+              </span>
+            </div>
+            <div className="text-[11px] text-slate-400 font-medium">
+              {currentRoleLabel}
             </div>
           </div>
+        </div>
 
-          <div className="flex items-center gap-3">
-            <Link
-              href="/kk"
-              className="text-xs font-bold px-4 py-2 rounded-full border-2 border-[#00afca] text-[#00afca] hover:bg-[#00afca] hover:text-[#ffffff] transition-colors"
-            >
-              Сайтқа өту →
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="text-xs px-4 py-2 rounded-full bg-[#00afca] text-[#ffffff] border-2 border-[#00afca] hover:bg-[#ffffff] hover:text-[#00afca] transition-colors font-bold"
-            >
-              Шығу
-            </button>
-          </div>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/kk"
+            className="text-xs font-bold text-slate-300 hover:text-white px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors hidden sm:inline-block"
+          >
+            Сайтқа өту ↗
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="text-xs font-bold text-red-400 hover:text-red-300 px-3 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-950/80 border border-red-900/60 transition-colors"
+          >
+            Шығу
+          </button>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Tabs Navigation */}
-        {hasFullAccess && (
-          <div className="flex flex-wrap gap-2 mb-8">
-            {tabs.map((t) => (
+      {/* Main Container */}
+      <div className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 space-y-6">
+        {/* Navigation Tabs Bar */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-800 scrollbar-none">
+          {hasFullAccess ? (
+            <>
               <button
-                key={t.key}
-                onClick={() => setActiveTab(t.key)}
-                className={`px-4 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors border-2 border-[#00afca] ${
-                  activeTab === t.key
-                    ? 'bg-[#00afca] text-[#ffffff]'
-                    : 'bg-[#ffffff] text-[#00afca] hover:bg-[#00afca] hover:text-[#ffffff]'
+                onClick={() => setActiveTab('overview')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  activeTab === 'overview'
+                    ? 'bg-[#0ea5e9] text-white shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
                 }`}
               >
-                {t.label}
+                📊 Шолу (KPI)
               </button>
-            ))}
+              <button
+                onClick={() => setActiveTab('ministers')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  activeTab === 'ministers'
+                    ? 'bg-[#0ea5e9] text-white shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                }`}
+              >
+                👥 Министрлер & Фракциялар ({members.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('events')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  activeTab === 'events'
+                    ? 'bg-[#0ea5e9] text-white shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                }`}
+              >
+                📅 Барлық іс-шаралар ({events.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('timeline')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  activeTab === 'timeline'
+                    ? 'bg-[#0ea5e9] text-white shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                }`}
+              >
+                🗺️ Жыл жоспары ({timeline.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('polls')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  activeTab === 'polls'
+                    ? 'bg-[#0ea5e9] text-white shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                }`}
+              >
+                🗳️ Сауалнамалар ({polls.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('suggestions')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  activeTab === 'suggestions'
+                    ? 'bg-[#0ea5e9] text-white shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                }`}
+              >
+                💡 Ұсыныстар ({suggestions.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('appeals')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  activeTab === 'appeals'
+                    ? 'bg-[#0ea5e9] text-white shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                }`}
+              >
+                📨 Өтініштер ({appeals.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('news')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  activeTab === 'news'
+                    ? 'bg-[#0ea5e9] text-white shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                }`}
+              >
+                📰 Жаңалықтар ({news.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('stats')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  activeTab === 'stats'
+                    ? 'bg-[#0ea5e9] text-white shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                }`}
+              >
+                📈 Сандық көрсеткіштер
+              </button>
+            </>
+          ) : (
+            // Personalized Faction Minister Tabs
+            <>
+              <button
+                onClick={() => setActiveTab('ministers')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  activeTab === 'ministers'
+                    ? 'bg-[#0ea5e9] text-white shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                }`}
+              >
+                🛡️ Менің фракциям & Көмекшілер
+              </button>
+              <button
+                onClick={() => setActiveTab('events')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  activeTab === 'events'
+                    ? 'bg-[#0ea5e9] text-white shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                }`}
+              >
+                📅 Фракция іс-шаралары ({events.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('appeals')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  activeTab === 'appeals'
+                    ? 'bg-[#0ea5e9] text-white shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                }`}
+              >
+                📨 Бізге түскен өтініштер ({appeals.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('news')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  activeTab === 'news'
+                    ? 'bg-[#0ea5e9] text-white shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                }`}
+              >
+                📰 Фракция жаңалықтары ({news.length})
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* ===================================================================
+            TAB: OVERVIEW (Master Dashboard KPI)
+           =================================================================== */}
+        {activeTab === 'overview' && hasFullAccess && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-5 rounded-2xl bg-[#0f192b] border border-slate-800 shadow-sm">
+                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  Барлық фракциялар
+                </div>
+                <div className="text-3xl font-black text-white mt-1">7</div>
+                <div className="text-[11px] text-[#38bdf8] font-semibold mt-1">
+                  Барлық министрлер тағайындалған
+                </div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-[#0f192b] border border-slate-800 shadow-sm">
+                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  Жоспарланған іс-шаралар
+                </div>
+                <div className="text-3xl font-black text-white mt-1">{events.length}</div>
+                <div className="text-[11px] text-slate-400 font-semibold mt-1">
+                  Тіркелген оқушылар саны
+                </div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-[#0f192b] border border-slate-800 shadow-sm">
+                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  Кері байланыс / Өтініштер
+                </div>
+                <div className="text-3xl font-black text-white mt-1">{appeals.length}</div>
+                <div className="text-[11px] text-emerald-400 font-semibold mt-1">
+                  {appeals.filter((a) => a.status === 'new').length} жаңа өтініш
+                </div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-[#0f192b] border border-slate-800 shadow-sm">
+                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  Оқушылар ұсыныстары
+                </div>
+                <div className="text-3xl font-black text-white mt-1">{suggestions.length}</div>
+                <div className="text-[11px] text-amber-400 font-semibold mt-1">
+                  Модерацияны күтуде
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="p-6 rounded-2xl bg-[#0e1726] border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h3 className="font-extrabold text-base text-white">Жылдам әрекеттер</h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Президент және Төралқа құралдары
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => setShowAddEvent(true)}
+                  className="px-4 py-2 rounded-xl bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-xs font-bold transition-all shadow-sm"
+                >
+                  + Жаңа іс-шара
+                </button>
+                <button
+                  onClick={() => setShowAddPoll(true)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold border border-slate-700 transition-all"
+                >
+                  + Жаңа сауалнама
+                </button>
+                <button
+                  onClick={() => setShowAddNews(true)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold border border-slate-700 transition-all"
+                >
+                  + Жаңалық жариялау
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* MINISTERS DATABASE TAB */}
-        {(activeTab === 'ministers' || !hasFullAccess) && (
+        {/* ===================================================================
+            TAB: MINISTERS (Personalized Faction Card OR Full Roster)
+           =================================================================== */}
+        {activeTab === 'ministers' && (
           <div className="space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4 border-2 border-[#00afca] rounded-2xl p-6 bg-[#ffffff]">
-              <div>
-                <h2 className="font-serif text-2xl font-bold text-[#00afca]">
-                  {hasFullAccess
-                    ? `Президент, Вице-президент және ${factionMembers.length} Фракция (Толық басқару)`
-                    : 'Менің фракциям'}
-                </h2>
-                <p className="text-xs sm:text-sm text-[#00afca] mt-1">
-                  {hasFullAccess
-                    ? 'Президент, Вице-президент және IT министрі барлық 7 фракцияны, министрлерді және олардың көмекшілерін толық басқара алады.'
-                    : 'Сізге тек өз фракцияңыз ғана көрінеді. Осы жерден өз фракцияңыздың ақпаратын және көмекшілерін өзгерте аласыз.'}
-                </p>
-              </div>
-              {hasFullAccess && (
-                <button
-                  onClick={() => setShowAddMinister(!showAddMinister)}
-                  className="btn-blue text-xs uppercase tracking-wider"
-                >
-                  {showAddMinister ? 'Форманы жабу' : '+ Жаңа фракция қосу'}
-                </button>
-              )}
-            </div>
+            {!hasFullAccess ? (
+              // Individual Minister's Profile Card & Assistants Editor
+              myMember && (
+                <div className="p-6 sm:p-8 rounded-3xl bg-[#0e1726] border border-slate-800 space-y-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 overflow-hidden shrink-0">
+                        {myMember.photo ? (
+                          <img
+                            src={myMember.photo}
+                            alt={myMember.nameKk}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center font-bold text-slate-500">
+                            AQL
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#0ea5e9]/20 text-[#38bdf8]">
+                          {myMember.ministryNameKk}
+                        </span>
+                        <h2 className="text-xl font-black text-white mt-1">
+                          {myMember.nameKk || 'Министр'}
+                        </h2>
+                        <p className="text-xs text-slate-400">{myMember.roleKk}</p>
+                      </div>
+                    </div>
 
-            {saveMessage && (
-              <div className="p-4 rounded-xl border-2 border-[#00afca] bg-[#ffffff] text-xs font-bold text-[#00afca]">
-                {saveMessage}
-              </div>
-            )}
+                    <button
+                      onClick={() => openEditMinister(myMember)}
+                      className="px-4 py-2 rounded-xl bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-xs font-bold transition-all shadow-sm"
+                    >
+                      ✏️ Профиль мен көмекшілерді өңдеу
+                    </button>
+                  </div>
 
-            {/* Add New Minister Form */}
-            {hasFullAccess && showAddMinister && (
-              <form
-                onSubmit={handleCreateMinister}
-                className="border-2 border-[#00afca] rounded-2xl p-6 bg-[#ffffff] space-y-4"
-              >
-                <h3 className="font-serif text-xl font-bold text-[#00afca]">
-                  Жаңа Фракция қосу
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <input
-                    required
-                    placeholder="Логин для входа (напр. media)"
-                    value={newMinister.login}
-                    onChange={(e) => setNewMinister({ ...newMinister, login: e.target.value })}
-                    className="form-input"
-                  />
-                  <input
-                    required
-                    placeholder="Пароль входа"
-                    value={newMinister.password}
-                    onChange={(e) => setNewMinister({ ...newMinister, password: e.target.value })}
-                    className="form-input"
-                  />
-                  <input
-                    placeholder="Код министерства (напр. media)"
-                    value={newMinister.ministry}
-                    onChange={(e) => setNewMinister({ ...newMinister, ministry: e.target.value })}
-                    className="form-input"
-                  />
-                  <input
-                    required
-                    placeholder="Название министерства (EN)"
-                    value={newMinister.ministryNameRu}
-                    onChange={(e) =>
-                      setNewMinister({ ...newMinister, ministryNameRu: e.target.value })
-                    }
-                    className="form-input"
-                  />
-                  <input
-                    required
-                    placeholder="Фракция атауы (KK)"
-                    value={newMinister.ministryNameKk}
-                    onChange={(e) =>
-                      setNewMinister({ ...newMinister, ministryNameKk: e.target.value })
-                    }
-                    className="form-input"
-                  />
-                  <input
-                    placeholder="Сыныбы (мыс. 10 «А»)"
-                    value={newMinister.grade}
-                    onChange={(e) => setNewMinister({ ...newMinister, grade: e.target.value })}
-                    className="form-input"
-                  />
-                  <input
-                    placeholder="Министр аты-жөні (EN)"
-                    value={newMinister.nameRu}
-                    onChange={(e) => setNewMinister({ ...newMinister, nameRu: e.target.value })}
-                    className="form-input"
-                  />
-                  <input
-                    placeholder="Министр аты-жөні (KK)"
-                    value={newMinister.nameKk}
-                    onChange={(e) => setNewMinister({ ...newMinister, nameKk: e.target.value })}
-                    className="form-input"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Реттік нөмірі"
-                    value={newMinister.order}
-                    onChange={(e) =>
-                      setNewMinister({ ...newMinister, order: Number(e.target.value) })
-                    }
-                    className="form-input"
-                  />
-                  <input
-                    required
-                    placeholder="Лауазымы (EN)"
-                    value={newMinister.roleRu}
-                    onChange={(e) => setNewMinister({ ...newMinister, roleRu: e.target.value })}
-                    className="form-input"
-                  />
-                  <input
-                    required
-                    placeholder="Лауазымы (KK)"
-                    value={newMinister.roleKk}
-                    onChange={(e) => setNewMinister({ ...newMinister, roleKk: e.target.value })}
-                    className="form-input"
-                  />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <textarea
-                    rows={2}
-                    placeholder="Фракция міндеттері (EN)"
-                    value={newMinister.bioRu}
-                    onChange={(e) => setNewMinister({ ...newMinister, bioRu: e.target.value })}
-                    className="form-input"
-                  />
-                  <textarea
-                    rows={2}
-                    placeholder="Фракция міндеттері (KK)"
-                    value={newMinister.bioKk}
-                    onChange={(e) => setNewMinister({ ...newMinister, bioKk: e.target.value })}
-                    className="form-input"
-                  />
-                </div>
-                <button type="submit" className="btn-blue text-xs uppercase tracking-wider">
-                  Фракцияны сақтау
-                </button>
-              </form>
-            )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <div className="text-xs uppercase font-bold text-slate-400">
+                        Фракция ұраны / Цитата
+                      </div>
+                      <div className="p-3.5 rounded-xl bg-[#141f33] border border-slate-800 text-xs italic text-slate-200">
+                        &ldquo;{myMember.quoteKk || 'Ұран енгізілмеген'}&rdquo;
+                      </div>
+                    </div>
 
-            {hasFullAccess ? (
-              <div className="space-y-8">
-                {/* Leadership Section (President & Vice-President) */}
-                {leadershipMembers.length > 0 && (
-                  <div className="space-y-3">
-                    <h3 className="font-serif text-lg font-bold uppercase tracking-wider text-[#00afca]">
-                      👑 Басшылық — Президент және Вице-президент ({leadershipMembers.length})
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      {leadershipMembers.map((m) => renderMemberCard(m))}
+                    <div className="space-y-2">
+                      <div className="text-xs uppercase font-bold text-slate-400">
+                        Міндеттер мен қызметі
+                      </div>
+                      <div className="p-3.5 rounded-xl bg-[#141f33] border border-slate-800 text-xs text-slate-300 leading-relaxed">
+                        {myMember.bioKk || 'Сипаттама жазылмаған'}
+                      </div>
                     </div>
                   </div>
-                )}
 
-                {/* 7 Factions Section */}
-                <div className="space-y-3">
-                  <h3 className="font-serif text-lg font-bold uppercase tracking-wider text-[#00afca]">
-                    🏛 Барлық Фракциялар ({factionMembers.length} фракция)
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    {factionMembers.map((m, idx) =>
-                      renderMemberCard(m, `${idx + 1}-фракция`)
+                  {/* Assistants List Preview */}
+                  <div className="space-y-3 pt-4 border-t border-slate-800">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs uppercase font-bold text-slate-400">
+                        Фракция көмекшілерінің құрамы
+                      </div>
+                      <span className="text-[11px] text-slate-500 font-semibold">
+                        Өзгерту үшін «Өңдеу» батырмасын басыңыз
+                      </span>
+                    </div>
+
+                    {myMember.assistants && JSON.parse(myMember.assistants).length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        {JSON.parse(myMember.assistants).map((ast: AssistantEntry, idx: number) => (
+                          <div
+                            key={idx}
+                            className="p-3 rounded-xl bg-[#141f33] border border-slate-800 text-xs flex items-center justify-between"
+                          >
+                            <span className="font-bold text-white">{ast.name}</span>
+                            <span className="text-[11px] text-[#38bdf8] font-semibold">
+                              {ast.grade}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-4 rounded-xl bg-[#141f33] border border-slate-800 text-xs text-slate-400 text-center">
+                        Көмекшілер тізімі әзірге бос. «Өңдеу» батырмасы арқылы қоса аласыз.
+                      </div>
                     )}
                   </div>
                 </div>
-              </div>
+              )
             ) : (
-              /* Single Faction View for Regular Ministers */
-              <div className="max-w-2xl">
-                {myOwnFaction.map((m) => renderMemberCard(m))}
+              // President Full Roster View
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-extrabold text-lg text-white">
+                    Парламент мүшелері мен министрлер тізімі
+                  </h3>
+                  <button
+                    onClick={() => setShowAddMinister(true)}
+                    className="px-4 py-2 rounded-xl bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-xs font-bold transition-all"
+                  >
+                    + Жаңа мүше қосу
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {members.map((m) => (
+                    <div
+                      key={m.id}
+                      className="p-5 rounded-2xl bg-[#0e1726] border border-slate-800 flex flex-col justify-between space-y-4"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-800 text-[#38bdf8]">
+                            login: {m.login}
+                          </span>
+                          <span className="text-xs text-slate-400 font-semibold">{m.grade}</span>
+                        </div>
+
+                        <div className="flex items-center gap-3 mt-3">
+                          <div className="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 overflow-hidden shrink-0">
+                            {m.photo ? (
+                              <img src={m.photo} alt={m.nameKk} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center font-bold text-slate-500">
+                                AQL
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-sm text-white">{m.nameKk}</h4>
+                            <p className="text-xs text-slate-400 font-medium">{m.roleKk}</p>
+                          </div>
+                        </div>
+
+                        <p className="text-xs text-slate-400 line-clamp-2 mt-3 leading-relaxed">
+                          {m.bioKk}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2 pt-3 border-t border-slate-800">
+                        <button
+                          onClick={() => openEditMinister(m)}
+                          className="flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-colors"
+                        >
+                          Өңдеу
+                        </button>
+                        {m.login !== 'president' && (
+                          <button
+                            onClick={() => handleDeleteMinister(m.id)}
+                            className="px-2.5 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-950 text-red-400 text-xs font-bold transition-colors"
+                          >
+                            Өшіру
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
         )}
 
-        {/* EDIT MINISTER MODAL */}
-        {editingMinister && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop"
-            onClick={() => setEditingMinister(null)}
-          >
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className="bg-[#ffffff] border-2 border-[#00afca] rounded-2xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto relative"
-            >
+        {/* ===================================================================
+            TAB: EVENTS (Personalized or All)
+           =================================================================== */}
+        {activeTab === 'events' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-extrabold text-lg text-white">
+                  {hasFullAccess ? 'Барлық іс-шаралар кестесі' : 'Фракцияның іс-шаралары'}
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Іс-шараларға тіркелген оқушыларды көру және CSV-ге жүктеу
+                </p>
+              </div>
               <button
-                onClick={() => setEditingMinister(null)}
-                className="absolute top-4 right-4 w-8 h-8 rounded-full border-2 border-[#00afca] text-[#00afca] hover:bg-[#00afca] hover:text-[#ffffff] font-bold"
+                onClick={() => setShowAddEvent(true)}
+                className="px-4 py-2 rounded-xl bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-xs font-bold transition-all"
               >
-                ✕
+                + Жаңа іс-шара
               </button>
+            </div>
 
-              <h3 className="font-serif text-2xl font-bold text-[#00afca] mb-4">
-                Өзгерту: {editingMinister.ministryNameKk || editingMinister.roleRu}
-              </h3>
-
-              <form onSubmit={handleSaveMinister} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold uppercase mb-1">
-                      Министр аты-жөні (KK)
-                    </label>
-                    <input
-                      value={editingMinister.nameKk}
-                      onChange={(e) =>
-                        setEditingMinister({ ...editingMinister, nameKk: e.target.value })
-                      }
-                      placeholder="Оқушының аты-жөні"
-                      className="form-input"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold uppercase mb-1">
-                      Министр аты-жөні (EN / RU)
-                    </label>
-                    <input
-                      value={editingMinister.nameRu}
-                      onChange={(e) =>
-                        setEditingMinister({ ...editingMinister, nameRu: e.target.value })
-                      }
-                      placeholder="Аты-жөні"
-                      className="form-input"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold uppercase mb-1">Сыныбы</label>
-                    <input
-                      value={editingMinister.grade || ''}
-                      onChange={(e) =>
-                        setEditingMinister({ ...editingMinister, grade: e.target.value })
-                      }
-                      placeholder="Мысалы: 10 «А»"
-                      className="form-input"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold uppercase mb-1">
-                      Фото сілтемесі (міндетті емес)
-                    </label>
-                    <input
-                      value={editingMinister.photo || ''}
-                      onChange={(e) =>
-                        setEditingMinister({ ...editingMinister, photo: e.target.value })
-                      }
-                      placeholder="https://..."
-                      className="form-input"
-                    />
-                  </div>
-                  {hasFullAccess && (
-                    <div>
-                      <label className="block text-xs font-bold uppercase mb-1">
-                        Кіру логині
-                      </label>
-                      <input
-                        required
-                        value={editingMinister.login}
-                        onChange={(e) =>
-                          setEditingMinister({ ...editingMinister, login: e.target.value })
-                        }
-                        className="form-input"
-                      />
-                    </div>
-                  )}
-                  <div>
-                    <label className="block text-xs font-bold uppercase mb-1">
-                      Кабинет құпиясөзі (Пароль)
-                    </label>
-                    <input
-                      required
-                      value={editingMinister.password || ''}
-                      onChange={(e) =>
-                        setEditingMinister({ ...editingMinister, password: e.target.value })
-                      }
-                      className="form-input"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold uppercase mb-1">
-                      Фракция атауы (KK)
-                    </label>
-                    <input
-                      required
-                      value={editingMinister.ministryNameKk}
-                      onChange={(e) =>
-                        setEditingMinister({ ...editingMinister, ministryNameKk: e.target.value })
-                      }
-                      className="form-input"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold uppercase mb-1">
-                      Фракция атауы (EN)
-                    </label>
-                    <input
-                      required
-                      value={editingMinister.ministryNameRu}
-                      onChange={(e) =>
-                        setEditingMinister({ ...editingMinister, ministryNameRu: e.target.value })
-                      }
-                      className="form-input"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold uppercase mb-1">
-                      Лауазымы (KK)
-                    </label>
-                    <input
-                      required
-                      value={editingMinister.roleKk}
-                      onChange={(e) =>
-                        setEditingMinister({ ...editingMinister, roleKk: e.target.value })
-                      }
-                      className="form-input"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold uppercase mb-1">
-                      Лауазымы (EN)
-                    </label>
-                    <input
-                      required
-                      value={editingMinister.roleRu}
-                      onChange={(e) =>
-                        setEditingMinister({ ...editingMinister, roleRu: e.target.value })
-                      }
-                      className="form-input"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold uppercase mb-1">
-                      Ұраны / Дәйексөз (KK)
-                    </label>
-                    <input
-                      value={editingMinister.quoteKk}
-                      onChange={(e) =>
-                        setEditingMinister({ ...editingMinister, quoteKk: e.target.value })
-                      }
-                      className="form-input"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold uppercase mb-1">
-                      Ұраны / Дәйексөз (EN)
-                    </label>
-                    <input
-                      value={editingMinister.quoteRu}
-                      onChange={(e) =>
-                        setEditingMinister({ ...editingMinister, quoteRu: e.target.value })
-                      }
-                      className="form-input"
-                    />
-                  </div>
-                </div>
-
-                {/* ASSISTANTS EDITOR */}
-                <div className="border-2 border-[#00afca] rounded-xl p-4 space-y-3 bg-[#00afca]/[0.03]">
-                  <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold uppercase text-[#00afca]">
-                      Фракция көмекшілері ({editingAssistants.length})
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setEditingAssistants([...editingAssistants, { name: '', grade: '' }])
-                      }
-                      className="px-3 py-1 rounded-full bg-[#00afca] text-[#ffffff] text-xs font-bold"
+            {events.length === 0 ? (
+              <div className="p-8 rounded-2xl bg-[#0e1726] border border-slate-800 text-center text-slate-400 text-xs">
+                Әзірге іс-шаралар жоқ. Жаңа іс-шара қосу үшін батырманы басыңыз.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {events.map((ev) => {
+                  const regCount = ev.registrations?.length ?? ev._count?.registrations ?? 0;
+                  return (
+                    <div
+                      key={ev.id}
+                      className="p-5 rounded-2xl bg-[#0e1726] border border-slate-800 flex flex-col justify-between space-y-4"
                     >
-                      + Көмекші қосу
+                      <div>
+                        <div className="flex items-center justify-between text-xs text-slate-400 pb-3 border-b border-slate-800">
+                          <span className="px-2 py-0.5 rounded-full bg-slate-800 text-[#38bdf8] font-bold text-[10px]">
+                            {ev.category}
+                          </span>
+                          <span>{new Date(ev.date).toLocaleDateString('kk-KZ')}</span>
+                        </div>
+
+                        <h4 className="font-bold text-base text-white mt-3 leading-snug">
+                          {ev.titleKk || ev.titleRu}
+                        </h4>
+                        <p className="text-xs text-slate-400 mt-1 line-clamp-2">{ev.descKk}</p>
+
+                        <div className="mt-3 p-3 rounded-xl bg-[#141f33] flex items-center justify-between text-xs">
+                          <span className="text-slate-400">Тіркелгендер:</span>
+                          <span className="font-bold text-white">
+                            {regCount} / {ev.maxSeats}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 pt-3 border-t border-slate-800">
+                        {ev.registrations && ev.registrations.length > 0 && (
+                          <button
+                            onClick={() => {
+                              setSelectedEventRegs(ev.registrations || []);
+                              setSelectedEventTitle(ev.titleKk || ev.titleRu);
+                            }}
+                            className="flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-[#38bdf8]"
+                          >
+                            Тіркелгендер ({ev.registrations.length})
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleDeleteEvent(ev.id)}
+                          className="px-3 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-950 text-red-400 text-xs font-bold"
+                        >
+                          Өшіру
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ===================================================================
+            TAB: APPEALS (Personalized for Minister or All for President)
+           =================================================================== */}
+        {activeTab === 'appeals' && (
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="font-extrabold text-lg text-white">
+                  {hasFullAccess ? 'Оқушылардан түскен барлық өтініштер' : 'Біздің фракцияға түскен өтініштер'}
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Мәртебені ауыстыру: Жаңа → Қаралуда → Шешілді
+                </p>
+              </div>
+
+              {/* Status filter pills */}
+              <div className="flex items-center gap-1.5 bg-[#0e1726] p-1 rounded-xl border border-slate-800 text-xs">
+                {(['all', 'new', 'in_progress', 'resolved'] as const).map((st) => (
+                  <button
+                    key={st}
+                    onClick={() => setAppealFilter(st)}
+                    className={`px-3 py-1 rounded-lg font-bold capitalize transition-all ${
+                      appealFilter === st
+                        ? 'bg-[#0ea5e9] text-white'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    {st === 'all' ? 'Барлығы' : st === 'new' ? 'Жаңа' : st === 'in_progress' ? 'Қаралуда' : 'Шешілді'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {filteredAppeals.length === 0 ? (
+              <div className="p-8 rounded-2xl bg-[#0e1726] border border-slate-800 text-center text-slate-400 text-xs">
+                Бұл санатта өтініштер жоқ.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredAppeals.map((a) => (
+                  <div
+                    key={a.id}
+                    className="p-5 rounded-2xl bg-[#0e1726] border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                  >
+                    <div className="space-y-1.5 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                            a.status === 'new'
+                              ? 'bg-amber-950/60 text-amber-300 border border-amber-800'
+                              : a.status === 'in_progress'
+                              ? 'bg-sky-950/60 text-sky-300 border border-sky-800'
+                              : 'bg-emerald-950/60 text-emerald-300 border border-emerald-800'
+                          }`}
+                        >
+                          {a.status === 'new' ? 'Жаңа' : a.status === 'in_progress' ? 'Қаралуда' : 'Шешілді'}
+                        </span>
+                        <span className="text-xs font-bold text-white">
+                          {a.anonymous ? 'Анонимді оқушы' : `${a.name} (${a.grade})`}
+                        </span>
+                        <span className="text-[11px] text-slate-500">
+                          {new Date(a.createdAt).toLocaleString('kk-KZ')}
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-200 leading-relaxed font-normal">{a.text}</p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleAppealStatus(a.id, 'in_progress')}
+                        className="px-3 py-1.5 rounded-lg bg-sky-950/60 hover:bg-sky-900 border border-sky-800 text-sky-300 text-xs font-bold"
+                      >
+                        Қаралуда
+                      </button>
+                      <button
+                        onClick={() => handleAppealStatus(a.id, 'resolved')}
+                        className="px-3 py-1.5 rounded-lg bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 text-xs font-bold"
+                      >
+                        Шешілді ✓
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ===================================================================
+            TAB: NEWS (Personalized or All)
+           =================================================================== */}
+        {activeTab === 'news' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-extrabold text-lg text-white">
+                  {hasFullAccess ? 'Барлық жаңалықтар мақалалары' : 'Фракция жаңалықтары'}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowAddNews(true)}
+                className="px-4 py-2 rounded-xl bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-xs font-bold transition-all"
+              >
+                + Жаңалық жазу
+              </button>
+            </div>
+
+            {news.length === 0 ? (
+              <div className="p-8 rounded-2xl bg-[#0e1726] border border-slate-800 text-center text-slate-400 text-xs">
+                Әзірге жаңалықтар жарияланбаған.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {news.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-5 rounded-2xl bg-[#0e1726] border border-slate-800 flex flex-col justify-between space-y-3"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between pb-2 text-xs text-slate-400 border-b border-slate-800">
+                        <span className="text-[#38bdf8] font-bold text-[10px] uppercase">
+                          {item.ministry}
+                        </span>
+                        {item.createdAt && (
+                          <span>{new Date(item.createdAt).toLocaleDateString('kk-KZ')}</span>
+                        )}
+                      </div>
+                      <h4 className="font-bold text-base text-white mt-2 leading-snug">
+                        {item.titleKk || item.titleRu}
+                      </h4>
+                      <p className="text-xs text-slate-400 mt-1 line-clamp-3">{item.excerpt}</p>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-800 flex justify-end">
+                      <button
+                        onClick={() => handleDeleteNews(item.id)}
+                        className="px-3 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-950 text-red-400 text-xs font-bold"
+                      >
+                        Өшіру
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ===================================================================
+            TAB: TIMELINE (Full Access Only)
+           =================================================================== */}
+        {activeTab === 'timeline' && hasFullAccess && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-extrabold text-lg text-white">Жылдық жоспар (Қыркүйек — Мамыр)</h3>
+              <button
+                onClick={() => setShowAddTimeline(true)}
+                className="px-4 py-2 rounded-xl bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-xs font-bold transition-all"
+              >
+                + Жоспар тармағы
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {timeline.map((item) => (
+                <div
+                  key={item.id}
+                  className="p-5 rounded-2xl bg-[#0e1726] border border-slate-800 flex flex-col justify-between space-y-3"
+                >
+                  <div>
+                    <div className="flex items-center justify-between text-xs text-slate-400 pb-2 border-b border-slate-800 font-bold">
+                      <span className="text-[#38bdf8]">
+                        Ай: {item.month} / Жыл: {item.year}
+                      </span>
+                      <span>#{item.order}</span>
+                    </div>
+                    <h4 className="font-bold text-base text-white mt-2">
+                      {item.titleKk || item.titleRu}
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-1">{item.descKk}</p>
+                  </div>
+                  <div className="pt-2 border-t border-slate-800 flex justify-end">
+                    <button
+                      onClick={() => handleDeleteTimeline(item.id)}
+                      className="px-3 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-950 text-red-400 text-xs font-bold"
+                    >
+                      Өшіру
                     </button>
                   </div>
-                  {editingAssistants.length === 0 ? (
-                    <p className="text-xs text-[#00afca]">Көмекшілер тізімі бос</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {editingAssistants.map((ast, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <input
-                            placeholder="Аты-жөні (мыс. Аленов Санжар)"
-                            value={ast.name}
-                            onChange={(e) => {
-                              const copy = [...editingAssistants];
-                              copy[idx] = { ...copy[idx], name: e.target.value };
-                              setEditingAssistants(copy);
-                            }}
-                            className="form-input text-xs flex-1"
-                          />
-                          <input
-                            placeholder="Сыныбы (10 «С»)"
-                            value={ast.grade}
-                            onChange={(e) => {
-                              const copy = [...editingAssistants];
-                              copy[idx] = { ...copy[idx], grade: e.target.value };
-                              setEditingAssistants(copy);
-                            }}
-                            className="form-input text-xs w-32"
-                          />
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setEditingAssistants(editingAssistants.filter((_, i) => i !== idx))
-                            }
-                            className="w-8 h-8 rounded-full border-2 border-[#00afca] text-[#00afca] font-bold text-xs shrink-0"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase mb-1">
-                    Фракция міндеттері мен бағдарламасы (KK)
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={editingMinister.bioKk}
-                    onChange={(e) =>
-                      setEditingMinister({ ...editingMinister, bioKk: e.target.value })
-                    }
-                    className="form-input"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase mb-1">
-                    Фракция міндеттері мен бағдарламасы (EN)
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={editingMinister.bioRu}
-                    onChange={(e) =>
-                      setEditingMinister({ ...editingMinister, bioRu: e.target.value })
-                    }
-                    className="form-input"
-                  />
-                </div>
-
-                <div className="flex justify-end gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setEditingMinister(null)}
-                    className="px-6 py-2.5 rounded-full border-2 border-[#00afca] text-[#00afca] font-bold text-xs uppercase"
-                  >
-                    Болдырмау
-                  </button>
-                  <button type="submit" className="btn-blue text-xs uppercase">
-                    Өзгерістерді сақтау
-                  </button>
-                </div>
-              </form>
+              ))}
             </div>
           </div>
         )}
 
-        {/* EVENTS TAB */}
-        {activeTab === 'events' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div className="lg:col-span-5 border-2 border-[#00afca] rounded-2xl p-6 bg-[#ffffff]">
-              <h2 className="font-serif text-xl font-bold text-[#00afca] mb-4">
-                Добавить мероприятие
-              </h2>
-              <form onSubmit={handleCreateEvent} className="space-y-3">
+        {/* ===================================================================
+            TAB: POLLS (Full Access Only)
+           =================================================================== */}
+        {activeTab === 'polls' && hasFullAccess && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-extrabold text-lg text-white">Сауалнамалар мен дауыс беру</h3>
+              <button
+                onClick={() => setShowAddPoll(true)}
+                className="px-4 py-2 rounded-xl bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-xs font-bold transition-all"
+              >
+                + Жаңа сауалнама
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {polls.map((poll) => (
+                <div
+                  key={poll.id}
+                  className="p-5 rounded-2xl bg-[#0e1726] border border-slate-800 space-y-4"
+                >
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                    <h4 className="font-bold text-base text-white">{poll.questionKk}</h4>
+                    <button
+                      onClick={() => handleDeletePoll(poll.id)}
+                      className="text-xs text-red-400 hover:text-red-300 font-bold"
+                    >
+                      Өшіру
+                    </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    {poll.options?.map((opt) => {
+                      const v = opt.votesCount ?? opt._count?.votes ?? 0;
+                      return (
+                        <div
+                          key={opt.id}
+                          className="p-3 rounded-xl bg-[#141f33] border border-slate-800 flex items-center justify-between text-xs"
+                        >
+                          <span className="font-semibold text-slate-200">{opt.textKk}</span>
+                          <span className="font-black text-[#38bdf8]">{v} дауыс</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ===================================================================
+            TAB: SUGGESTIONS (Full Access Only)
+           =================================================================== */}
+        {activeTab === 'suggestions' && hasFullAccess && (
+          <div className="space-y-4">
+            <h3 className="font-extrabold text-lg text-white">
+              Оқушылардың идеялары мен бастамалары
+            </h3>
+            {suggestions.length === 0 ? (
+              <div className="p-8 rounded-2xl bg-[#0e1726] border border-slate-800 text-center text-slate-400 text-xs">
+                Әзірге жаңа ұсыныстар жоқ.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {suggestions.map((sg) => (
+                  <div
+                    key={sg.id}
+                    className="p-5 rounded-2xl bg-[#0e1726] border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                  >
+                    <div>
+                      <div className="text-xs font-bold text-white">
+                        {sg.author || 'Оқушы'} •{' '}
+                        <span className="text-[#38bdf8] uppercase text-[10px]">
+                          {sg.status || 'Жаңа'}
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-200 mt-1">{sg.text}</p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleSuggestionStatus(sg.id, 'approved')}
+                        className="px-3 py-1.5 rounded-lg bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 text-xs font-bold"
+                      >
+                        Мақұлдау ✓
+                      </button>
+                      <button
+                        onClick={() => handleSuggestionStatus(sg.id, 'rejected')}
+                        className="px-3 py-1.5 rounded-lg bg-red-950/60 hover:bg-red-900 border border-red-800 text-red-300 text-xs font-bold"
+                      >
+                        Қабылдамау ✕
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ===================================================================
+            TAB: STATS (Full Access Only)
+           =================================================================== */}
+        {activeTab === 'stats' && hasFullAccess && (
+          <div className="space-y-4">
+            <h3 className="font-extrabold text-lg text-white">Сайттағы сандық көрсеткіштер</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {stats.map((st) => (
+                <div key={st.id} className="p-5 rounded-2xl bg-[#0e1726] border border-slate-800 space-y-2">
+                  <div className="text-xs font-bold text-slate-400">{st.labelKk}</div>
+                  <input
+                    type="number"
+                    defaultValue={st.value}
+                    onBlur={(e) => handleStatUpdate(st.key, Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white font-black text-xl"
+                  />
+                  <div className="text-[10px] text-slate-500 font-semibold">
+                    Өзгерту үшін санды енгізіп, сыртына басыңыз
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* =====================================================================
+          MODAL: EDIT MINISTER & ASSISTANTS
+         ===================================================================== */}
+      {editingMinister && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={() => setEditingMinister(null)}
+        >
+          <div
+            className="bg-[#0e1726] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto text-slate-100"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+              <h3 className="font-black text-lg text-white">
+                Профильді өңдеу: {editingMinister.nameKk} ({editingMinister.roleKk})
+              </h3>
+              <button
+                onClick={() => setEditingMinister(null)}
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveMinister} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">
+                    Аты-жөні (Қазақша)
+                  </label>
+                  <input
+                    type="text"
+                    value={editingMinister.nameKk}
+                    onChange={(e) =>
+                      setEditingMinister({ ...editingMinister, nameKk: e.target.value })
+                    }
+                    className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">
+                    Сыныбы (Grade)
+                  </label>
+                  <input
+                    type="text"
+                    value={editingMinister.grade}
+                    onChange={(e) =>
+                      setEditingMinister({ ...editingMinister, grade: e.target.value })
+                    }
+                    className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs font-bold"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  Фото URL сілтемесі
+                </label>
                 <input
+                  type="text"
+                  value={editingMinister.photo || ''}
+                  onChange={(e) =>
+                    setEditingMinister({ ...editingMinister, photo: e.target.value })
+                  }
+                  placeholder="https://... немесе /members/photo.jpg"
+                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  Цитата / Ұраны (Қазақша)
+                </label>
+                <input
+                  type="text"
+                  value={editingMinister.quoteKk}
+                  onChange={(e) =>
+                    setEditingMinister({ ...editingMinister, quoteKk: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  Сипаттамасы / Бағыты (Қазақша)
+                </label>
+                <textarea
+                  rows={3}
+                  value={editingMinister.bioKk}
+                  onChange={(e) =>
+                    setEditingMinister({ ...editingMinister, bioKk: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                />
+              </div>
+
+              {/* Password update if full access */}
+              {hasFullAccess && (
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">
+                    Пароль (Кіру құпиясөзі)
+                  </label>
+                  <input
+                    type="text"
+                    value={editingMinister.password || ''}
+                    onChange={(e) =>
+                      setEditingMinister({ ...editingMinister, password: e.target.value })
+                    }
+                    className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs font-mono"
+                  />
+                </div>
+              )}
+
+              {/* Assistants Editor */}
+              <div className="space-y-3 pt-3 border-t border-slate-800">
+                <div className="flex items-center justify-between">
+                  <div className="text-xs font-bold text-white">Фракция көмекшілерін басқару</div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setEditingAssistants([...editingAssistants, { name: '', grade: '10А' }])
+                    }
+                    className="px-3 py-1 rounded-lg bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-xs font-bold"
+                  >
+                    + Көмекші қосу
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  {editingAssistants.map((ast, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        placeholder="Көмекшінің аты-жөні..."
+                        value={ast.name}
+                        onChange={(e) => {
+                          const updated = [...editingAssistants];
+                          updated[idx].name = e.target.value;
+                          setEditingAssistants(updated);
+                        }}
+                        className="flex-1 px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Сыныбы (10А)"
+                        value={ast.grade}
+                        onChange={(e) => {
+                          const updated = [...editingAssistants];
+                          updated[idx].grade = e.target.value;
+                          setEditingAssistants(updated);
+                        }}
+                        className="w-24 px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setEditingAssistants(editingAssistants.filter((_, i) => i !== idx))
+                        }
+                        className="px-3 py-2 rounded-xl bg-red-950/60 hover:bg-red-950 text-red-400 text-xs font-bold"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {saveMessage && (
+                <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-800 text-emerald-300 text-xs font-bold text-center">
+                  {saveMessage}
+                </div>
+              )}
+
+              <div className="pt-4 flex items-center justify-end gap-2 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setEditingMinister(null)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold"
+                >
+                  Болдырмау
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-xs font-bold shadow-md"
+                >
+                  Сақтау ✓
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* =====================================================================
+          MODAL: ADD NEW EVENT
+         ===================================================================== */}
+      {showAddEvent && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={() => setShowAddEvent(false)}
+        >
+          <div
+            className="bg-[#0e1726] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 text-slate-100 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="font-bold text-lg text-white">Жаңа іс-шара қосу</h3>
+            <form onSubmit={handleCreateEvent} className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Сілтеме (Slug)</label>
+                <input
+                  type="text"
                   required
-                  placeholder="Slug (например: school-forum)"
+                  placeholder="chess-tournament"
                   value={eventForm.slug}
                   onChange={(e) => setEventForm({ ...eventForm, slug: e.target.value })}
-                  className="form-input text-sm"
+                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Атауы (Қазақша)</label>
                 <input
+                  type="text"
                   required
-                  placeholder="Название (RU)"
-                  value={eventForm.titleRu}
-                  onChange={(e) => setEventForm({ ...eventForm, titleRu: e.target.value })}
-                  className="form-input text-sm"
-                />
-                <input
-                  required
-                  placeholder="Название (KK)"
                   value={eventForm.titleKk}
                   onChange={(e) => setEventForm({ ...eventForm, titleKk: e.target.value })}
-                  className="form-input text-sm"
+                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
                 />
-                <div className="grid grid-cols-2 gap-3">
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Санаты</label>
                   <select
                     value={eventForm.category}
                     onChange={(e) => setEventForm({ ...eventForm, category: e.target.value })}
-                    className="form-input text-sm"
+                    className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
                   >
-                    <option value="Учёба">Учёба</option>
-                    <option value="Культура">Культура</option>
+                    <option value="Учёба">Білім</option>
+                    <option value="Культура">Мәдениет</option>
                     <option value="Спорт">Спорт</option>
-                    <option value="Благотворительность">Благотворительность</option>
+                    <option value="Благотворительность">Қайырымдылық</option>
                   </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Орын саны</label>
                   <input
-                    required
                     type="number"
-                    placeholder="Макс. мест"
                     value={eventForm.maxSeats}
                     onChange={(e) =>
                       setEventForm({ ...eventForm, maxSeats: Number(e.target.value) })
                     }
-                    className="form-input text-sm"
+                    className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
                   />
                 </div>
-                <input
-                  required
-                  type="datetime-local"
-                  value={eventForm.date}
-                  onChange={(e) => setEventForm({ ...eventForm, date: e.target.value })}
-                  className="form-input text-sm"
-                />
-                <input
-                  required
-                  placeholder="Место проведения (напр. Актовый зал)"
-                  value={eventForm.location}
-                  onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })}
-                  className="form-input text-sm"
-                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Уақыты мен күні</label>
+                  <input
+                    type="datetime-local"
+                    required
+                    value={eventForm.date}
+                    onChange={(e) => setEventForm({ ...eventForm, date: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Өтетін орны</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Акт залы"
+                    value={eventForm.location}
+                    onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Сипаттамасы</label>
                 <textarea
-                  required
                   rows={2}
-                  placeholder="Описание (RU)"
-                  value={eventForm.descRu}
-                  onChange={(e) => setEventForm({ ...eventForm, descRu: e.target.value })}
-                  className="form-input text-sm"
-                />
-                <textarea
-                  required
-                  rows={2}
-                  placeholder="Описание (KK)"
                   value={eventForm.descKk}
                   onChange={(e) => setEventForm({ ...eventForm, descKk: e.target.value })}
-                  className="form-input text-sm"
+                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
                 />
-                <button type="submit" className="w-full btn-blue py-2.5 text-xs uppercase">
-                  Опубликовать мероприятие
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddEvent(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold"
+                >
+                  Болдырмау
                 </button>
-              </form>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-[#0ea5e9] text-white text-xs font-bold"
+                >
+                  Қосу ✓
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* =====================================================================
+          MODAL: VIEW REGISTRATIONS & CSV EXPORT
+         ===================================================================== */}
+      {selectedEventRegs && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={() => setSelectedEventRegs(null)}
+        >
+          <div
+            className="bg-[#0e1726] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl space-y-4 text-slate-100 max-h-[85vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div>
+                <h3 className="font-bold text-base text-white">Тіркелген оқушылар тізімі</h3>
+                <p className="text-xs text-slate-400">{selectedEventTitle}</p>
+              </div>
+              <button
+                onClick={() => exportCsv(selectedEventTitle, selectedEventRegs)}
+                className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm"
+              >
+                📥 CSV-ге жүктеу
+              </button>
             </div>
 
-            <div className="lg:col-span-7 space-y-4">
-              {events.length === 0 ? (
-                <div className="border-2 border-[#00afca] rounded-2xl p-8 text-center">
-                  <p className="font-bold text-[#00afca]">Мероприятий пока нет</p>
-                </div>
-              ) : (
-                events.map((ev) => (
+            {selectedEventRegs.length === 0 ? (
+              <div className="p-6 text-center text-xs text-slate-400">
+                Әзірге ешкім тіркелмеген.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {selectedEventRegs.map((r, i) => (
                   <div
-                    key={ev.id}
-                    className="border-2 border-[#00afca] rounded-2xl p-5 bg-[#ffffff] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                    key={i}
+                    className="p-3 rounded-xl bg-[#141f33] border border-slate-800 flex items-center justify-between text-xs"
                   >
                     <div>
-                      <span className="text-xs font-bold uppercase text-[#00afca]">
-                        {ev.category} • {new Date(ev.date).toLocaleDateString('ru-RU')}
+                      <span className="font-bold text-white">{r.name}</span>
+                      <span className="ml-2 px-2 py-0.5 rounded-full bg-slate-800 text-[#38bdf8] font-bold text-[10px]">
+                        {r.grade}
                       </span>
-                      <h3 className="font-serif text-lg font-bold text-[#00afca]">{ev.titleRu}</h3>
-                      <div className="text-xs text-[#00afca] mt-1 font-semibold">
-                        Записалось: {ev.registrations?.length || 0} / {ev.maxSeats}
-                      </div>
+                      {r.phone && <span className="ml-2 text-slate-400">тел: {r.phone}</span>}
                     </div>
-
-                    <div className="flex flex-wrap items-center gap-2">
-                      <button
-                        onClick={() => {
-                          setSelectedEventRegs(ev.registrations || []);
-                          setSelectedEventTitle(ev.slug);
-                        }}
-                        className="text-xs px-3 py-1.5 rounded-full border-2 border-[#00afca] text-[#00afca] font-bold"
-                      >
-                        Список ({ev.registrations?.length || 0})
-                      </button>
-                      <button
-                        onClick={() => exportCsv(ev.slug, ev.registrations || [])}
-                        className="text-xs px-3 py-1.5 rounded-full bg-[#00afca] text-[#ffffff] font-bold"
-                      >
-                        CSV
-                      </button>
-                      <button
-                        onClick={() => handleDeleteEvent(ev.id)}
-                        className="text-xs px-3 py-1.5 rounded-full border-2 border-[#00afca] text-[#00afca] font-bold"
-                      >
-                        Удалить
-                      </button>
-                    </div>
+                    <span className="text-[11px] text-slate-500">
+                      {new Date(r.createdAt).toLocaleDateString('kk-KZ')}
+                    </span>
                   </div>
-                ))
-              )}
+                ))}
+              </div>
+            )}
 
-              {selectedEventRegs && (
-                <div className="border-2 border-[#00afca] rounded-2xl p-6 bg-[#ffffff]">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="font-serif text-lg font-bold text-[#00afca]">
-                      Записавшиеся ученики ({selectedEventTitle})
-                    </h4>
-                    <button
-                      onClick={() => setSelectedEventRegs(null)}
-                      className="text-xs font-bold text-[#00afca]"
-                    >
-                      Закрыть ✕
-                    </button>
-                  </div>
-                  {selectedEventRegs.length === 0 ? (
-                    <p className="text-xs text-[#00afca]">Записей пока нет</p>
-                  ) : (
-                    <div className="space-y-2 max-h-60 overflow-y-auto">
-                      {selectedEventRegs.map((r, i) => (
-                        <div
-                          key={i}
-                          className="flex justify-between text-xs p-2.5 rounded-lg border border-[#00afca]"
-                        >
-                          <span className="font-bold text-[#00afca]">
-                            {r.name} ({r.grade})
-                          </span>
-                          <span className="text-[#00afca]">{r.phone || '—'}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+            <div className="pt-2 flex justify-end">
+              <button
+                onClick={() => setSelectedEventRegs(null)}
+                className="px-4 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold"
+              >
+                Жабу
+              </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* TIMELINE TAB */}
-        {activeTab === 'timeline' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div className="lg:col-span-5 border-2 border-[#00afca] rounded-2xl p-6 bg-[#ffffff]">
-              <h2 className="font-serif text-xl font-bold text-[#00afca] mb-4">
-                Добавить этап в План года
-              </h2>
-              <form onSubmit={handleCreateTimeline} className="space-y-3">
+      {/* =====================================================================
+          MODAL: ADD NEWS
+         ===================================================================== */}
+      {showAddNews && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={() => setShowAddNews(false)}
+        >
+          <div
+            className="bg-[#0e1726] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 text-slate-100 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="font-bold text-lg text-white">Жаңалық мақаласын жариялау</h3>
+            <form onSubmit={handleCreateNews} className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Сілтеме (Slug)</label>
                 <input
+                  type="text"
                   required
-                  placeholder="Название этапа (RU)"
-                  value={timelineForm.titleRu}
-                  onChange={(e) => setTimelineForm({ ...timelineForm, titleRu: e.target.value })}
-                  className="form-input text-sm"
+                  placeholder="autumn-forum-results"
+                  value={newsForm.slug}
+                  onChange={(e) => setNewsForm({ ...newsForm, slug: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Тақырыбы (Қазақша)</label>
                 <input
+                  type="text"
                   required
-                  placeholder="Название этапа (KK)"
+                  value={newsForm.titleKk}
+                  onChange={(e) => setNewsForm({ ...newsForm, titleKk: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Қысқаша аңдатпа (Excerpt)</label>
+                <input
+                  type="text"
+                  required
+                  value={newsForm.excerpt}
+                  onChange={(e) => setNewsForm({ ...newsForm, excerpt: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Мақала мәтіні</label>
+                <textarea
+                  rows={4}
+                  required
+                  value={newsForm.contentKk}
+                  onChange={(e) => setNewsForm({ ...newsForm, contentKk: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                />
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddNews(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold"
+                >
+                  Болдырмау
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-[#0ea5e9] text-white text-xs font-bold"
+                >
+                  Жариялау ✓
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* =====================================================================
+          MODAL: ADD POLL
+         ===================================================================== */}
+      {showAddPoll && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={() => setShowAddPoll(false)}
+        >
+          <div
+            className="bg-[#0e1726] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 text-slate-100 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="font-bold text-lg text-white">Жаңа сауалнама ашу</h3>
+            <form onSubmit={handleCreatePoll} className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  Сауалнама сұрағы (Қазақша)
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={pollForm.questionKk}
+                  onChange={(e) => setPollForm({ ...pollForm, questionKk: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  1-нұсқа (Қазақша)
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={pollForm.option1Kk}
+                  onChange={(e) => setPollForm({ ...pollForm, option1Kk: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  2-нұсқа (Қазақша)
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={pollForm.option2Kk}
+                  onChange={(e) => setPollForm({ ...pollForm, option2Kk: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  3-нұсқа (міндетті емес)
+                </label>
+                <input
+                  type="text"
+                  value={pollForm.option3Kk}
+                  onChange={(e) => setPollForm({ ...pollForm, option3Kk: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
+                />
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddPoll(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold"
+                >
+                  Болдырмау
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-[#0ea5e9] text-white text-xs font-bold"
+                >
+                  Ашу ✓
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* =====================================================================
+          MODAL: ADD TIMELINE
+         ===================================================================== */}
+      {showAddTimeline && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={() => setShowAddTimeline(false)}
+        >
+          <div
+            className="bg-[#0e1726] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 text-slate-100 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="font-bold text-lg text-white">Жыл жоспарына тармақ қосу</h3>
+            <form onSubmit={handleCreateTimeline} className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Атауы (Қазақша)</label>
+                <input
+                  type="text"
+                  required
                   value={timelineForm.titleKk}
                   onChange={(e) => setTimelineForm({ ...timelineForm, titleKk: e.target.value })}
-                  className="form-input text-sm"
+                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
                 />
-                <div className="grid grid-cols-3 gap-3">
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Ай нөмірі (1-12)</label>
                   <input
-                    required
                     type="number"
                     min={1}
                     max={12}
-                    placeholder="Месяц (1-12)"
                     value={timelineForm.month}
                     onChange={(e) =>
                       setTimelineForm({ ...timelineForm, month: Number(e.target.value) })
                     }
-                    className="form-input text-sm"
+                    className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
                   />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Жыл</label>
                   <input
-                    required
                     type="number"
-                    placeholder="Год"
                     value={timelineForm.year}
                     onChange={(e) =>
                       setTimelineForm({ ...timelineForm, year: Number(e.target.value) })
                     }
-                    className="form-input text-sm"
-                  />
-                  <input
-                    required
-                    type="number"
-                    placeholder="Порядок"
-                    value={timelineForm.order}
-                    onChange={(e) =>
-                      setTimelineForm({ ...timelineForm, order: Number(e.target.value) })
-                    }
-                    className="form-input text-sm"
+                    className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Сипаттамасы</label>
                 <textarea
                   rows={2}
-                  placeholder="Описание (RU)"
-                  value={timelineForm.descRu}
-                  onChange={(e) => setTimelineForm({ ...timelineForm, descRu: e.target.value })}
-                  className="form-input text-sm"
-                />
-                <textarea
-                  rows={2}
-                  placeholder="Описание (KK)"
                   value={timelineForm.descKk}
                   onChange={(e) => setTimelineForm({ ...timelineForm, descKk: e.target.value })}
-                  className="form-input text-sm"
+                  className="w-full px-3 py-2 rounded-xl bg-[#141f33] border border-slate-700 text-white text-xs"
                 />
-                <button type="submit" className="w-full btn-blue py-2.5 text-xs uppercase">
-                  Добавить в План года
-                </button>
-              </form>
-            </div>
+              </div>
 
-            <div className="lg:col-span-7 space-y-4">
-              {timeline.length === 0 ? (
-                <div className="border-2 border-[#00afca] rounded-2xl p-8 text-center">
-                  <p className="font-bold text-[#00afca]">Этапы годового плана пока не добавлены</p>
-                </div>
-              ) : (
-                timeline.map((item) => (
-                  <div
-                    key={item.id}
-                    className="border-2 border-[#00afca] rounded-2xl p-5 bg-[#ffffff] flex items-center justify-between gap-4"
-                  >
-                    <div>
-                      <div className="text-xs font-bold uppercase text-[#00afca]">
-                        Месяц: {item.month} / {item.year}
-                      </div>
-                      <h3 className="font-serif text-lg font-bold text-[#00afca]">
-                        {item.titleRu}
-                      </h3>
-                      <p className="text-xs text-[#00afca] mt-1">{item.descRu}</p>
-                    </div>
-                    <button
-                      onClick={() => handleDeleteTimeline(item.id)}
-                      className="text-xs px-3 py-1.5 rounded-full border-2 border-[#00afca] text-[#00afca] font-bold"
-                    >
-                      Удалить
-                    </button>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* NEWS TAB */}
-        {activeTab === 'news' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div className="lg:col-span-5 border-2 border-[#00afca] rounded-2xl p-6 bg-[#ffffff]">
-              <h2 className="font-serif text-xl font-bold text-[#00afca] mb-4">
-                Опубликовать новость
-              </h2>
-              <form onSubmit={handleCreateNews} className="space-y-3">
-                <input
-                  required
-                  placeholder="Slug (например: parliament-meeting)"
-                  value={newsForm.slug}
-                  onChange={(e) => setNewsForm({ ...newsForm, slug: e.target.value })}
-                  className="form-input text-sm"
-                />
-                <input
-                  required
-                  placeholder="Заголовок (RU)"
-                  value={newsForm.titleRu}
-                  onChange={(e) => setNewsForm({ ...newsForm, titleRu: e.target.value })}
-                  className="form-input text-sm"
-                />
-                <input
-                  required
-                  placeholder="Заголовок (KK)"
-                  value={newsForm.titleKk}
-                  onChange={(e) => setNewsForm({ ...newsForm, titleKk: e.target.value })}
-                  className="form-input text-sm"
-                />
-                <input
-                  placeholder="Краткое описание (Excerpt)"
-                  value={newsForm.excerpt}
-                  onChange={(e) => setNewsForm({ ...newsForm, excerpt: e.target.value })}
-                  className="form-input text-sm"
-                />
-                <textarea
-                  required
-                  rows={3}
-                  placeholder="Текст статьи (RU)"
-                  value={newsForm.contentRu}
-                  onChange={(e) => setNewsForm({ ...newsForm, contentRu: e.target.value })}
-                  className="form-input text-sm"
-                />
-                <textarea
-                  required
-                  rows={3}
-                  placeholder="Текст статьи (KK)"
-                  value={newsForm.contentKk}
-                  onChange={(e) => setNewsForm({ ...newsForm, contentKk: e.target.value })}
-                  className="form-input text-sm"
-                />
-                <button type="submit" className="w-full btn-blue py-2.5 text-xs uppercase">
-                  Опубликовать
-                </button>
-              </form>
-            </div>
-
-            <div className="lg:col-span-7 space-y-4">
-              {news.length === 0 ? (
-                <div className="border-2 border-[#00afca] rounded-2xl p-8 text-center">
-                  <p className="font-bold text-[#00afca]">Новостей пока нет</p>
-                </div>
-              ) : (
-                news.map((n) => (
-                  <div
-                    key={n.id}
-                    className="border-2 border-[#00afca] rounded-2xl p-5 bg-[#ffffff] flex items-center justify-between gap-4"
-                  >
-                    <div>
-                      <h3 className="font-serif text-lg font-bold text-[#00afca]">{n.titleRu}</h3>
-                      <p className="text-xs text-[#00afca] mt-1">{n.excerpt}</p>
-                    </div>
-                    <button
-                      onClick={() => handleDeleteNews(n.id)}
-                      className="text-xs px-3 py-1.5 rounded-full border-2 border-[#00afca] text-[#00afca] font-bold"
-                    >
-                      Удалить
-                    </button>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* POLLS TAB */}
-        {activeTab === 'polls' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div className="lg:col-span-5 border-2 border-[#00afca] rounded-2xl p-6 bg-[#ffffff]">
-              <h2 className="font-serif text-xl font-bold text-[#00afca] mb-4">
-                Запустить общешкольное голосование
-              </h2>
-              <form onSubmit={handleCreatePoll} className="space-y-3">
-                <input
-                  required
-                  placeholder="Вопрос голосования (RU)"
-                  value={pollForm.questionRu}
-                  onChange={(e) => setPollForm({ ...pollForm, questionRu: e.target.value })}
-                  className="form-input text-sm"
-                />
-                <input
-                  placeholder="Вопрос голосования (KK)"
-                  value={pollForm.questionKk}
-                  onChange={(e) => setPollForm({ ...pollForm, questionKk: e.target.value })}
-                  className="form-input text-sm"
-                />
-                <input
-                  required
-                  placeholder="Вариант 1 (RU)"
-                  value={pollForm.option1Ru}
-                  onChange={(e) => setPollForm({ ...pollForm, option1Ru: e.target.value })}
-                  className="form-input text-sm"
-                />
-                <input
-                  placeholder="Вариант 1 (KK)"
-                  value={pollForm.option1Kk}
-                  onChange={(e) => setPollForm({ ...pollForm, option1Kk: e.target.value })}
-                  className="form-input text-sm"
-                />
-                <input
-                  required
-                  placeholder="Вариант 2 (RU)"
-                  value={pollForm.option2Ru}
-                  onChange={(e) => setPollForm({ ...pollForm, option2Ru: e.target.value })}
-                  className="form-input text-sm"
-                />
-                <input
-                  placeholder="Вариант 2 (KK)"
-                  value={pollForm.option2Kk}
-                  onChange={(e) => setPollForm({ ...pollForm, option2Kk: e.target.value })}
-                  className="form-input text-sm"
-                />
-                <input
-                  placeholder="Вариант 3 (RU, необязательно)"
-                  value={pollForm.option3Ru}
-                  onChange={(e) => setPollForm({ ...pollForm, option3Ru: e.target.value })}
-                  className="form-input text-sm"
-                />
-                <input
-                  placeholder="Вариант 3 (KK, необязательно)"
-                  value={pollForm.option3Kk}
-                  onChange={(e) => setPollForm({ ...pollForm, option3Kk: e.target.value })}
-                  className="form-input text-sm"
-                />
-                <button type="submit" className="w-full btn-blue py-2.5 text-xs uppercase">
-                  Запустить голосование
-                </button>
-              </form>
-            </div>
-
-            <div className="lg:col-span-7 space-y-4">
-              {polls.length === 0 ? (
-                <div className="border-2 border-[#00afca] rounded-2xl p-8 text-center">
-                  <p className="font-bold text-[#00afca]">Опросов пока нет</p>
-                </div>
-              ) : (
-                polls.map((p) => (
-                  <div
-                    key={p.id}
-                    className="border-2 border-[#00afca] rounded-2xl p-5 bg-[#ffffff] space-y-3"
-                  >
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-serif text-lg font-bold text-[#00afca]">
-                        {p.questionRu}
-                      </h3>
-                      <button
-                        onClick={() => handleDeletePoll(p.id)}
-                        className="text-xs px-3 py-1 rounded-full border-2 border-[#00afca] text-[#00afca] font-bold"
-                      >
-                        Удалить
-                      </button>
-                    </div>
-                    <div className="space-y-1 text-xs text-[#00afca]">
-                      {p.options?.map((o: AdminPollOption) => (
-                        <div
-                          key={o.id}
-                          className="flex justify-between p-2 rounded border border-[#00afca]"
-                        >
-                          <span className="font-semibold">{o.textRu}</span>
-                          <span className="font-bold">{o._count?.votes || 0} голосов</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* APPEALS TAB */}
-        {activeTab === 'appeals' && (
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-4 border-2 border-[#00afca] rounded-2xl p-5 bg-[#ffffff]">
-              <h2 className="font-serif text-xl font-bold text-[#00afca]">
-                {hasFullAccess ? 'Барлық фракцияларға келген өтініштер' : 'Фракцияға келген өтініштер'}
-              </h2>
-              {hasFullAccess && (
-                <select
-                  value={appealMinistryFilter}
-                  onChange={(e) => setAppealMinistryFilter(e.target.value)}
-                  className="form-input max-w-xs text-xs font-bold"
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddTimeline(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold"
                 >
-                  <option value="all">Барлық бағыттар</option>
-                  <option value="general">Президент / Вице-президент (Жалпы)</option>
-                  <option value="it">IT және цифрландыру фракциясы</option>
-                  <option value="culture">Мәдениет және өнер фракциясы</option>
-                  <option value="sport">Спорт фракциясы</option>
-                  <option value="volunteers">Еріктілер және қайырымдылық фракциясы</option>
-                  <option value="discipline">Құқық және тәртіп фракциясы</option>
-                  <option value="media">Медиа фракциясы</option>
-                  <option value="education">Білім фракциясы</option>
-                </select>
-              )}
-            </div>
-
-            {filteredAppeals.length === 0 ? (
-              <div className="border-2 border-[#00afca] rounded-2xl p-8 text-center">
-                <p className="font-bold text-[#00afca]">Обращений пока нет</p>
-              </div>
-            ) : (
-              filteredAppeals.map((ap) => (
-                <div
-                  key={ap.id}
-                  className="border-2 border-[#00afca] rounded-2xl p-5 bg-[#ffffff] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                  Болдырмау
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-[#0ea5e9] text-white text-xs font-bold"
                 >
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <span className="px-3 py-0.5 rounded-full bg-[#00afca] text-[#ffffff] text-xs font-bold uppercase">
-                        {ap.ministry || 'general'}
-                      </span>
-                      <span className="text-xs font-bold uppercase text-[#00afca]">
-                        {ap.type === 'proposal'
-                          ? 'Предложение'
-                          : ap.type === 'complaint'
-                          ? 'Вопрос / Проблема'
-                          : 'Заявка в министерство'}
-                      </span>
-                      <span className="text-xs text-[#00afca] font-semibold">
-                        • {ap.anonymous ? 'Анонимно' : `${ap.name} (${ap.grade})`}
-                      </span>
-                    </div>
-                    <p className="text-sm text-[#00afca] font-medium">{ap.text}</p>
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    {(['new', 'in_progress', 'resolved'] as const).map((st) => (
-                      <button
-                        key={st}
-                        onClick={() => handleAppealStatus(ap.id, st)}
-                        className={`text-xs px-3 py-1 rounded-full border-2 border-[#00afca] font-bold ${
-                          ap.status === st
-                            ? 'bg-[#00afca] text-[#ffffff]'
-                            : 'bg-[#ffffff] text-[#00afca]'
-                        }`}
-                      >
-                        {st === 'new' ? 'Новое' : st === 'in_progress' ? 'В работе' : 'Решено'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))
-            )}
+                  Қосу ✓
+                </button>
+              </div>
+            </form>
           </div>
-        )}
-
-        {/* SUGGESTIONS TAB */}
-        {activeTab === 'suggestions' && (
-          <div className="space-y-4">
-            {suggestions.length === 0 ? (
-              <div className="border-2 border-[#00afca] rounded-2xl p-8 text-center">
-                <p className="font-bold text-[#00afca]">Предложений для голосования пока нет</p>
-              </div>
-            ) : (
-              suggestions.map((sg) => (
-                <div
-                  key={sg.id}
-                  className="border-2 border-[#00afca] rounded-2xl p-5 bg-[#ffffff] flex items-center justify-between gap-4"
-                >
-                  <div>
-                    <div className="text-xs text-[#00afca] mb-1 font-bold">Автор: {sg.author}</div>
-                    <p className="text-sm text-[#00afca] font-medium">{sg.text}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleSuggestionStatus(sg.id, 'approved')}
-                      className={`text-xs px-3 py-1 rounded-full border-2 border-[#00afca] font-bold ${
-                        sg.status === 'approved'
-                          ? 'bg-[#00afca] text-[#ffffff]'
-                          : 'bg-[#ffffff] text-[#00afca]'
-                      }`}
-                    >
-                      Одобрить
-                    </button>
-                    <button
-                      onClick={() => handleSuggestionStatus(sg.id, 'rejected')}
-                      className={`text-xs px-3 py-1 rounded-full border-2 border-[#00afca] font-bold ${
-                        sg.status === 'rejected'
-                          ? 'bg-[#00afca] text-[#ffffff]'
-                          : 'bg-[#ffffff] text-[#00afca]'
-                      }`}
-                    >
-                      Отклонить
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        )}
-
-        {/* STATS TAB */}
-        {activeTab === 'stats' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {stats.map((st) => (
-              <div key={st.key} className="border-2 border-[#00afca] rounded-2xl p-6 bg-[#ffffff]">
-                <div className="text-xs uppercase text-[#00afca] mb-2 font-bold">{st.labelRu}</div>
-                <input
-                  type="number"
-                  defaultValue={st.value}
-                  onBlur={(e) => handleStatUpdate(st.key, Number(e.target.value))}
-                  className="form-input font-serif text-2xl font-bold text-[#00afca]"
-                />
-                <div className="text-[11px] text-[#00afca] mt-2 font-medium">
-                  Измените число и кликните вне поля для сохранения
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* DASHBOARD TAB */}
-        {hasFullAccess && activeTab === 'dashboard' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="border-2 border-[#00afca] rounded-2xl p-6 bg-[#ffffff]">
-              <div className="text-xs uppercase tracking-wider text-[#00afca] mb-2 font-bold">
-                Фракциялар саны
-              </div>
-              <div className="font-serif text-4xl font-bold text-[#00afca]">
-                {factionMembers.length}
-              </div>
-            </div>
-            <div className="border-2 border-[#00afca] rounded-2xl p-6 bg-[#ffffff]">
-              <div className="text-xs uppercase tracking-wider text-[#00afca] mb-2 font-bold">
-                Іс-шаралар
-              </div>
-              <div className="font-serif text-4xl font-bold text-[#00afca]">{events.length}</div>
-            </div>
-            <div className="border-2 border-[#00afca] rounded-2xl p-6 bg-[#ffffff]">
-              <div className="text-xs uppercase tracking-wider text-[#00afca] mb-2 font-bold">
-                Жаңа өтініштер
-              </div>
-              <div className="font-serif text-4xl font-bold text-[#00afca]">
-                {appeals.filter((a) => a.status === 'new').length}
-              </div>
-            </div>
-            <div className="border-2 border-[#00afca] rounded-2xl p-6 bg-[#ffffff]">
-              <div className="text-xs uppercase tracking-wider text-[#00afca] mb-2 font-bold">
-                Модерациядағы идеялар
-              </div>
-              <div className="font-serif text-4xl font-bold text-[#00afca]">
-                {suggestions.filter((s) => s.status === 'pending').length}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
