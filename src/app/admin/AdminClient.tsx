@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import SchoolLogo from '@/components/SchoolLogo';
+import MemberPortrait from '@/components/MemberPortrait';
 
 type Tab =
   | 'overview'
@@ -943,18 +944,13 @@ export default function AdminClient() {
                 <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-6">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0">
-                        {myMember.photo ? (
-                          <img
-                            src={myMember.photo}
-                            alt={myMember.nameKk}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center font-bold text-slate-500">
-                            AQL
-                          </div>
-                        )}
+                      <div className="w-20 sm:w-24 shrink-0 shadow-md">
+                        <MemberPortrait
+                          photo={myMember.photo}
+                          name={myMember.nameKk}
+                          aspect="portrait"
+                          className="rounded-2xl border border-slate-200"
+                        />
                       </div>
                       <div>
                         <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-sky-50 text-[#00afca] border border-sky-200">
@@ -1058,14 +1054,13 @@ export default function AdminClient() {
                         </div>
 
                         <div className="flex items-center gap-3 mt-3">
-                          <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0">
-                            {m.photo ? (
-                              <img src={m.photo} alt={m.nameKk} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center font-bold text-slate-500">
-                                AQL
-                              </div>
-                            )}
+                          <div className="w-14 sm:w-16 shrink-0 shadow-sm">
+                            <MemberPortrait
+                              photo={m.photo}
+                              name={m.nameKk}
+                              aspect="portrait"
+                              className="rounded-xl border border-slate-200"
+                            />
                           </div>
                           <div>
                             <h4 className="font-bold text-sm text-slate-900">{m.nameKk}</h4>
@@ -1581,18 +1576,56 @@ export default function AdminClient() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Фото URL сілтемесі
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Фото суреті (фонда мектеп логотипі болады)
                 </label>
-                <input
-                  type="text"
-                  value={editingMinister.photo || ''}
-                  onChange={(e) =>
-                    setEditingMinister({ ...editingMinister, photo: e.target.value })
-                  }
-                  placeholder="https://... немесе /members/photo.jpg"
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
-                />
+                <div className="flex items-center gap-4 p-3 rounded-2xl bg-slate-50 border border-slate-200">
+                  <div className="w-20 shrink-0 shadow-md">
+                    <MemberPortrait
+                      photo={editingMinister.photo}
+                      name={editingMinister.nameKk || 'Министр'}
+                      aspect="portrait"
+                      className="rounded-xl border border-slate-200"
+                    />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <input
+                      type="text"
+                      value={editingMinister.photo || ''}
+                      onChange={(e) =>
+                        setEditingMinister({ ...editingMinister, photo: e.target.value })
+                      }
+                      placeholder="/images/members/... немесе URL"
+                      className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-900 focus:border-[#00afca] text-xs"
+                    />
+                    <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold cursor-pointer transition-colors">
+                      <span>📁 Телефоннан/компьютерден жүктеу</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const fd = new FormData();
+                          fd.append('file', file);
+                          try {
+                            const res = await fetch('/api/admin/upload', {
+                              method: 'POST',
+                              body: fd,
+                            });
+                            const json = await res.json();
+                            if (json.url) {
+                              setEditingMinister({ ...editingMinister, photo: json.url });
+                            }
+                          } catch (err) {
+                            console.error('File upload failed:', err);
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
               </div>
 
               <div>

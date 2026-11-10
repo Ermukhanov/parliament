@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import SchoolLogo from './SchoolLogo';
+import MemberPortrait from './MemberPortrait';
 
 export interface AssistantItem {
   name: string;
@@ -192,26 +193,23 @@ export default function TeamSection({ locale, members }: TeamSectionProps) {
                   </div>
 
                   <div>
-                    {/* Header: Crest Logo & Faction */}
-                    <div className="flex items-center gap-3.5 mb-5 pb-4 border-b border-slate-100">
-                      <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center p-2 shrink-0 group-hover:scale-105 transition-transform">
-                        {member.photo ? (
-                          <img
-                            src={member.photo}
-                            alt={leaderName || roleTitle}
-                            className="w-full h-full object-cover rounded-lg"
-                          />
-                        ) : (
-                          <SchoolLogo className="w-full h-full object-contain" variant="blue-on-white" />
-                        )}
+                    {/* Portrait Frame: School Logo in Background, Person in Front */}
+                    <div className="mb-4">
+                      <MemberPortrait
+                        photo={member.photo}
+                        name={leaderName || roleTitle}
+                        aspect="portrait"
+                        className="rounded-2xl border border-slate-200/80 shadow-sm"
+                      />
+                    </div>
+
+                    {/* Faction & Role Titles */}
+                    <div className="mb-3">
+                      <div className="text-[11px] uppercase tracking-wider font-bold text-[#00afca]">
+                        {factionTitle}
                       </div>
-                      <div className="pr-16">
-                        <div className="text-[11px] uppercase tracking-wider font-bold text-[#00afca]">
-                          {factionTitle}
-                        </div>
-                        <div className="font-extrabold text-base sm:text-lg text-slate-900 leading-snug">
-                          {roleTitle}
-                        </div>
+                      <div className="font-extrabold text-base sm:text-lg text-slate-900 leading-snug">
+                        {roleTitle}
                       </div>
                     </div>
 
@@ -272,11 +270,16 @@ export default function TeamSection({ locale, members }: TeamSectionProps) {
               ✕
             </button>
 
-            <div className="flex items-center gap-4 mb-6 pb-4 border-b border-slate-100">
-              <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center p-2.5">
-                <SchoolLogo className="w-full h-full object-contain" variant="blue-on-white" />
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6 pb-4 border-b border-slate-100">
+              <div className="w-24 sm:w-28 shrink-0 shadow-md">
+                <MemberPortrait
+                  photo={selectedMember.photo}
+                  name={selectedMember.nameKk}
+                  aspect="portrait"
+                  className="rounded-2xl border border-slate-200"
+                />
               </div>
-              <div>
+              <div className="text-center sm:text-left flex-1">
                 <div className="text-xs uppercase tracking-widest text-[#00afca] font-bold mb-1">
                   {getLocalizedFaction(selectedMember)}
                 </div>

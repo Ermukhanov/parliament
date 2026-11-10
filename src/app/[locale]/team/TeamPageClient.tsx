@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { MemberItem, AssistantItem } from '@/components/TeamSection';
 import SchoolLogo from '@/components/SchoolLogo';
+import MemberPortrait from '@/components/MemberPortrait';
 
 interface TeamPageClientProps {
   locale: string;
@@ -170,21 +171,15 @@ export default function TeamPageClient({ locale, members }: TeamPageClientProps)
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8">
-                  {/* President Portrait */}
-                  <div className="relative w-36 h-44 sm:w-44 sm:h-52 rounded-2xl bg-white/10 border-2 border-[#00afca]/40 p-1.5 flex-shrink-0 shadow-xl overflow-hidden group">
-                    <div className="w-full h-full rounded-xl overflow-hidden bg-slate-800">
-                      {president.photo ? (
-                        <img
-                          src={president.photo}
-                          alt={president.nameKk}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center font-black text-slate-500 text-lg">
-                          AQL
-                        </div>
-                      )}
-                    </div>
+                  {/* President Portrait: Logo Background & Person in Front */}
+                  <div className="w-36 sm:w-44 shrink-0 shadow-2xl">
+                    <MemberPortrait
+                      photo={president.photo}
+                      name={president.nameKk}
+                      aspect="portrait"
+                      priority
+                      className="rounded-2xl border-2 border-[#00afca]/50 shadow-2xl"
+                    />
                   </div>
 
                   {/* President Bio & Quote */}
@@ -244,20 +239,13 @@ export default function TeamPageClient({ locale, members }: TeamPageClientProps)
                 </div>
 
                 <div className="flex flex-col items-center text-center space-y-4">
-                  <div className="w-28 h-32 rounded-2xl bg-white border border-slate-200 p-1.5 shadow-md overflow-hidden">
-                    <div className="w-full h-full rounded-xl overflow-hidden bg-slate-100">
-                      {vice.photo ? (
-                        <img
-                          src={vice.photo}
-                          alt={vice.nameKk}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs font-bold">
-                          AQL
-                        </div>
-                      )}
-                    </div>
+                  <div className="w-32 sm:w-36 shadow-md">
+                    <MemberPortrait
+                      photo={vice.photo}
+                      name={vice.nameKk}
+                      aspect="portrait"
+                      className="rounded-2xl border border-[#00afca]/40 shadow-md"
+                    />
                   </div>
 
                   <div>
@@ -337,27 +325,24 @@ export default function TeamPageClient({ locale, members }: TeamPageClientProps)
                     )}
                   </div>
 
-                  {/* Header: Photo & Title */}
-                  <div className="flex items-center gap-3.5 mb-4">
-                    <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center p-1 shrink-0 group-hover:scale-105 transition-transform overflow-hidden">
-                      {member.photo ? (
-                        <img
-                          src={member.photo}
-                          alt={leaderName}
-                          className="w-full h-full object-cover rounded-xl"
-                        />
-                      ) : (
-                        <SchoolLogo className="w-8 h-8 object-contain" />
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="font-extrabold text-base text-slate-900 leading-tight group-hover:text-[#00afca] transition-colors">
-                        {factionTitle}
-                      </h3>
-                      <p className="text-xs text-slate-500 font-semibold mt-0.5">
-                        {roleTitle}
-                      </p>
-                    </div>
+                  {/* Portrait Frame: School Logo in Background, Person in Front */}
+                  <div className="mb-4">
+                    <MemberPortrait
+                      photo={member.photo}
+                      name={leaderName || factionTitle}
+                      aspect="portrait"
+                      className="rounded-2xl border border-slate-200/80 shadow-sm"
+                    />
+                  </div>
+
+                  {/* Faction & Role Title */}
+                  <div className="mb-3">
+                    <h3 className="font-extrabold text-lg text-slate-900 leading-tight group-hover:text-[#00afca] transition-colors">
+                      {factionTitle}
+                    </h3>
+                    <p className="text-xs text-[#00afca] font-bold mt-0.5">
+                      {roleTitle}
+                    </p>
                   </div>
 
                   {/* Leader Name */}
@@ -427,33 +412,31 @@ export default function TeamPageClient({ locale, members }: TeamPageClientProps)
               ✕
             </button>
 
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0">
-                {selectedMember.photo ? (
-                  <img
-                    src={selectedMember.photo}
-                    alt={selectedMember.nameKk}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <SchoolLogo className="w-full h-full object-contain p-2" />
-                )}
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 mb-6">
+              <div className="w-28 sm:w-32 shrink-0 shadow-lg">
+                <MemberPortrait
+                  photo={selectedMember.photo}
+                  name={selectedMember.nameKk}
+                  aspect="portrait"
+                  className="rounded-2xl border border-slate-200"
+                />
               </div>
-              <div>
-                <h3 className="text-xl font-black text-slate-900">
+              <div className="text-center sm:text-left flex-1">
+                <span className="inline-block text-[10px] uppercase tracking-widest text-[#00afca] font-black px-2.5 py-0.5 rounded-full bg-[#00afca]/10 mb-1.5">
                   {getLocalizedFaction(selectedMember)}
+                </span>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900">
+                  {selectedMember.nameKk}
                 </h3>
-                <p className="text-xs text-[#00afca] font-bold">
+                <p className="text-xs sm:text-sm text-[#00afca] font-bold mt-0.5">
                   {getLocalizedRole(selectedMember)}
                 </p>
-                <p className="text-sm font-extrabold text-slate-800 mt-0.5">
-                  {selectedMember.nameKk}{' '}
-                  {selectedMember.grade && (
-                    <span className="text-xs font-normal text-slate-500">
-                      ({selectedMember.grade})
-                    </span>
-                  )}
-                </p>
+                {selectedMember.grade && (
+                  <p className="text-xs text-slate-500 font-semibold mt-1.5">
+                    {locale === 'en' ? 'Grade: ' : 'Сыныбы: '}
+                    <span className="font-bold text-slate-800">{selectedMember.grade}</span>
+                  </p>
+                )}
               </div>
             </div>
 
