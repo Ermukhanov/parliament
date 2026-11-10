@@ -22,7 +22,7 @@ export default function MemberPortrait({
 
   const aspectClass =
     aspect === 'portrait'
-      ? 'aspect-[3/4]'
+      ? 'aspect-[4/5]'
       : aspect === 'square'
       ? 'aspect-square'
       : 'aspect-[16/9]';
@@ -34,7 +34,7 @@ export default function MemberPortrait({
       {/* 1. LAYER: SUBTLE RADIAL GLOW BEHIND LOGO */}
       <div className="absolute inset-0 bg-radial from-[#00afca]/25 via-transparent to-transparent pointer-events-none" />
 
-      {/* 2. LAYER: SCHOOL CREST / LOGO IN THE BACKGROUND */}
+      {/* 2. LAYER: SCHOOL CREST / LOGO IN THE BACKGROUND (VISIBLE BEHIND SILHOUETTES OR TRANSPARENCIES) */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 p-4">
         <div className="relative w-4/5 h-4/5 opacity-25 group-hover:opacity-35 transition-opacity duration-300">
           <Image
@@ -53,7 +53,7 @@ export default function MemberPortrait({
         <img
           src={photo!}
           alt={name}
-          className="relative z-10 w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+          className="relative z-10 w-full h-full object-cover object-[center_top] transition-transform duration-300 group-hover:scale-105"
           loading={priority ? 'eager' : 'lazy'}
         />
       ) : (
@@ -94,8 +94,8 @@ export default function MemberPortrait({
         </div>
       )}
 
-      {/* 4. LAYER: SUBTLE BOTTOM VIGNETTE */}
-      <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent pointer-events-none z-20" />
+      {/* 4. LAYER: LIGHT EDGE VIGNETTE */}
+      <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-slate-950/20 to-transparent pointer-events-none z-20" />
     </div>
   );
 }
