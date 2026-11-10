@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import HeroSection from '@/components/HeroSection';
 import Marquee from '@/components/Marquee';
 import StatsSection from '@/components/StatsSection';
+import InstagramFeed from '@/components/InstagramFeed';
 
 export const revalidate = 0;
 
@@ -224,7 +225,10 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* 4. STATS SECTION */}
+      {/* 4. INSTAGRAM FEED CAROUSEL */}
+      <InstagramFeed locale={locale} />
+
+      {/* 5. STATS SECTION */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <StatsSection locale={locale} stats={liveStats} />
       </section>
