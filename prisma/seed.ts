@@ -67,6 +67,7 @@ async function main() {
           { name: 'Аленов Санжар', grade: '10С', role: 'Көмекші' },
           { name: 'Айтмағамбетова Інжу', grade: '10А', role: 'Көмекші' },
           { name: 'Баймуратов Артур', grade: '10А', role: 'Көмекші' },
+          { name: 'Қазыбаев Амир', grade: '10С', role: 'Көмекші' },
         ]),
         photo: '',
         order: 3,
