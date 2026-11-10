@@ -15,9 +15,10 @@ interface NextEvent {
 interface HeroSectionProps {
   locale: string;
   nextEvent: NextEvent | null;
+  eventSummary?: { past: number; upcoming: number };
 }
 
-export default function HeroSection({ locale, nextEvent }: HeroSectionProps) {
+export default function HeroSection({ locale, nextEvent, eventSummary }: HeroSectionProps) {
   const [emailOrName, setEmailOrName] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [timeLeft, setTimeLeft] = useState({
@@ -210,6 +211,16 @@ export default function HeroSection({ locale, nextEvent }: HeroSectionProps) {
         {/* Upcoming Event Timer Card */}
         {nextEvent && (
           <div className="max-w-xl mx-auto p-6 rounded-2xl bg-[#ffffff] border border-slate-200 shadow-sm animate-entrance-delay-3">
+            {eventSummary && (
+              <div className="flex items-center justify-center gap-2.5 mb-4 text-xs font-bold">
+                <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  {locale === 'en' ? `✅ ${eventSummary.past} Passed` : `✅ Өткені: ${eventSummary.past}`}
+                </span>
+                <span className="px-3 py-1 rounded-full bg-sky-50 text-[#00afca] border border-sky-200">
+                  {locale === 'en' ? `📅 ${eventSummary.upcoming} Upcoming` : `📅 Алдағы: ${eventSummary.upcoming}`}
+                </span>
+              </div>
+            )}
             <div className="flex items-center justify-center gap-2 mb-2">
               <span className="w-2 h-2 rounded-full bg-[#00afca] animate-pulse" />
               <span className="text-[11px] uppercase tracking-widest text-slate-500 font-bold">

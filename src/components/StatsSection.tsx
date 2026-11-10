@@ -9,6 +9,8 @@ interface StatItem {
   labelRu?: string;
   labelKk: string;
   labelEn?: string;
+  subKk?: string;
+  subEn?: string;
 }
 
 interface StatsSectionProps {
@@ -68,10 +70,38 @@ export default function StatsSection({ locale, stats }: StatsSectionProps) {
   };
 
   const defaultStats: StatItem[] = [
-    { key: 'events', value: 12, labelEn: 'Events Hosted', labelKk: 'Өткізілген іс-шаралар' },
-    { key: 'members', value: 7, labelEn: 'Factions', labelKk: 'Фракциялар' },
-    { key: 'students', value: 30, labelEn: 'Parliament Members', labelKk: 'Парламент мүшелері' },
-    { key: 'initiatives', value: 18, labelEn: 'Initiatives Realized', labelKk: 'Іске асырылған бастамалар' },
+    {
+      key: 'past_events',
+      value: 3,
+      labelEn: 'Past Events Hosted',
+      labelKk: 'Өткен іс-шаралар',
+      subKk: 'Сәтті өткізілді',
+      subEn: 'Successfully hosted',
+    },
+    {
+      key: 'upcoming_events',
+      value: 20,
+      labelEn: 'Upcoming Events Planned',
+      labelKk: 'Алдағы іс-шаралар',
+      subKk: 'Қараша — Желтоқсан',
+      subEn: 'November — December',
+    },
+    {
+      key: 'members',
+      value: 7,
+      labelEn: 'Active Factions',
+      labelKk: 'Белсенді фракциялар',
+      subKk: 'Барлық бағыттар',
+      subEn: 'All directions',
+    },
+    {
+      key: 'students',
+      value: 32,
+      labelEn: 'Parliament & Assistants',
+      labelKk: 'Парламент және көмекшілер',
+      subKk: 'Лицей көшбасшылары',
+      subEn: 'Student leaders',
+    },
   ];
 
   const items = stats.length > 0 ? stats : defaultStats;
@@ -88,14 +118,19 @@ export default function StatsSection({ locale, stats }: StatsSectionProps) {
             return (
               <div
                 key={item.key}
-                className="aql-card p-6 text-center rounded-2xl bg-white group"
+                className="aql-card p-6 text-center rounded-2xl bg-white group hover:border-[#00afca]/40 transition-all"
               >
-                <div className="font-extrabold text-3xl sm:text-5xl text-[#0f172a] group-hover:text-[#00afca] transition-colors duration-300 mb-2 tabular-nums tracking-tight">
+                <div className="font-extrabold text-3xl sm:text-5xl text-[#0f172a] group-hover:text-[#00afca] transition-colors duration-300 mb-1.5 tabular-nums tracking-tight">
                   <AnimatedNumber target={item.value} />
                 </div>
-                <div className="text-xs text-slate-500 font-semibold tracking-wide">
+                <div className="text-xs sm:text-sm text-slate-800 font-extrabold tracking-tight mb-1">
                   {label}
                 </div>
+                {item.subKk && (
+                  <div className="text-[11px] text-[#00afca] font-semibold">
+                    {locale === 'en' ? item.subEn : item.subKk}
+                  </div>
+                )}
               </div>
             );
           })}

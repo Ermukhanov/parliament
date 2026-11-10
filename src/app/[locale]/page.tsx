@@ -36,7 +36,60 @@ export default async function HomePage({
     orderBy: { date: 'asc' },
   });
 
-  const stats = await prisma.stat.findMany();
+  // Calculate live dynamic counts for real-time accuracy
+  const pastEventsCount = await prisma.event.count({
+    where: { archived: true },
+  });
+
+  const upcomingEventsCount = await prisma.event.count({
+    where: { archived: false },
+  });
+
+  const members = await prisma.member.findMany();
+  let totalTeamCount = members.length;
+  for (const m of members) {
+    try {
+      const ast = JSON.parse(m.assistants || '[]');
+      totalTeamCount += ast.length;
+    } catch {
+      // ignore
+    }
+  }
+
+  const liveStats = [
+    {
+      key: 'past_events',
+      value: pastEventsCount,
+      labelKk: 'Өткен іс-шаралар',
+      labelEn: 'Past Events Hosted',
+      subKk: 'Сәтті өткізілді',
+      subEn: 'Successfully hosted',
+    },
+    {
+      key: 'upcoming_events',
+      value: upcomingEventsCount,
+      labelKk: 'Алдағы іс-шаралар',
+      labelEn: 'Upcoming Events Planned',
+      subKk: 'Қараша — Желтоқсан',
+      subEn: 'November — December',
+    },
+    {
+      key: 'members',
+      value: 7,
+      labelKk: 'Белсенді фракциялар',
+      labelEn: 'Active Factions',
+      subKk: 'Барлық бағыттар',
+      subEn: 'All core directions',
+    },
+    {
+      key: 'students',
+      value: totalTeamCount,
+      labelKk: 'Парламент және көмекшілер',
+      labelEn: 'Parliament & Assistants',
+      subKk: 'Лицей көшбасшылары',
+      subEn: 'Student leaders',
+    },
+  ];
 
   const sections = [
     {
@@ -100,6 +153,10 @@ export default async function HomePage({
       {/* 1. HERO SECTION */}
       <HeroSection
         locale={locale}
+        eventSummary={{
+          past: pastEventsCount,
+          upcoming: upcomingEventsCount,
+        }}
         nextEvent={
           nextEvent
             ? {
@@ -169,7 +226,7 @@ export default async function HomePage({
 
       {/* 4. STATS SECTION */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <StatsSection locale={locale} stats={stats} />
+        <StatsSection locale={locale} stats={liveStats} />
       </section>
     </div>
   );
