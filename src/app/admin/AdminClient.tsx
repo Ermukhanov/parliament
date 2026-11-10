@@ -62,6 +62,7 @@ interface AdminEvent {
   date: string;
   location: string;
   maxSeats: number;
+  archived?: boolean;
   registrations?: AdminRegistration[];
   _count?: { registrations: number };
 }
@@ -186,6 +187,7 @@ export default function AdminClient() {
   });
 
   const [showAddEvent, setShowAddEvent] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<AdminEvent | null>(null);
   const [eventForm, setEventForm] = useState({
     slug: '',
     titleRu: '',
@@ -424,6 +426,23 @@ export default function AdminClient() {
         programRu: '',
         programKk: '',
       });
+      fetchAllData();
+    }
+  };
+
+  const handleUpdateEvent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingEvent) return;
+    const res = await fetch('/api/admin/events', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...editingEvent,
+        maxSeats: Number(editingEvent.maxSeats),
+      }),
+    });
+    if (res.ok) {
+      setEditingEvent(null);
       fetchAllData();
     }
   };
@@ -1120,9 +1139,21 @@ export default function AdminClient() {
                     >
                       <div>
                         <div className="flex items-center justify-between text-xs text-slate-500 pb-3 border-b border-slate-200">
-                          <span className="px-2 py-0.5 rounded-full bg-sky-50 text-[#00afca] font-bold text-[10px] border border-sky-200">
-                            {ev.category}
-                          </span>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="px-2 py-0.5 rounded-full bg-sky-50 text-[#00afca] font-bold text-[10px] border border-sky-200">
+                              {ev.category}
+                            </span>
+                            {ev.ministry && (
+                              <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-semibold text-[10px]">
+                                {ev.ministry}
+                              </span>
+                            )}
+                            {ev.archived && (
+                              <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold text-[10px] border border-emerald-200">
+                                ✅ Өтті
+                              </span>
+                            )}
+                          </div>
                           <span>{new Date(ev.date).toLocaleDateString('kk-KZ')}</span>
                         </div>
 
@@ -1151,6 +1182,12 @@ export default function AdminClient() {
                             Тіркелгендер ({ev.registrations.length})
                           </button>
                         )}
+                        <button
+                          onClick={() => setEditingEvent(ev)}
+                          className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-bold transition-colors"
+                        >
+                          Өңдеу
+                        </button>
                         <button
                           onClick={() => handleDeleteEvent(ev.id)}
                           className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold transition-colors"
@@ -1794,6 +1831,132 @@ export default function AdminClient() {
                   className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all"
                 >
                   Қосу ✓
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* =====================================================================
+          MODAL: EDIT EVENT
+         ===================================================================== */}
+      {editingEvent && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm"
+          onClick={() => setEditingEvent(null)}
+        >
+          <div
+            className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 text-slate-800 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+              <h3 className="font-bold text-lg text-slate-900">Іс-шараны өңдеу</h3>
+              <button
+                onClick={() => setEditingEvent(null)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateEvent} className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Атауы (Қазақша)</label>
+                <input
+                  type="text"
+                  required
+                  value={editingEvent.titleKk}
+                  onChange={(e) => setEditingEvent({ ...editingEvent, titleKk: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs font-bold"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Санаты</label>
+                  <select
+                    value={editingEvent.category}
+                    onChange={(e) => setEditingEvent({ ...editingEvent, category: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                  >
+                    <option value="Учёба">Білім</option>
+                    <option value="Культура">Мәдениет</option>
+                    <option value="Спорт">Спорт</option>
+                    <option value="Благотворительность">Қайырымдылық</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Орын саны</label>
+                  <input
+                    type="number"
+                    value={editingEvent.maxSeats}
+                    onChange={(e) =>
+                      setEditingEvent({ ...editingEvent, maxSeats: Number(e.target.value) })
+                    }
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Күні</label>
+                  <input
+                    type="datetime-local"
+                    value={editingEvent.date ? new Date(editingEvent.date).toISOString().slice(0, 16) : ''}
+                    onChange={(e) => setEditingEvent({ ...editingEvent, date: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Өтетін орны</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingEvent.location}
+                    onChange={(e) => setEditingEvent({ ...editingEvent, location: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Сипаттамасы</label>
+                <textarea
+                  rows={3}
+                  value={editingEvent.descKk}
+                  onChange={(e) => setEditingEvent({ ...editingEvent, descKk: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                />
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-slate-900 block">Өтті деп белгілеу (Мұрағат)</span>
+                  <span className="text-[11px] text-slate-500">Іс-шара өтіп кеткен болса, белгілеңіз</span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={Boolean(editingEvent.archived)}
+                  onChange={(e) => setEditingEvent({ ...editingEvent, archived: e.target.checked })}
+                  className="w-5 h-5 rounded text-[#00afca] focus:ring-[#00afca]"
+                />
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setEditingEvent(null)}
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
+                >
+                  Болдырмау
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all"
+                >
+                  Сақтау ✓
                 </button>
               </div>
             </form>

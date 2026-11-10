@@ -97,8 +97,13 @@ export default function TimelineSection({ locale, items }: TimelineSectionProps)
                       }`}
                     >
                       <div className="aql-card p-5 bg-white">
-                        <div className="text-[11px] font-bold uppercase tracking-widest text-[#00afca] mb-1">
-                          {monthLabel} {item.year}
+                        <div className="text-[11px] font-bold uppercase tracking-widest text-[#00afca] mb-1 flex items-center gap-2">
+                          <span>{monthLabel} {item.year}</span>
+                          {item.month === 11 && (
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-sky-50 text-[#00afca] border border-sky-200">
+                              {locale === 'en' ? 'Active Month' : 'Белсенді айлық'}
+                            </span>
+                          )}
                         </div>
                         <h3 className="font-extrabold text-lg sm:text-xl text-slate-900 mb-2">
                           {item.titleKk || item.titleRu}
@@ -106,6 +111,19 @@ export default function TimelineSection({ locale, items }: TimelineSectionProps)
                         <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
                           {item.descKk || item.descRu}
                         </p>
+                        {item.month === 11 && (
+                          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+                            <span className="text-[11px] font-semibold text-slate-400">
+                              {locale === 'en' ? '21+ events planned' : '21+ іс-шара жоспарланған'}
+                            </span>
+                            <a
+                              href={`/${locale}/events`}
+                              className="text-xs font-bold text-[#00afca] hover:underline"
+                            >
+                              {locale === 'en' ? 'View Events →' : 'Іс-шаралар кестесі →'}
+                            </a>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

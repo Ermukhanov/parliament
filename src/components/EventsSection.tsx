@@ -27,6 +27,7 @@ interface EventsSectionProps {
 
 export default function EventsSection({ locale, events }: EventsSectionProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
+  const [selectedMinistry, setSelectedMinistry] = useState<string>('ALL');
   const [showArchived, setShowArchived] = useState<boolean>(false);
   const [modalEvent, setModalEvent] = useState<EventItem | null>(null);
 
@@ -39,16 +40,42 @@ export default function EventsSection({ locale, events }: EventsSectionProps) {
   const [localCounts, setLocalCounts] = useState<Record<string, number>>({});
 
   const categories = [
-    { key: 'ALL', labelEn: 'All', labelKk: 'Барлығы' },
+    { key: 'ALL', labelEn: 'All Types', labelKk: 'Барлық бағыттар' },
     { key: 'Учёба', labelEn: 'Education', labelKk: 'Оқу' },
     { key: 'Культура', labelEn: 'Culture', labelKk: 'Мәдениет' },
     { key: 'Спорт', labelEn: 'Sports', labelKk: 'Спорт' },
     { key: 'Благотворительность', labelEn: 'Charity', labelKk: 'Қайырымдылық' },
   ];
 
+  const factions = [
+    { key: 'ALL', labelEn: 'All Factions', labelKk: 'Барлық фракциялар' },
+    { key: 'education', labelEn: 'Bilim (Education)', labelKk: 'Білім (Bilim)' },
+    { key: 'it', labelEn: 'IT & Digital', labelKk: 'IT фракциясы' },
+    { key: 'sport', labelEn: 'Sports', labelKk: 'Спорт' },
+    { key: 'culture', labelEn: 'Culture & Arts', labelKk: 'Өнер (Culture)' },
+    { key: 'volunteers', labelEn: 'Volunteering', labelKk: 'Еріктілер' },
+    { key: 'discipline', labelEn: 'Law & Order', labelKk: 'Құқық және тәртіп' },
+    { key: 'media', labelEn: 'Media', labelKk: 'Медиа' },
+  ];
+
+  const factionLabels: Record<string, { kk: string; en: string }> = {
+    education: { kk: 'Білім фракциясы', en: 'Education Faction' },
+    it: { kk: 'IT фракциясы', en: 'IT Faction' },
+    sport: { kk: 'Спорт фракциясы', en: 'Sports Faction' },
+    culture: { kk: 'Өнер фракциясы', en: 'Culture Faction' },
+    volunteers: { kk: 'Еріктілер фракциясы', en: 'Volunteers Faction' },
+    discipline: { kk: 'Құқық және тәртіп', en: 'Law & Order' },
+    media: { kk: 'Медиа фракциясы', en: 'Media Faction' },
+    general: { kk: 'AQL Council', en: 'AQL Council' },
+  };
+
+  const upcomingCount = events.filter((ev) => !ev.archived).length;
+  const archivedCount = events.filter((ev) => ev.archived).length;
+
   const filteredEvents = events.filter((ev) => {
     if (ev.archived !== showArchived) return false;
     if (selectedCategory !== 'ALL' && ev.category !== selectedCategory) return false;
+    if (selectedMinistry !== 'ALL' && ev.ministry !== selectedMinistry) return false;
     return true;
   });
 
@@ -117,37 +144,62 @@ export default function EventsSection({ locale, events }: EventsSectionProps) {
           </h2>
         </div>
 
-        {/* Controls: Category Filter Pill Bar & Archive Toggle */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-10">
+        {/* Controls: Faction Filter, Category Filter & Archive Toggle */}
+        <div className="space-y-4 mb-10">
+          {/* Faction Filter Pill Bar */}
           <div className="flex flex-wrap items-center justify-center gap-2">
-            {categories.map((cat) => (
+            {factions.map((f) => (
               <button
-                key={cat.key}
-                onClick={() => setSelectedCategory(cat.key)}
-                className={`filter-pill ${selectedCategory === cat.key ? 'active' : ''}`}
+                key={f.key}
+                onClick={() => setSelectedMinistry(f.key)}
+                className={`text-xs font-bold px-3.5 py-1.5 rounded-full border transition-all ${
+                  selectedMinistry === f.key
+                    ? 'bg-[#00afca] text-white border-[#00afca] shadow-sm'
+                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:text-slate-900'
+                }`}
               >
-                {locale === 'en' ? cat.labelEn : cat.labelKk}
+                {locale === 'en' ? f.labelEn : f.labelKk}
               </button>
             ))}
           </div>
 
-          <div className="flex items-center bg-slate-100 p-1 rounded-full text-xs font-semibold">
-            <button
-              onClick={() => setShowArchived(false)}
-              className={`px-4 py-1.5 rounded-full transition-all ${
-                !showArchived ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              {locale === 'en' ? 'Upcoming' : 'Алдағы'}
-            </button>
-            <button
-              onClick={() => setShowArchived(true)}
-              className={`px-4 py-1.5 rounded-full transition-all ${
-                showArchived ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              {locale === 'en' ? 'Archive' : 'Мұрағат'}
-            </button>
+          {/* Secondary Controls: Type / Category + Upcoming / Past Switcher */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {categories.map((cat) => (
+                <button
+                  key={cat.key}
+                  onClick={() => setSelectedCategory(cat.key)}
+                  className={`text-xs font-semibold px-3 py-1 rounded-lg transition-all ${
+                    selectedCategory === cat.key
+                      ? 'bg-slate-900 text-white'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {locale === 'en' ? cat.labelEn : cat.labelKk}
+                </button>
+              ))}
+            </div>
+
+            {/* Upcoming vs Passed Toggle */}
+            <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold border border-slate-200">
+              <button
+                onClick={() => setShowArchived(false)}
+                className={`px-4 py-1.5 rounded-lg transition-all ${
+                  !showArchived ? 'bg-white text-[#00afca] shadow-sm' : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                {locale === 'en' ? 'Upcoming' : 'Алдағы'} ({upcomingCount})
+              </button>
+              <button
+                onClick={() => setShowArchived(true)}
+                className={`px-4 py-1.5 rounded-lg transition-all ${
+                  showArchived ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                {locale === 'en' ? 'Passed' : 'Өтті'} ({archivedCount})
+              </button>
+            </div>
           </div>
         </div>
 
@@ -194,20 +246,27 @@ export default function EventsSection({ locale, events }: EventsSectionProps) {
                   className="aql-card p-6 flex flex-col justify-between bg-white group"
                 >
                   <div>
-                    <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
-                      <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-slate-100 text-[#00afca]">
-                        {categoryBadge}
-                      </span>
-                      <span className="text-xs font-semibold text-slate-500">
-                        {ev.archived
-                          ? locale === 'en'
-                            ? 'Passed'
-                            : 'Өтті'
-                          : isFull
-                          ? locale === 'en'
-                            ? 'Full'
-                            : 'Орын жоқ'
-                          : `${locale === 'en' ? 'Seats:' : 'Орын:'} ${seatsLeft} / ${ev.maxSeats}`}
+                    <div className="flex items-center justify-between gap-2 mb-3 pb-3 border-b border-slate-100">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {ev.ministry && factionLabels[ev.ministry] && (
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-sky-50 text-[#00afca] border border-sky-100">
+                            {locale === 'en' ? factionLabels[ev.ministry].en : factionLabels[ev.ministry].kk}
+                          </span>
+                        )}
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600">
+                          {categoryBadge}
+                        </span>
+                      </div>
+                      <span className="text-xs font-semibold">
+                        {ev.archived ? (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            {locale === 'en' ? '✅ Passed' : '✅ Өтті'}
+                          </span>
+                        ) : isFull ? (
+                          <span className="text-rose-500 font-bold">{locale === 'en' ? 'Full' : 'Орын жоқ'}</span>
+                        ) : (
+                          <span className="text-slate-500">{locale === 'en' ? 'Seats:' : 'Орын:'} {seatsLeft} / {ev.maxSeats}</span>
+                        )}
                       </span>
                     </div>
 
