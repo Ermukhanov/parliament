@@ -111,7 +111,7 @@ export default function HeroSection({ locale, nextEvent, eventSummary }: HeroSec
 
         {/* Big Bold Headline */}
         <div className="relative mb-6">
-          <h1 className="font-extrabold text-4xl sm:text-6xl md:text-7xl tracking-[-0.035em] text-[#0f172a] leading-[1.08] animate-entrance-delay-1">
+          <h1 className="font-extrabold text-3xl sm:text-5xl md:text-6xl lg:text-7xl tracking-[-0.035em] text-[#0f172a] leading-[1.12] animate-entrance-delay-1">
             {locale === 'en' ? (
               <>
                 School President <br />
@@ -194,7 +194,7 @@ export default function HeroSection({ locale, nextEvent, eventSummary }: HeroSec
         </div>
 
         {/* Horizontal Category Pill Filter Bar Linking to Team */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-12 animate-entrance-delay-3">
+        <div className="flex sm:flex-wrap items-center sm:justify-center gap-1.5 sm:gap-2 mb-10 overflow-x-auto pb-2 sm:pb-0 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 animate-entrance-delay-3">
           {filterTags.map((tag, i) => (
             <Link
               key={i}

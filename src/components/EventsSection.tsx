@@ -147,7 +147,7 @@ export default function EventsSection({ locale, events }: EventsSectionProps) {
         {/* Controls: Faction Filter, Category Filter & Archive Toggle */}
         <div className="space-y-4 mb-10">
           {/* Faction Filter Pill Bar */}
-          <div className="flex flex-wrap items-center justify-center gap-2">
+          <div className="flex sm:flex-wrap items-center sm:justify-center gap-2 overflow-x-auto pb-2 sm:pb-0 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
             {factions.map((f) => (
               <button
                 key={f.key}

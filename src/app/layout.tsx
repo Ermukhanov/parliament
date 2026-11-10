@@ -8,8 +8,11 @@ export const metadata: Metadata = {
   },
   description: "AQL Council — Мектеп Президентінің ресми порталы | School President Official Portal",
   icons: {
-    icon: [{ url: "/icon.png", type: "image/png" }],
-    shortcut: "/icon.png",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+    ],
+    shortcut: "/favicon.ico",
     apple: "/apple-icon.png",
   },
 };
