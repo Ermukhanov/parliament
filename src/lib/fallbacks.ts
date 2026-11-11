@@ -169,7 +169,7 @@ export const FALLBACK_MEMBERS: FallbackMember[] = [
     bioKk: 'Мектеп спартакиадаларын, спорттық ойындар мен турнирлерді ұйымдастыру, салауатты өмір салтын дәріптеу.',
     assistants: JSON.stringify([
       { name: 'Исағали Ильжан', grade: '10В', role: 'Көмекші' },
-      { name: 'Жұмабаева Амина', grade: '9А', role: 'Көмекші' },
+      { name: 'Тайшығұлова Амина', grade: '9А', role: 'Көмекші' },
       { name: 'Қадырқұлов Жансен', grade: '10В', role: 'Көмекші' },
     ]),
     photo: '/images/members/sport.png',
