@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 
 interface TimelineItemData {
   id: string;
@@ -55,44 +54,44 @@ export default function TimelineSection({ locale, items }: TimelineSectionProps)
 
   return (
     <section id="timeline" className="py-12 sm:py-20 relative z-10 bg-[#ffffff] overflow-hidden">
-      {/* 1. LEFT SIDE KAZAKH ORNAMENT (DESKTOP ONLY - HIDDEN ON MOBILE) */}
+      {/* 1. LEFT SIDE KAZAKH ORNAMENT COLUMN (RUNS SEAMLESSLY FROM TOP TO BOTTOM ON DESKTOP) */}
       <div
-        className="hidden lg:flex flex-col items-center absolute left-2 xl:left-8 2xl:left-14 top-24 bottom-24 pointer-events-none select-none z-0"
+        className="hidden lg:block absolute left-2 xl:left-8 2xl:left-14 top-6 bottom-6 w-10 xl:w-14 2xl:w-16 pointer-events-none select-none z-0"
         aria-hidden="true"
       >
-        <div className="sticky top-28 flex flex-col items-center">
-          <div className="w-10 xl:w-14 2xl:w-16 drop-shadow-[0_6px_20px_rgba(234,179,8,0.28)] opacity-90 transition-all hover:opacity-100">
-            <Image
-              src="/images/kazakh-ornament.png"
-              alt="Қазақ ою-өрнегі"
-              width={143}
-              height={679}
-              className="w-full h-auto object-contain"
-              priority
-            />
-          </div>
-          <div className="w-1 h-12 bg-gradient-to-b from-amber-400/50 to-transparent mt-3 rounded-full" />
-        </div>
+        <div
+          className="w-full h-full opacity-90 hover:opacity-100 transition-opacity drop-shadow-[0_4px_16px_rgba(234,179,8,0.28)]"
+          style={{
+            backgroundImage: "url('/images/kazakh-ornament.png')",
+            backgroundRepeat: 'repeat-y',
+            backgroundPosition: 'center top',
+            backgroundSize: '100% auto',
+            WebkitMaskImage:
+              'linear-gradient(to bottom, transparent 0%, black 40px, black calc(100% - 40px), transparent 100%)',
+            maskImage:
+              'linear-gradient(to bottom, transparent 0%, black 40px, black calc(100% - 40px), transparent 100%)',
+          }}
+        />
       </div>
 
-      {/* 2. RIGHT SIDE KAZAKH ORNAMENT (DESKTOP ONLY - HIDDEN ON MOBILE) */}
+      {/* 2. RIGHT SIDE KAZAKH ORNAMENT COLUMN (RUNS SEAMLESSLY FROM TOP TO BOTTOM ON DESKTOP, SYMMETRICALLY MIRRORED) */}
       <div
-        className="hidden lg:flex flex-col items-center absolute right-2 xl:right-8 2xl:right-14 top-24 bottom-24 pointer-events-none select-none z-0"
+        className="hidden lg:block absolute right-2 xl:right-8 2xl:right-14 top-6 bottom-6 w-10 xl:w-14 2xl:w-16 pointer-events-none select-none z-0"
         aria-hidden="true"
       >
-        <div className="sticky top-28 flex flex-col items-center">
-          <div className="w-10 xl:w-14 2xl:w-16 drop-shadow-[0_6px_20px_rgba(234,179,8,0.28)] opacity-90 transition-all hover:opacity-100">
-            <Image
-              src="/images/kazakh-ornament.png"
-              alt="Қазақ ою-өрнегі"
-              width={143}
-              height={679}
-              className="w-full h-auto object-contain scale-x-[-1]"
-              priority
-            />
-          </div>
-          <div className="w-1 h-12 bg-gradient-to-b from-amber-400/50 to-transparent mt-3 rounded-full" />
-        </div>
+        <div
+          className="w-full h-full opacity-90 hover:opacity-100 transition-opacity drop-shadow-[0_4px_16px_rgba(234,179,8,0.28)] scale-x-[-1]"
+          style={{
+            backgroundImage: "url('/images/kazakh-ornament.png')",
+            backgroundRepeat: 'repeat-y',
+            backgroundPosition: 'center top',
+            backgroundSize: '100% auto',
+            WebkitMaskImage:
+              'linear-gradient(to bottom, transparent 0%, black 40px, black calc(100% - 40px), transparent 100%)',
+            maskImage:
+              'linear-gradient(to bottom, transparent 0%, black 40px, black calc(100% - 40px), transparent 100%)',
+          }}
+        />
       </div>
 
       <div className="max-w-4xl xl:max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
