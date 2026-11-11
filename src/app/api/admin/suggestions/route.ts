@@ -41,3 +41,27 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'Ошибка обновления' }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  const session = await getSessionInfo();
+  if (!session) {
+    return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
+  }
+  if (!session.hasFullAccess) {
+    return NextResponse.json({ error: 'Тек Президент ұсыныстарды өшіре алады' }, { status: 403 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get('id');
+
+  if (!id) {
+    return NextResponse.json({ error: 'ID көрсетілмеген' }, { status: 400 });
+  }
+
+  try {
+    await prisma.suggestion.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: 'Ұсынысты өшіру кезінде қате кетті' }, { status: 500 });
+  }
+}

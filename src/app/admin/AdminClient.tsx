@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import SchoolLogo from '@/components/SchoolLogo';
 import MemberPortrait from '@/components/MemberPortrait';
@@ -150,6 +150,7 @@ export default function AdminClient() {
   const [currentMinistry, setCurrentMinistry] = useState('');
   const [hasFullAccess, setHasFullAccess] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('overview');
+  const initialTabSet = useRef(false);
 
   // Data states
   const [members, setMembers] = useState<MinisterItem[]>([]);
@@ -253,8 +254,9 @@ export default function AdminClient() {
           setHasFullAccess(fullAccess);
           setCurrentMinistry(memData.currentUser.ownMinistry || memData.currentUser.ministry);
           setCurrentRoleLabel(memData.currentUser.role || 'Мектеп Президенті');
-          if (!fullAccess) {
-            setActiveTab('ministers');
+          if (!initialTabSet.current) {
+            initialTabSet.current = true;
+            setActiveTab(fullAccess ? 'overview' : 'ministers');
           }
         }
       }
@@ -440,24 +442,66 @@ export default function AdminClient() {
 
   const handleCreateNews = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch('/api/admin/news', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    try {
+      const rawSlug = (newsForm.slug || newsForm.titleKk)
+        .toLowerCase()
+        .replace(/[^a-z0-9а-яёәіңғүұқөһ]/gi, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '')
+        .slice(0, 50);
+      const finalSlug = (rawSlug || 'post') + '-' + Date.now().toString().slice(-4);
+
+      const payload = {
         ...newsForm,
-        ministry: hasFullAccess ? newsForm.ministry : (currentMinistry || currentLogin),
-      }),
-    });
-    if (res.ok) {
-      setShowAddNews(false);
-      fetchAllData();
+        slug: newsForm.slug ? newsForm.slug.trim() : finalSlug,
+        titleRu: newsForm.titleRu || newsForm.titleKk,
+        contentRu: newsForm.contentRu || newsForm.contentKk,
+        excerpt: newsForm.excerpt || newsForm.contentKk.slice(0, 160),
+        ministry: hasFullAccess ? (newsForm.ministry || 'general') : (currentMinistry || currentLogin),
+      };
+
+      const res = await fetch('/api/admin/news', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        setShowAddNews(false);
+        setNewsForm({
+          slug: '',
+          titleRu: '',
+          titleKk: '',
+          contentRu: '',
+          contentKk: '',
+          excerpt: '',
+          ministry: 'general',
+          published: true,
+        });
+        alert('✅ Жаңа пост сәтті жарияланды! Сайтта және тізімде көрінеді.');
+        setActiveTab('news');
+        fetchAllData();
+      } else {
+        const err = await res.json().catch(() => ({ error: 'Қате' }));
+        alert(err.error || 'Постты жариялау кезінде қате орын алды');
+      }
+    } catch {
+      alert('Сервермен байланыс қатесі');
     }
   };
 
   const handleDeleteNews = async (id: string) => {
-    if (!confirm('Жаңалықты өшіруді растайсыз ба?')) return;
-    await fetch(`/api/admin/news?id=${id}`, { method: 'DELETE' });
-    fetchAllData();
+    if (!confirm('Бұл постты / жаңалықты өшіруді растайсыз ба?')) return;
+    setNews((prev) => prev.filter((n) => n.id !== id));
+    const res = await fetch(`/api/admin/news?id=${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      alert('✅ Пост сәтті өшірілді!');
+      fetchAllData();
+    } else {
+      const err = await res.json().catch(() => ({ error: 'Қате' }));
+      alert(err.error || 'Өшіру мүмкін болмады');
+      fetchAllData();
+    }
   };
 
   const handleCreatePoll = async (e: React.FormEvent) => {
@@ -480,6 +524,7 @@ export default function AdminClient() {
   };
 
   const handleAppealStatus = async (id: string, status: string) => {
+    setAppeals((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
     await fetch('/api/admin/appeals', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -490,26 +535,43 @@ export default function AdminClient() {
 
   const handleDeleteAppeal = async (id: string) => {
     if (!confirm('Бұл өтінішті / қолхатты өшіруді растайсыз ба?')) return;
+    setAppeals((prev) => prev.filter((a) => a.id !== id));
     const res = await fetch(`/api/admin/appeals?id=${id}`, { method: 'DELETE' });
     if (res.ok) {
+      alert('✅ Өтініш / қолхат сәтті өшірілді!');
       fetchAllData();
     } else {
       const err = await res.json().catch(() => ({ error: 'Қате' }));
       alert(err.error || 'Өшіру мүмкін болмады');
+      fetchAllData();
     }
   };
 
   const handleDeleteRegistration = async (id: string) => {
     if (!confirm('Бұл оқушының іс-шараға тіркелуін өшіруді растайсыз ба?')) return;
+    if (selectedEventRegs) {
+      setSelectedEventRegs(selectedEventRegs.filter((r) => r.id !== id));
+    }
+    setEvents((prev) =>
+      prev.map((ev) => ({
+        ...ev,
+        registrations: ev.registrations?.filter((r) => r.id !== id),
+        _count: ev._count
+          ? {
+              ...ev._count,
+              registrations: Math.max(0, (ev._count.registrations || 1) - 1),
+            }
+          : undefined,
+      }))
+    );
     const res = await fetch(`/api/admin/events/registrations?id=${id}`, { method: 'DELETE' });
     if (res.ok) {
-      if (selectedEventRegs) {
-        setSelectedEventRegs(selectedEventRegs.filter((r) => r.id !== id));
-      }
+      alert('✅ Оқушының іс-шараға тіркелуі сәтті өшірілді!');
       fetchAllData();
     } else {
       const err = await res.json().catch(() => ({ error: 'Қате' }));
-      alert(err.error || 'Өшіру мүмкін болмады');
+      alert(err.error || 'Тіркелуді өшіру мүмкін болмады');
+      fetchAllData();
     }
   };
 
@@ -546,12 +608,27 @@ export default function AdminClient() {
   };
 
   const handleSuggestionStatus = async (id: string, status: string) => {
+    setSuggestions((prev) => prev.map((s) => (s.id === id ? { ...s, status } : s)));
     await fetch('/api/admin/suggestions', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, status }),
     });
     fetchAllData();
+  };
+
+  const handleDeleteSuggestion = async (id: string) => {
+    if (!confirm('Бұл ұсынысты өшіруді растайсыз ба?')) return;
+    setSuggestions((prev) => prev.filter((s) => s.id !== id));
+    const res = await fetch(`/api/admin/suggestions?id=${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      alert('✅ Ұсыныс сәтті өшірілді!');
+      fetchAllData();
+    } else {
+      const err = await res.json().catch(() => ({ error: 'Қате' }));
+      alert(err.error || 'Ұсынысты өшіру мүмкін болмады');
+      fetchAllData();
+    }
   };
 
   const handleStatUpdate = async (key: string, value: number) => {
@@ -711,16 +788,34 @@ export default function AdminClient() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button
+            onClick={() => setShowAddNews(true)}
+            className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-[#00afca] to-sky-600 hover:from-[#0099b0] hover:to-sky-700 text-white font-bold text-xs shadow-md shadow-sky-500/25 active:scale-95 transition-all"
+            title="Жаңа пост, мақала немесе жаңалық жариялау"
+          >
+            <span className="text-sm">✍️</span>
+            <span>Жаңа пост жазу</span>
+          </button>
+
+          <button
+            onClick={() => setShowAddEvent(true)}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-200 transition-all"
+            title="Жаңа іс-шара қосу"
+          >
+            <span>📅</span>
+            <span>+ Іс-шара</span>
+          </button>
+
           <Link
             href="/kk"
-            className="text-[11px] sm:text-xs font-bold text-slate-700 hover:text-[#00afca] px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-sky-50 border border-slate-200 transition-colors inline-block"
+            className="text-[11px] sm:text-xs font-bold text-slate-700 hover:text-[#00afca] px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-slate-100 hover:bg-sky-50 border border-slate-200 transition-colors inline-block"
           >
             Сайтқа ↗
           </Link>
           <button
             onClick={handleLogout}
-            className="text-[11px] sm:text-xs font-bold text-rose-600 hover:text-rose-700 px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors"
+            className="text-[11px] sm:text-xs font-bold text-rose-600 hover:text-rose-700 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors"
           >
             Шығу
           </button>
@@ -801,7 +896,7 @@ export default function AdminClient() {
                     : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
                 }`}
               >
-                📨 Өтініштер ({appeals.length})
+                📨 Өтініштер & Қолхаттар ({appeals.length})
               </button>
               <button
                 onClick={() => setActiveTab('news')}
@@ -811,7 +906,7 @@ export default function AdminClient() {
                     : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
                 }`}
               >
-                📰 Жаңалықтар ({news.length})
+                📰 Посттар мен Жаңалықтар ({news.length})
               </button>
               <button
                 onClick={() => setActiveTab('stats')}
@@ -855,7 +950,7 @@ export default function AdminClient() {
                     : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
                 }`}
               >
-                📨 Бізге түскен өтініштер ({appeals.length})
+                📨 Бізге түскен өтініштер & Қолхаттар ({appeals.length})
               </button>
               <button
                 onClick={() => setActiveTab('news')}
@@ -865,7 +960,7 @@ export default function AdminClient() {
                     : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
                 }`}
               >
-                📰 Фракция жаңалықтары ({news.length})
+                📰 Фракция посттары & Жаңалықтары ({news.length})
               </button>
             </>
           )}
@@ -941,9 +1036,10 @@ export default function AdminClient() {
                 </button>
                 <button
                   onClick={() => setShowAddNews(true)}
-                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-all"
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#00afca] to-sky-600 hover:from-[#0099b0] hover:to-sky-700 text-white text-xs font-bold shadow-sm shadow-sky-500/25 transition-all flex items-center gap-1.5"
                 >
-                  + Жаңалық жариялау
+                  <span>✍️</span>
+                  <span>+ Жаңа пост жазу</span>
                 </button>
               </div>
             </div>
@@ -1038,6 +1134,48 @@ export default function AdminClient() {
                         Көмекшілер тізімі әзірге бос. «Өңдеу» батырмасы арқылы қоса аласыз.
                       </div>
                     )}
+                  </div>
+
+                  {/* Minister Quick Actions */}
+                  <div className="pt-6 border-t border-slate-200">
+                    <h4 className="font-extrabold text-sm text-slate-900 mb-3 flex items-center gap-2">
+                      <span>⚡</span>
+                      <span>Фракцияны басқару және жедел әрекеттер:</span>
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <button
+                        onClick={() => setShowAddNews(true)}
+                        className="p-4 rounded-2xl bg-gradient-to-br from-sky-500 to-[#00afca] hover:from-sky-600 hover:to-[#0099b0] text-white shadow-md shadow-sky-500/20 text-left transition-all active:scale-[0.98] flex flex-col justify-between group"
+                      >
+                        <span className="text-2xl mb-2 group-hover:scale-110 transition-transform">✍️</span>
+                        <div>
+                          <div className="font-black text-sm">Жаңа пост жазу</div>
+                          <div className="text-[11px] text-white/80 mt-0.5">Сайтқа жаңалық немесе мақала жариялау</div>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => setShowAddEvent(true)}
+                        className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 shadow-sm text-left transition-all active:scale-[0.98] flex flex-col justify-between group"
+                      >
+                        <span className="text-2xl mb-2 group-hover:scale-110 transition-transform">📅</span>
+                        <div>
+                          <div className="font-black text-sm text-slate-900">Жаңа іс-шара қосу</div>
+                          <div className="text-[11px] text-slate-500 mt-0.5">Тіркелу мен қатысушылар тізімі</div>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => setActiveTab('appeals')}
+                        className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 shadow-sm text-left transition-all active:scale-[0.98] flex flex-col justify-between group"
+                      >
+                        <span className="text-2xl mb-2 group-hover:scale-110 transition-transform">📨</span>
+                        <div>
+                          <div className="font-black text-sm text-slate-900">Өтініштерді қарау ({appeals.length})</div>
+                          <div className="text-[11px] text-slate-500 mt-0.5">Оқушылардан түскен қолхаттар мен хаттар</div>
+                        </div>
+                      </button>
+                    </div>
                   </div>
                 </div>
               )
@@ -1319,23 +1457,45 @@ export default function AdminClient() {
            =================================================================== */}
         {activeTab === 'news' && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="p-6 rounded-3xl bg-gradient-to-r from-sky-500/10 via-teal-500/5 to-transparent border border-sky-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h3 className="font-extrabold text-lg text-slate-900">
-                  {hasFullAccess ? 'Барлық жаңалықтар мақалалары' : 'Фракция жаңалықтары'}
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#00afca] text-white">
+                  Блог & Жаңалықтар лентасы
+                </span>
+                <h3 className="font-extrabold text-xl text-slate-900 mt-2">
+                  {hasFullAccess ? 'Мектеп парламентінің барлық посттары мен жаңалықтары' : 'Біздің фракция жариялаған посттар'}
                 </h3>
+                <p className="text-xs text-slate-600 mt-1 max-w-xl">
+                  Мұнда жарияланған барлық посттар сайттың басты бетінде және «Жаңалықтар» бөлімінде шығады. Кез келген постты осында өңдеп немесе өшіре аласыз.
+                </p>
               </div>
               <button
                 onClick={() => setShowAddNews(true)}
-                className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold transition-all shadow-sm shadow-[#00afca]/25"
+                className="px-5 py-3 rounded-2xl bg-gradient-to-r from-[#00afca] to-sky-600 hover:from-[#0099b0] hover:to-sky-700 text-white text-xs font-black shadow-lg shadow-sky-500/25 transition-all flex items-center gap-2 shrink-0 self-start sm:self-auto active:scale-95"
               >
-                + Жаңалық жазу
+                <span className="text-base">✍️</span>
+                <span>+ Жаңа пост жариялау</span>
               </button>
             </div>
 
             {news.length === 0 ? (
-              <div className="p-8 rounded-2xl bg-white border border-slate-200 text-center text-slate-500 text-xs">
-                Әзірге жаңалықтар жарияланбаған.
+              <div className="p-12 rounded-3xl bg-white border border-slate-200 text-center space-y-4">
+                <div className="w-16 h-16 mx-auto rounded-2xl bg-sky-50 flex items-center justify-center text-3xl">
+                  ✍️
+                </div>
+                <div className="max-w-md mx-auto">
+                  <h4 className="font-extrabold text-slate-900 text-base">Әзірге ешқандай пост жарияланбаған</h4>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {hasFullAccess ? 'Мектеп парламентінің жаңалықтары мен іс-шара қорытындыларын жариялаңыз.' : 'Өз фракцияңыздың жетістіктері мен хабарламаларын жариялаңыз.'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowAddNews(true)}
+                  className="px-6 py-2.5 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-md shadow-sky-500/20 transition-all inline-flex items-center gap-2"
+                >
+                  <span>✍️</span>
+                  <span>Алғашқы постты жариялау</span>
+                </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1345,6 +1505,15 @@ export default function AdminClient() {
                     className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md flex flex-col justify-between space-y-3 transition-shadow"
                   >
                     <div>
+                      {item.image && (
+                        <div className="h-40 rounded-xl overflow-hidden mb-3 bg-slate-100 border border-slate-200">
+                          <img
+                            src={item.image}
+                            alt={item.titleKk || item.titleRu}
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      )}
                       <div className="flex items-center justify-between pb-2 text-xs text-slate-500 border-b border-slate-200">
                         <span className="text-[#00afca] font-bold text-[10px] uppercase">
                           {item.ministry}
@@ -1520,9 +1689,17 @@ export default function AdminClient() {
                       </button>
                       <button
                         onClick={() => handleSuggestionStatus(sg.id, 'rejected')}
-                        className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 text-xs font-bold transition-colors"
+                        className="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700 text-xs font-bold transition-colors"
                       >
                         Қабылдамау ✕
+                      </button>
+                      <button
+                        onClick={() => handleDeleteSuggestion(sg.id)}
+                        className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 text-xs font-bold transition-colors flex items-center gap-1"
+                        title="Өшіру"
+                      >
+                        <span>Өшіру</span>
+                        <span>🗑️</span>
                       </button>
                     </div>
                   </div>
@@ -2085,10 +2262,11 @@ export default function AdminClient() {
                       {r.id && (
                         <button
                           onClick={() => handleDeleteRegistration(r.id)}
-                          className="px-2 py-0.5 rounded-md bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-[10px] font-bold"
+                          className="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold flex items-center gap-1 transition-colors"
                           title="Тіркелуді өшіру"
                         >
-                          ✕
+                          <span>🗑️</span>
+                          <span>Өшіру</span>
                         </button>
                       )}
                     </div>
@@ -2121,7 +2299,24 @@ export default function AdminClient() {
             className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 text-slate-800 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="font-bold text-lg text-slate-900">Жаңалық мақаласын жариялау</h3>
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <h3 className="font-black text-lg text-slate-900 flex items-center gap-2">
+                  <span>✍️</span>
+                  <span>Жаңа пост / Жаңалық жариялау</span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Бұл жазба сайттың басты бетінде және «Жаңалықтар» бөлімінде пайда болады.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAddNews(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 text-sm"
+              >
+                ✕
+              </button>
+            </div>
             <form onSubmit={handleCreateNews} className="space-y-3">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Тақырыбы (Қазақша)</label>

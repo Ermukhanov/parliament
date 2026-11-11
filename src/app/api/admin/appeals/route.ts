@@ -31,7 +31,9 @@ export async function PATCH(req: NextRequest) {
 
     if (!session.hasFullAccess) {
       const existing = await prisma.appeal.findUnique({ where: { id } });
-      if (!existing || existing.ministry !== session.login) {
+      const existingMin = (existing?.ministry || 'general').trim().toLowerCase();
+      const sessionMin = (session.login || '').trim().toLowerCase();
+      if (!existing || existingMin !== sessionMin) {
         return NextResponse.json({ error: 'Доступ только к обращениям своей фракции' }, { status: 403 });
       }
     }
@@ -66,7 +68,10 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Өтініш табылмады' }, { status: 404 });
     }
 
-    if (!session.hasFullAccess && existing.ministry !== session.login) {
+    const existingMin = (existing.ministry || 'general').trim().toLowerCase();
+    const sessionMin = (session.login || '').trim().toLowerCase();
+
+    if (!session.hasFullAccess && existingMin !== sessionMin) {
       return NextResponse.json(
         { error: 'Тек өз фракцияңыздың өтініштерін өшіре аласыз' },
         { status: 403 }

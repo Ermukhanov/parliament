@@ -25,7 +25,10 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Тіркелу табылмады' }, { status: 404 });
     }
 
-    if (!session.hasFullAccess && reg.event.ministry !== session.login) {
+    const eventMin = (reg.event.ministry || 'general').trim().toLowerCase();
+    const sessionMin = (session.login || '').trim().toLowerCase();
+
+    if (!session.hasFullAccess && eventMin !== sessionMin) {
       return NextResponse.json(
         { error: 'Тек өз фракцияңыздың іс-шараларына жазылғандарды өшіре аласыз' },
         { status: 403 }
