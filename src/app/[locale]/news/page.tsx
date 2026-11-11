@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import type { Metadata } from 'next';
 import NewsSection, { NewsItem } from '@/components/NewsSection';
+import InstagramFeed from '@/components/InstagramFeed';
 
 export const revalidate = 0;
 
@@ -37,6 +38,7 @@ export default async function NewsPage({
       titleRu: n.titleRu,
       titleKk: n.titleKk,
       excerpt: n.excerpt,
+      image: n.image,
       ministry: n.ministry,
       createdAt: n.createdAt.toISOString(),
     }));
@@ -45,8 +47,14 @@ export default async function NewsPage({
   }
 
   return (
-    <div className="py-6 sm:py-10">
+    <div className="space-y-6 sm:space-y-10 pb-16">
+      {/* 1. Parliament Articles & Faction Posts */}
       <NewsSection locale={locale} news={news} />
+
+      {/* 2. Official School Instagram Media Feed */}
+      <div className="border-t border-slate-100">
+        <InstagramFeed locale={locale} />
+      </div>
     </div>
   );
 }

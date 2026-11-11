@@ -750,6 +750,19 @@ export default function AdminClient() {
               </button>
             </form>
 
+            {/* Quick logins guide */}
+            <div className="mt-5 p-3.5 rounded-2xl bg-sky-50/80 border border-sky-200 text-slate-700 text-xs">
+              <div className="font-bold text-[#00afca] mb-1 flex items-center gap-1.5">
+                <span>🔑</span>
+                <span>Жүйеге кіру логиндері (Логины для входа):</span>
+              </div>
+              <div className="space-y-1 text-[11px] text-slate-600">
+                <div>• Президент: <span className="font-mono font-bold text-slate-900 bg-white px-1.5 py-0.5 rounded border border-slate-200">president</span></div>
+                <div>• Вице-президент: <span className="font-mono font-bold text-slate-900 bg-white px-1.5 py-0.5 rounded border border-slate-200">vice</span></div>
+                <div>• Фракциялар: <span className="font-mono font-bold text-slate-900 bg-white px-1 py-0.5 rounded border border-slate-200">sport</span>, <span className="font-mono font-bold text-slate-900 bg-white px-1 py-0.5 rounded border border-slate-200">it</span>, <span className="font-mono font-bold text-slate-900 bg-white px-1 py-0.5 rounded border border-slate-200">media</span>, <span className="font-mono font-bold text-slate-900 bg-white px-1 py-0.5 rounded border border-slate-200">culture</span>, <span className="font-mono font-bold text-slate-900 bg-white px-1 py-0.5 rounded border border-slate-200">volunteers</span>, <span className="font-mono font-bold text-slate-900 bg-white px-1 py-0.5 rounded border border-slate-200">discipline</span>, <span className="font-mono font-bold text-slate-900 bg-white px-1 py-0.5 rounded border border-slate-200">education</span></div>
+              </div>
+            </div>
+
             <div className="mt-8 pt-6 border-t border-slate-100 text-center">
               <Link
                 href="/kk"
@@ -791,11 +804,11 @@ export default function AdminClient() {
         <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={() => setShowAddNews(true)}
-            className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-[#00afca] to-sky-600 hover:from-[#0099b0] hover:to-sky-700 text-white font-bold text-xs shadow-md shadow-sky-500/25 active:scale-95 transition-all"
-            title="Жаңа пост, мақала немесе жаңалық жариялау"
+            className="flex items-center gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-[#00afca] to-sky-600 hover:from-[#0099b0] hover:to-sky-700 text-white font-black text-xs sm:text-sm shadow-lg shadow-sky-500/30 active:scale-95 transition-all ring-2 ring-sky-300/40"
+            title="Жаңа пост жазу / Добавить пост"
           >
-            <span className="text-sm">✍️</span>
-            <span>Жаңа пост жазу</span>
+            <span className="text-base sm:text-lg">✍️</span>
+            <span>+ ПОСТ ҚОСУ / ДОБАВИТЬ ПОСТ</span>
           </button>
 
           <button
@@ -824,6 +837,31 @@ export default function AdminClient() {
 
       {/* Main Container */}
       <div className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
+        {/* Unmissable Quick Action Banner */}
+        <div className="bg-gradient-to-r from-sky-500 via-[#00afca] to-teal-500 rounded-3xl p-5 sm:p-6 text-white shadow-lg shadow-sky-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-black uppercase tracking-wider backdrop-blur-sm">
+                Блог & Жаңалықтар
+              </span>
+              <span className="text-xs text-white/90 font-bold">• Мектеп сайтына жариялау</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black mt-1">
+              Жаңа пост жазу / Добавить пост
+            </h2>
+            <p className="text-xs text-white/80 mt-1 max-w-xl">
+              Осы батырма арқылы мектеп сайтының «Жаңалықтар» бөліміне жаңа пост, мақала, суреттер және хабарландыру жариялай аласыз. Барлық оқушылар көреді.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowAddNews(true)}
+            className="px-6 py-3.5 rounded-2xl bg-white text-slate-900 hover:bg-slate-50 font-black text-xs sm:text-sm shadow-xl active:scale-95 transition-all flex items-center gap-2 self-start sm:self-auto shrink-0 border border-white"
+          >
+            <span className="text-lg">✍️</span>
+            <span>+ ЖАҢА ПОСТ ҚОСУ (ДОБАВИТЬ ПОСТ)</span>
+          </button>
+        </div>
+
         {/* Navigation Tabs Bar */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-200 no-scrollbar -mx-3 px-3 sm:mx-0 sm:px-0">
           {hasFullAccess ? (
@@ -2286,6 +2324,18 @@ export default function AdminClient() {
           </div>
         </div>
       )}
+
+      {/* Floating Action Button for Adding Posts */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <button
+          onClick={() => setShowAddNews(true)}
+          className="px-5 py-3.5 rounded-full bg-gradient-to-r from-[#00afca] to-sky-600 hover:from-[#0099b0] hover:to-sky-700 text-white font-black text-xs sm:text-sm shadow-2xl shadow-sky-500/50 hover:shadow-sky-500/70 active:scale-95 transition-all flex items-center gap-2.5 border-2 border-white ring-4 ring-sky-400/20 cursor-pointer"
+          title="Жаңа пост жазу / Добавить пост"
+        >
+          <span className="text-lg">✍️</span>
+          <span>+ ПОСТ ҚОСУ / ДОБАВИТЬ ПОСТ</span>
+        </button>
+      </div>
 
       {/* =====================================================================
           MODAL: ADD NEWS
