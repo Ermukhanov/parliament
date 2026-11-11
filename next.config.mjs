@@ -15,6 +15,11 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  experimental: {
+    outputFileTracingIncludes: {
+      '/**': ['./prisma/dev.db'],
+    },
+  },
 };
 
 export default withNextIntl(nextConfig);

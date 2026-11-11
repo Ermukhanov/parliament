@@ -23,20 +23,26 @@ export default async function NewsPage({
 }: {
   params: { locale: string };
 }) {
-  const rawNews = await prisma.news.findMany({
-    where: { published: true },
-    orderBy: { createdAt: 'desc' },
-  });
+  let news: NewsItem[] = [];
 
-  const news: NewsItem[] = rawNews.map((n) => ({
-    id: n.id,
-    slug: n.slug,
-    titleRu: n.titleRu,
-    titleKk: n.titleKk,
-    excerpt: n.excerpt,
-    ministry: n.ministry,
-    createdAt: n.createdAt.toISOString(),
-  }));
+  try {
+    const rawNews = await prisma.news.findMany({
+      where: { published: true },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    news = rawNews.map((n) => ({
+      id: n.id,
+      slug: n.slug,
+      titleRu: n.titleRu,
+      titleKk: n.titleKk,
+      excerpt: n.excerpt,
+      ministry: n.ministry,
+      createdAt: n.createdAt.toISOString(),
+    }));
+  } catch (err) {
+    console.error('NewsPage DB query error:', err);
+  }
 
   return (
     <div className="py-6 sm:py-10">

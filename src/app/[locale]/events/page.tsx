@@ -23,31 +23,37 @@ export default async function EventsPage({
 }: {
   params: { locale: string };
 }) {
-  const rawEvents = await prisma.event.findMany({
-    orderBy: { date: 'asc' },
-    include: {
-      _count: {
-        select: { registrations: true },
-      },
-    },
-  });
+  let events: EventItem[] = [];
 
-  const events: EventItem[] = rawEvents.map((ev) => ({
-    id: ev.id,
-    slug: ev.slug,
-    titleRu: ev.titleRu,
-    titleKk: ev.titleKk,
-    descRu: ev.descRu,
-    descKk: ev.descKk,
-    category: ev.category,
-    ministry: ev.ministry,
-    date: ev.date.toISOString(),
-    location: ev.location,
-    image: ev.image,
-    maxSeats: ev.maxSeats,
-    archived: ev.archived,
-    registrationsCount: ev._count.registrations,
-  }));
+  try {
+    const rawEvents = await prisma.event.findMany({
+      orderBy: { date: 'asc' },
+      include: {
+        _count: {
+          select: { registrations: true },
+        },
+      },
+    });
+
+    events = rawEvents.map((ev) => ({
+      id: ev.id,
+      slug: ev.slug,
+      titleRu: ev.titleRu,
+      titleKk: ev.titleKk,
+      descRu: ev.descRu,
+      descKk: ev.descKk,
+      category: ev.category,
+      ministry: ev.ministry,
+      date: ev.date.toISOString(),
+      location: ev.location,
+      image: ev.image,
+      maxSeats: ev.maxSeats,
+      archived: ev.archived,
+      registrationsCount: ev._count.registrations,
+    }));
+  } catch (err) {
+    console.error('EventsPage DB query error:', err);
+  }
 
   return (
     <div className="py-6 sm:py-10">

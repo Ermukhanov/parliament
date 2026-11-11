@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import type { Metadata } from 'next';
 import TimelineSection from '@/components/TimelineSection';
+import { FALLBACK_TIMELINE } from '@/lib/fallbacks';
 
 export const revalidate = 0;
 
@@ -23,9 +24,17 @@ export default async function PlanPage({
 }: {
   params: { locale: string };
 }) {
-  const timeline = await prisma.timelineItem.findMany({
-    orderBy: { order: 'asc' },
-  });
+  let timeline = FALLBACK_TIMELINE;
+  try {
+    const dbTimeline = await prisma.timelineItem.findMany({
+      orderBy: { order: 'asc' },
+    });
+    if (dbTimeline && dbTimeline.length > 0) {
+      timeline = dbTimeline;
+    }
+  } catch (err) {
+    console.error('PlanPage DB query error (using fallback timeline):', err);
+  }
 
   return (
     <div className="py-6 sm:py-10">

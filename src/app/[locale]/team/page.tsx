@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import type { Metadata } from 'next';
 import TeamPageClient from './TeamPageClient';
+import { FALLBACK_MEMBERS } from '@/lib/fallbacks';
 
 export const revalidate = 0;
 
@@ -23,9 +24,17 @@ export default async function TeamPage({
 }: {
   params: { locale: string };
 }) {
-  const members = await prisma.member.findMany({
-    orderBy: { order: 'asc' },
-  });
+  let members = FALLBACK_MEMBERS;
+  try {
+    const dbMembers = await prisma.member.findMany({
+      orderBy: { order: 'asc' },
+    });
+    if (dbMembers && dbMembers.length > 0) {
+      members = dbMembers;
+    }
+  } catch (err) {
+    console.error('TeamPage DB query error (using fallback members):', err);
+  }
 
   return (
     <div className="py-8 sm:py-12">
