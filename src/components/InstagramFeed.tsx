@@ -20,6 +20,15 @@ interface InstagramFeedProps {
 
 const defaultPosts: InstagramPostItem[] = [
   {
+    id: 'post-it-quiz',
+    url: 'https://www.instagram.com/reel/DfksV3kqMI0/',
+    image: '/images/instagram/post-5.jpg',
+    captionKk: '10 Қараша – Цифрландыру және ақпараттық технологиялар қызметкерлері күніне орай информатика пәнінен Kahoot викторинасы (IT квиз) өтті 💻',
+    captionEn: 'November 10 – Digitalization & IT Workers Day informatics Kahoot IT Quiz competition 💻',
+    date: '10 қараша',
+    type: 'reel',
+  },
+  {
     id: 'post-1',
     url: 'https://www.instagram.com/reel/DetXIZGNiq0/',
     image: '/images/instagram/post-1.jpg',
