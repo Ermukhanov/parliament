@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import SchoolLogo from './SchoolLogo';
 import MemberPortrait from './MemberPortrait';
 
 export interface AssistantItem {

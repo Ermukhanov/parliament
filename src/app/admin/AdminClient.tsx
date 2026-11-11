@@ -136,7 +136,6 @@ interface AdminStat {
 
 export default function AdminClient() {
   const [authenticated, setAuthenticated] = useState(false);
-  const [loadingInitial, setLoadingInitial] = useState(true);
 
   // Login form state
   const [loginInput, setLoginInput] = useState('');
@@ -166,26 +165,6 @@ export default function AdminClient() {
   const [editingMinister, setEditingMinister] = useState<MinisterItem | null>(null);
   const [editingAssistants, setEditingAssistants] = useState<AssistantEntry[]>([]);
   const [saveMessage, setSaveMessage] = useState('');
-
-  const [showAddMinister, setShowAddMinister] = useState(false);
-  const [newMinister, setNewMinister] = useState({
-    login: '',
-    password: 'parliament2025',
-    ministry: 'general',
-    ministryNameRu: '',
-    ministryNameKk: '',
-    nameRu: '',
-    nameKk: '',
-    grade: '',
-    roleRu: '',
-    roleKk: '',
-    quoteRu: '',
-    quoteKk: '',
-    bioRu: '',
-    bioKk: '',
-    photo: '',
-    order: 10,
-  });
 
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [editingEvent, setEditingEvent] = useState<AdminEvent | null>(null);
@@ -259,7 +238,6 @@ export default function AdminClient() {
 
       if (memRes.status === 401) {
         setAuthenticated(false);
-        setLoadingInitial(false);
         return;
       }
 
@@ -289,7 +267,6 @@ export default function AdminClient() {
     } catch {
       // ignore
     } finally {
-      setLoadingInitial(false);
     }
   }, []);
 
@@ -373,23 +350,6 @@ export default function AdminClient() {
         setEditingMinister(null);
         setSaveMessage('');
       }, 1000);
-      fetchAllData();
-    }
-  };
-
-  const handleCreateMinister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const res = await fetch('/api/admin/members', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...newMinister,
-        order: Number(newMinister.order),
-      }),
-    });
-
-    if (res.ok) {
-      setShowAddMinister(false);
       fetchAllData();
     }
   };
@@ -1031,12 +991,7 @@ export default function AdminClient() {
                   <h3 className="font-extrabold text-lg text-slate-900">
                     Парламент мүшелері мен министрлер тізімі
                   </h3>
-                  <button
-                    onClick={() => setShowAddMinister(true)}
-                    className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold transition-all shadow-sm shadow-[#00afca]/25"
-                  >
-                    + Жаңа мүше қосу
-                  </button>
+                  <span className="text-xs text-slate-500 font-semibold px-3 py-1.5 rounded-xl bg-slate-100">Барлығы: 9 фракция</span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
