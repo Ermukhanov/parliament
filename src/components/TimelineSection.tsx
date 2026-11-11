@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface TimelineItemData {
   id: string;
@@ -53,8 +54,48 @@ export default function TimelineSection({ locale, items }: TimelineSectionProps)
   const isEn = locale === 'en';
 
   return (
-    <section id="timeline" className="py-12 sm:py-20 relative z-10 bg-[#ffffff]">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="timeline" className="py-12 sm:py-20 relative z-10 bg-[#ffffff] overflow-hidden">
+      {/* 1. LEFT SIDE KAZAKH ORNAMENT (DESKTOP ONLY - HIDDEN ON MOBILE) */}
+      <div
+        className="hidden lg:flex flex-col items-center absolute left-2 xl:left-8 2xl:left-14 top-24 bottom-24 pointer-events-none select-none z-0"
+        aria-hidden="true"
+      >
+        <div className="sticky top-28 flex flex-col items-center">
+          <div className="w-10 xl:w-14 2xl:w-16 drop-shadow-[0_6px_20px_rgba(234,179,8,0.28)] opacity-90 transition-all hover:opacity-100">
+            <Image
+              src="/images/kazakh-ornament.png"
+              alt="Қазақ ою-өрнегі"
+              width={143}
+              height={679}
+              className="w-full h-auto object-contain"
+              priority
+            />
+          </div>
+          <div className="w-1 h-12 bg-gradient-to-b from-amber-400/50 to-transparent mt-3 rounded-full" />
+        </div>
+      </div>
+
+      {/* 2. RIGHT SIDE KAZAKH ORNAMENT (DESKTOP ONLY - HIDDEN ON MOBILE) */}
+      <div
+        className="hidden lg:flex flex-col items-center absolute right-2 xl:right-8 2xl:right-14 top-24 bottom-24 pointer-events-none select-none z-0"
+        aria-hidden="true"
+      >
+        <div className="sticky top-28 flex flex-col items-center">
+          <div className="w-10 xl:w-14 2xl:w-16 drop-shadow-[0_6px_20px_rgba(234,179,8,0.28)] opacity-90 transition-all hover:opacity-100">
+            <Image
+              src="/images/kazakh-ornament.png"
+              alt="Қазақ ою-өрнегі"
+              width={143}
+              height={679}
+              className="w-full h-auto object-contain scale-x-[-1]"
+              priority
+            />
+          </div>
+          <div className="w-1 h-12 bg-gradient-to-b from-amber-400/50 to-transparent mt-3 rounded-full" />
+        </div>
+      </div>
+
+      <div className="max-w-4xl xl:max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Heading */}
         <div className="text-center mb-12 sm:mb-16">
           <div className="section-kicker">
