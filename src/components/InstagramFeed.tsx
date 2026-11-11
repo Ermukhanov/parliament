@@ -10,7 +10,7 @@ export interface InstagramPostItem {
   captionKk: string;
   captionEn?: string;
   date?: string;
-  type?: 'post' | 'reel' | 'event';
+  type?: 'post' | 'reel';
 }
 
 interface InstagramFeedProps {
@@ -20,57 +20,39 @@ interface InstagramFeedProps {
 
 const defaultPosts: InstagramPostItem[] = [
   {
-    id: '1',
-    url: 'https://www.instagram.com/aql_council',
-    image: '/images/members/president.png',
-    captionKk: 'Мектеп Президенті мен Парламент Төралқасының жаңа оқу жылына арналған жоспарлары мен бастамалары.',
-    captionEn: 'School President and Parliament Presidium initiatives for the academic year.',
-    date: 'Қараша 2026',
-    type: 'post',
-  },
-  {
-    id: '2',
-    url: 'https://www.instagram.com/aql_council',
-    image: '/images/members/it.png',
-    captionKk: 'IT және цифрландыру фракциясы: жаңа мектеп порталы мен цифрлық шешімдер.',
-    captionEn: 'IT & Digitalization faction: launch of the school web portal.',
-    date: 'Қараша 2026',
-    type: 'post',
-  },
-  {
-    id: '3',
-    url: 'https://www.instagram.com/aql_council',
-    image: '/images/members/culture.png',
-    captionKk: 'Мәдениет және өнер фракциясы: мектеп мерекелері мен шығармашылық жобалар.',
-    captionEn: 'Culture and Arts faction: school festivals and art projects.',
-    date: 'Қараша 2026',
+    id: 'post-1',
+    url: 'https://www.instagram.com/reel/DetXIZGNiq0/',
+    image: '/images/instagram/post-1.jpg',
+    captionKk: 'Айдарбек Саламатұлы және оның оқушылары 💙 Лицейдегі жылы жүздесу мен шабытты сәттер.',
+    captionEn: 'Aidarbek Salamatuly and his students 💙 Inspiring moments at the lyceum.',
+    date: '20 қазан',
     type: 'reel',
   },
   {
-    id: '4',
-    url: 'https://www.instagram.com/aql_council',
-    image: '/images/members/sport.png',
-    captionKk: 'Спорт фракциясы: волейбол және үстел теннисі турнирлері.',
-    captionEn: 'Sports faction: volleyball and table tennis championships.',
-    date: 'Қараша 2026',
-    type: 'post',
-  },
-  {
-    id: '5',
-    url: 'https://www.instagram.com/aql_council',
-    image: '/images/members/volunteers.png',
-    captionKk: 'Еріктілер фракциясы: «Жүректен жүрекке» қайырымдылық акциясы.',
-    captionEn: 'Volunteers faction: From Heart to Heart charity initiative.',
-    date: 'Қараша 2026',
+    id: 'post-2',
+    url: 'https://www.instagram.com/reel/DegakjWt1ii/',
+    image: '/images/instagram/post-2.jpg',
+    captionKk: 'Әр үлкен жетістіктің артында бір ҰСТАЗ тұрады 💙 Ұстаздар күніне арналған лицей мерекесі.',
+    captionEn: 'Behind every great achievement stands a Teacher 💙 Teachers’ Day celebration.',
+    date: '2 қазан',
     type: 'reel',
   },
   {
-    id: '6',
-    url: 'https://www.instagram.com/aql_council',
-    image: '/images/members/discipline.png',
-    captionKk: 'Құқық және тәртіп фракциясы: лицей ережелері мен қауіпсіздік мәдениеті.',
-    captionEn: 'Law and Order faction: school charter compliance and safety culture.',
-    date: 'Қараша 2026',
+    id: 'post-3',
+    url: 'https://www.instagram.com/p/DegooevDXHo/',
+    image: '/images/instagram/post-3.jpg',
+    captionKk: 'AQL RUN — жүректе қалған жылы сәттер 💙 Оқушылар мен ұстаздардың дәстүрлі спорттық жарысы.',
+    captionEn: 'AQL RUN — Warm moments in our hearts 💙 Traditional school sports marathon.',
+    date: '10 қазан',
+    type: 'post',
+  },
+  {
+    id: 'post-4',
+    url: 'https://www.instagram.com/p/DdHPIlhIp3j/',
+    image: '/images/instagram/post-4.jpg',
+    captionKk: 'AQL Council — Мектеп Парламентінің ресми бастамалары, медиа жаңалықтары мен фракциялар жұмысы.',
+    captionEn: 'AQL Council — Official school parliament media releases, initiatives and faction projects.',
+    date: 'Қазан 2026',
     type: 'post',
   },
 ];
@@ -91,7 +73,7 @@ export default function InstagramFeed({
   const isEn = locale === 'en';
 
   return (
-    <section className="py-12 relative overflow-hidden bg-gradient-to-b from-white via-slate-50/60 to-white border-y border-slate-100">
+    <section className="py-14 relative overflow-hidden bg-gradient-to-b from-white via-slate-50/70 to-white border-y border-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Row */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
@@ -118,7 +100,7 @@ export default function InstagramFeed({
               href="https://www.instagram.com/aql_council"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888] text-white text-xs font-bold shadow-md hover:opacity-95 transition-all hover:scale-105 active:scale-95"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888] text-white text-xs font-extrabold shadow-md hover:opacity-95 transition-all hover:scale-105 active:scale-95"
             >
               <span>{isEn ? 'Follow on Instagram' : 'Instagram-да жазылу'}</span>
               <span>↗</span>
@@ -128,7 +110,7 @@ export default function InstagramFeed({
               <button
                 type="button"
                 onClick={() => scroll('left')}
-                className="w-8 h-8 rounded-full bg-white border border-slate-200 hover:border-slate-300 text-slate-700 flex items-center justify-center transition-colors shadow-sm"
+                className="w-9 h-9 rounded-full bg-white border border-slate-200 hover:border-slate-300 text-slate-700 flex items-center justify-center transition-colors shadow-sm font-bold text-lg"
                 aria-label="Scroll left"
               >
                 ‹
@@ -136,7 +118,7 @@ export default function InstagramFeed({
               <button
                 type="button"
                 onClick={() => scroll('right')}
-                className="w-8 h-8 rounded-full bg-white border border-slate-200 hover:border-slate-300 text-slate-700 flex items-center justify-center transition-colors shadow-sm"
+                className="w-9 h-9 rounded-full bg-white border border-slate-200 hover:border-slate-300 text-slate-700 flex items-center justify-center transition-colors shadow-sm font-bold text-lg"
                 aria-label="Scroll right"
               >
                 ›
@@ -156,11 +138,11 @@ export default function InstagramFeed({
               href={post.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex-shrink-0 w-64 sm:w-72 bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#00afca]/50 transition-all duration-300 flex flex-col justify-between"
+              className="group flex-shrink-0 w-64 sm:w-72 bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#00afca]/50 transition-all duration-300 flex flex-col justify-between"
             >
               <div>
                 {/* Media frame */}
-                <div className="relative aspect-[4/4] overflow-hidden bg-slate-900">
+                <div className="relative aspect-square overflow-hidden bg-slate-900">
                   <Image
                     src={post.image}
                     alt={post.captionKk}
@@ -169,7 +151,7 @@ export default function InstagramFeed({
                     className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
                   />
                   {/* Badge */}
-                  <div className="absolute top-3 right-3 px-2 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[10px] font-bold flex items-center gap-1">
+                  <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[10px] font-extrabold flex items-center gap-1 shadow-md">
                     {post.type === 'reel' ? (
                       <>
                         <span>▶</span>
@@ -178,14 +160,14 @@ export default function InstagramFeed({
                     ) : (
                       <>
                         <span>📷</span>
-                        <span>Post</span>
+                        <span>Пост</span>
                       </>
                     )}
                   </div>
 
                   {/* Gradient shine on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
-                    <span className="text-[11px] font-bold text-white flex items-center gap-1">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                    <span className="text-xs font-bold text-white flex items-center gap-1.5">
                       <span>Instagram-да ашу</span>
                       <span>↗</span>
                     </span>
@@ -193,9 +175,9 @@ export default function InstagramFeed({
                 </div>
 
                 {/* Caption snippet */}
-                <div className="p-4">
+                <div className="p-4 sm:p-5">
                   {post.date && (
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                    <div className="text-[10px] font-black uppercase tracking-wider text-[#00afca] mb-1.5">
                       {post.date}
                     </div>
                   )}
@@ -206,8 +188,8 @@ export default function InstagramFeed({
               </div>
 
               {/* Card Footer */}
-              <div className="px-4 py-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-[#00afca] bg-slate-50/50">
-                <span className="flex items-center gap-1">
+              <div className="px-4 py-3 sm:px-5 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#00afca] bg-slate-50/60">
+                <span className="flex items-center gap-1.5 text-slate-600 group-hover:text-[#00afca] transition-colors">
                   <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
                   <span>@aql_council</span>
                 </span>
