@@ -62,13 +62,11 @@ export async function POST(
     }
 
     // Check duplicate: same event, same name and grade
-    const existing = await prisma.registration.findUnique({
+    const existing = await prisma.registration.findFirst({
       where: {
-        eventId_name_grade: {
-          eventId: params.id,
-          name: validated.name,
-          grade: validated.grade,
-        },
+        eventId: params.id,
+        name: validated.name,
+        grade: validated.grade,
       },
     });
 
