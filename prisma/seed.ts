@@ -160,6 +160,7 @@ async function main() {
         assistants: JSON.stringify([
           { name: 'Ильжан', grade: '10В', role: 'Көмекші' },
           { name: 'Амина', grade: '9А', role: 'Көмекші' },
+          { name: 'Қадырқұлов Жансен', grade: '10В', role: 'Көмекші' },
         ]),
         photo: '',
         order: 7,
