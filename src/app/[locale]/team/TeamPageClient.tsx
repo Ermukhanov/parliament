@@ -143,36 +143,32 @@ export default function TeamPageClient({ locale, members }: TeamPageClientProps)
           <span className="w-10 h-0.5 bg-[#00afca]/40" />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-          {/* Presidential Grand Honor Card (Prominent & Dominant) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+          {/* 1. PRESIDENT OF SCHOOL PARLIAMENT */}
           {president && (
-            <div
-              className={`aql-card p-7 sm:p-10 bg-gradient-to-br from-slate-900 via-[#0b1728] to-[#041624] text-white border-2 border-[#00afca]/40 shadow-2xl relative overflow-hidden flex flex-col justify-between ${
-                vice ? 'lg:col-span-8' : 'lg:col-span-12'
-              }`}
-            >
+            <div className="aql-card p-7 sm:p-8 bg-gradient-to-br from-slate-900 via-[#0b1728] to-[#041624] text-white border-2 border-[#00afca]/40 shadow-xl relative overflow-hidden flex flex-col justify-between">
               {/* Subtle background crest accent */}
-              <div className="absolute right-[-30px] bottom-[-30px] w-72 h-72 opacity-10 pointer-events-none">
+              <div className="absolute right-[-25px] bottom-[-25px] w-60 h-60 opacity-10 pointer-events-none">
                 <SchoolLogo className="w-full h-full object-contain" />
               </div>
 
               <div>
                 {/* Honor Tag */}
                 <div className="flex items-center justify-between gap-4 mb-6">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#00afca] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-xl">
-                    <span className="text-sm">👑</span>
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#00afca] text-white text-xs font-black uppercase tracking-wider shadow-lg">
+                    <span>👑</span>
                     <span>{locale === 'en' ? 'President of School Parliament' : 'Мектеп Президенті'}</span>
                   </div>
                   {president.grade && (
-                    <span className="px-3.5 py-1 rounded-full bg-white/10 text-xs font-bold text-slate-200 border border-white/20">
+                    <span className="px-3 py-1 rounded-full bg-white/10 text-xs font-bold text-slate-200 border border-white/20">
                       {president.grade}
                     </span>
                   )}
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8">
-                  {/* President Grand Portrait */}
-                  <div className="w-44 sm:w-52 md:w-56 shrink-0 shadow-2xl">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+                  {/* Portrait */}
+                  <div className="w-36 sm:w-44 shrink-0 shadow-2xl">
                     <MemberPortrait
                       photo={president.photo}
                       name={president.nameKk}
@@ -182,24 +178,24 @@ export default function TeamPageClient({ locale, members }: TeamPageClientProps)
                     />
                   </div>
 
-                  {/* President Bio & Quote */}
-                  <div className="space-y-4 text-center sm:text-left flex-1">
+                  {/* Bio & Details */}
+                  <div className="space-y-3.5 text-center sm:text-left flex-1">
                     <div>
-                      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
+                      <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                         {president.nameKk}
                       </h2>
-                      <p className="text-sm sm:text-base text-[#38bdf8] font-extrabold mt-1">
+                      <p className="text-xs sm:text-sm text-[#38bdf8] font-bold mt-1">
                         {getLocalizedRole(president)}
                       </p>
                     </div>
 
                     {getLocalizedQuote(president) && (
-                      <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm text-slate-200 italic leading-relaxed shadow-inner">
+                      <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-slate-200 italic leading-relaxed">
                         &ldquo;{getLocalizedQuote(president)}&rdquo;
                       </div>
                     )}
 
-                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+                    <p className="text-xs text-slate-300 leading-relaxed font-light line-clamp-3">
                       {getLocalizedBio(president)}
                     </p>
                   </div>
@@ -207,14 +203,18 @@ export default function TeamPageClient({ locale, members }: TeamPageClientProps)
               </div>
 
               {/* Action row */}
-              <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-4">
-                <span className="text-xs text-slate-300 font-semibold">
-                  {locale === 'en' ? 'Direct communication channel open' : 'Тікелей қабылдау ашық'}
-                </span>
+              <div className="mt-6 pt-5 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => setSelectedMember(president)}
+                  className="text-xs text-slate-300 hover:text-white font-semibold underline underline-offset-4"
+                >
+                  {locale === 'en' ? 'Full Profile' : 'Толық ақпарат'}
+                </button>
                 <Link
                   href={`/${locale}/appeals`}
                   prefetch
-                  className="px-6 py-2.5 rounded-full bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-extrabold transition-all shadow-lg active:scale-95"
+                  className="px-5 py-2 rounded-full bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-extrabold transition-all shadow-md active:scale-95"
                 >
                   {locale === 'en' ? 'Write to President →' : 'Президентке өтініш жолдау →'}
                 </Link>
@@ -222,60 +222,80 @@ export default function TeamPageClient({ locale, members }: TeamPageClientProps)
             </div>
           )}
 
-          {/* Vice-President Card (Neat, Balanced & Compact) */}
+          {/* 2. VICE-PRESIDENT OF SCHOOL PARLIAMENT */}
           {vice && (
-            <div className="aql-card p-6 sm:p-7 bg-gradient-to-b from-slate-50 to-white border border-slate-200 lg:col-span-4 flex flex-col justify-between shadow-sm">
+            <div className="aql-card p-7 sm:p-8 bg-gradient-to-br from-slate-900 via-[#0c1c33] to-[#04192b] text-white border-2 border-[#00afca]/40 shadow-xl relative overflow-hidden flex flex-col justify-between">
+              {/* Subtle background crest accent */}
+              <div className="absolute right-[-25px] bottom-[-25px] w-60 h-60 opacity-10 pointer-events-none">
+                <SchoolLogo className="w-full h-full object-contain" />
+              </div>
+
               <div>
-                <div className="flex items-center justify-between gap-2 mb-4">
-                  <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-white flex items-center gap-1 shadow-sm">
+                {/* Honor Tag */}
+                <div className="flex items-center justify-between gap-4 mb-6">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0284c7] text-white text-xs font-black uppercase tracking-wider shadow-lg">
                     <span>★</span>
-                    <span>{locale === 'en' ? 'Vice-President' : 'Вице-президент'}</span>
-                  </span>
+                    <span>{locale === 'en' ? 'Vice-President of School Parliament' : 'Мектеп Вице-президенті'}</span>
+                  </div>
                   {vice.grade && (
-                    <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[11px] font-bold">
+                    <span className="px-3 py-1 rounded-full bg-white/10 text-xs font-bold text-slate-200 border border-white/20">
                       {vice.grade}
                     </span>
                   )}
                 </div>
 
-                <div className="flex flex-col items-center text-center space-y-3">
-                  {/* Compact Vice Portrait */}
-                  <div className="w-24 sm:w-28 shadow-md">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+                  {/* Portrait (Identical Size) */}
+                  <div className="w-36 sm:w-44 shrink-0 shadow-2xl">
                     <MemberPortrait
                       photo={vice.photo}
                       name={vice.nameKk}
                       aspect="portrait"
-                      className="rounded-2xl border border-slate-200"
+                      priority
+                      className="rounded-2xl border-2 border-[#00afca] shadow-2xl"
                     />
                   </div>
 
-                  <div>
-                    <h3 className="text-lg font-black text-slate-900">{vice.nameKk}</h3>
-                    <p className="text-xs text-[#00afca] font-bold mt-0.5">
-                      {getLocalizedRole(vice)}
+                  {/* Bio & Details */}
+                  <div className="space-y-3.5 text-center sm:text-left flex-1">
+                    <div>
+                      <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                        {vice.nameKk}
+                      </h2>
+                      <p className="text-xs sm:text-sm text-[#38bdf8] font-bold mt-1">
+                        {getLocalizedRole(vice)}
+                      </p>
+                    </div>
+
+                    {getLocalizedQuote(vice) && (
+                      <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-slate-200 italic leading-relaxed">
+                        &ldquo;{getLocalizedQuote(vice)}&rdquo;
+                      </div>
+                    )}
+
+                    <p className="text-xs text-slate-300 leading-relaxed font-light line-clamp-3">
+                      {getLocalizedBio(vice)}
                     </p>
                   </div>
-
-                  {getLocalizedQuote(vice) && (
-                    <p className="text-xs text-slate-600 italic bg-slate-50 p-2.5 rounded-xl border border-slate-100 line-clamp-2">
-                      &ldquo;{getLocalizedQuote(vice)}&rdquo;
-                    </p>
-                  )}
-
-                  <p className="text-xs text-slate-500 leading-relaxed line-clamp-3">
-                    {getLocalizedBio(vice)}
-                  </p>
                 </div>
               </div>
 
-              <div className="mt-5 pt-4 border-t border-slate-100">
+              {/* Action row */}
+              <div className="mt-6 pt-5 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => setSelectedMember(vice)}
-                  className="w-full py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all text-center"
+                  className="text-xs text-slate-300 hover:text-white font-semibold underline underline-offset-4"
                 >
                   {locale === 'en' ? 'Full Profile' : 'Толық ақпарат'}
                 </button>
+                <Link
+                  href={`/${locale}/appeals`}
+                  prefetch
+                  className="px-5 py-2 rounded-full bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-extrabold transition-all shadow-md active:scale-95"
+                >
+                  {locale === 'en' ? 'Write to Vice-President →' : 'Вице-президентке өтініш →'}
+                </Link>
               </div>
             </div>
           )}
