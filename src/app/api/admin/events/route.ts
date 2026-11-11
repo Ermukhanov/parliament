@@ -33,16 +33,24 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const validated = eventSchema.parse(body);
 
+    const titleRu = validated.titleRu || validated.titleKk;
+    const descRu = validated.descRu || validated.descKk;
+    const programRu = validated.programRu || validated.programKk;
+
     const event = await prisma.event.create({
       data: {
         ...validated,
-        ministry: session.hasFullAccess ? validated.ministry : session.login,
+        titleRu,
+        descRu,
+        programRu,
+        ministry: session.hasFullAccess ? (validated.ministry || 'general') : session.login,
         date: new Date(validated.date),
       },
     });
 
     return NextResponse.json({ success: true, event }, { status: 201 });
-  } catch {
+  } catch (err) {
+    console.error('Create event error:', err);
     return NextResponse.json({ error: 'Неверные данные события' }, { status: 400 });
   }
 }

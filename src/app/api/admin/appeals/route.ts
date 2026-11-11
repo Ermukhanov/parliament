@@ -46,3 +46,36 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'Ошибка обновления' }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  const session = await getSessionInfo();
+  if (!session) {
+    return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get('id');
+
+  if (!id) {
+    return NextResponse.json({ error: 'ID өтініш көрсетілмеген' }, { status: 400 });
+  }
+
+  try {
+    const existing = await prisma.appeal.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json({ error: 'Өтініш табылмады' }, { status: 404 });
+    }
+
+    if (!session.hasFullAccess && existing.ministry !== session.login) {
+      return NextResponse.json(
+        { error: 'Тек өз фракцияңыздың өтініштерін өшіре аласыз' },
+        { status: 403 }
+      );
+    }
+
+    await prisma.appeal.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: 'Өтінішті өшіру кезінде қате орын алды' }, { status: 500 });
+  }
+}

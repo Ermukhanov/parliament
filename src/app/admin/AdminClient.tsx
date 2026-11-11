@@ -488,6 +488,63 @@ export default function AdminClient() {
     fetchAllData();
   };
 
+  const handleDeleteAppeal = async (id: string) => {
+    if (!confirm('Бұл өтінішті / қолхатты өшіруді растайсыз ба?')) return;
+    const res = await fetch(`/api/admin/appeals?id=${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      fetchAllData();
+    } else {
+      const err = await res.json().catch(() => ({ error: 'Қате' }));
+      alert(err.error || 'Өшіру мүмкін болмады');
+    }
+  };
+
+  const handleDeleteRegistration = async (id: string) => {
+    if (!confirm('Бұл оқушының іс-шараға тіркелуін өшіруді растайсыз ба?')) return;
+    const res = await fetch(`/api/admin/events/registrations?id=${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      if (selectedEventRegs) {
+        setSelectedEventRegs(selectedEventRegs.filter((r) => r.id !== id));
+      }
+      fetchAllData();
+    } else {
+      const err = await res.json().catch(() => ({ error: 'Қате' }));
+      alert(err.error || 'Өшіру мүмкін болмады');
+    }
+  };
+
+  const handleSetFeaturedTimer = async (ev: AdminEvent) => {
+    const currentVal = ev.date ? new Date(ev.date).toISOString().slice(0, 16) : '';
+    const newDateStr = prompt(
+      `«${ev.titleKk || ev.titleRu}» іс-шарасының сайттың басты бетіндегі кері санақ таймер уақытын көрсетіңіз (ЖЖЖЖ-АА-КК Т Сағат:Минут):`,
+      currentVal
+    );
+    if (!newDateStr) return;
+
+    const parsed = new Date(newDateStr);
+    if (isNaN(parsed.getTime())) {
+      alert('Уақыт форматы қате енгізілді!');
+      return;
+    }
+
+    const res = await fetch('/api/admin/events', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: ev.id,
+        date: parsed.toISOString(),
+        archived: false,
+      }),
+    });
+
+    if (res.ok) {
+      alert('Іс-шара таймері сәтті жаңартылды! Басты беттегі кері санақ қосылды.');
+      fetchAllData();
+    } else {
+      alert('Таймерді жаңарту кезінде қате орын алды');
+    }
+  };
+
   const handleSuggestionStatus = async (id: string, status: string) => {
     await fetch('/api/admin/suggestions', {
       method: 'PATCH',
@@ -1133,6 +1190,14 @@ export default function AdminClient() {
                           </button>
                         )}
                         <button
+                          onClick={() => handleSetFeaturedTimer(ev)}
+                          title="Осы іс-шараны басты беттегі кері санақ таймеріне қою"
+                          className="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-xs font-bold transition-colors flex items-center gap-1"
+                        >
+                          <span>⏳</span>
+                          <span>Таймер</span>
+                        </button>
+                        <button
                           onClick={() => setEditingEvent(ev)}
                           className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-bold transition-colors"
                         >
@@ -1220,7 +1285,7 @@ export default function AdminClient() {
                       <p className="text-sm text-slate-700 leading-relaxed font-normal">{a.text}</p>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <button
                         onClick={() => handleAppealStatus(a.id, 'in_progress')}
                         className="px-3 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-700 text-xs font-bold transition-colors"
@@ -1232,6 +1297,14 @@ export default function AdminClient() {
                         className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-bold transition-colors"
                       >
                         Шешілді ✓
+                      </button>
+                      <button
+                        onClick={() => handleDeleteAppeal(a.id)}
+                        className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 text-xs font-bold transition-colors flex items-center gap-1"
+                        title="Өтінішті / қолхатты өшіру"
+                      >
+                        <span>Өшіру</span>
+                        <span>🗑️</span>
                       </button>
                     </div>
                   </div>
@@ -1286,12 +1359,22 @@ export default function AdminClient() {
                       <p className="text-xs text-slate-600 mt-1 line-clamp-3">{item.excerpt}</p>
                     </div>
 
-                    <div className="pt-3 border-t border-slate-200 flex justify-end">
+                    <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
+                      <a
+                        href={`/kk/news/${item.slug}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs font-bold text-[#00afca] hover:underline flex items-center gap-1"
+                      >
+                        <span>Сайтта көру</span>
+                        <span>↗</span>
+                      </a>
                       <button
                         onClick={() => handleDeleteNews(item.id)}
-                        className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold transition-colors"
+                        className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold transition-colors flex items-center gap-1"
                       >
-                        Өшіру
+                        <span>Өшіру</span>
+                        <span>🗑️</span>
                       </button>
                     </div>
                   </div>
@@ -1995,9 +2078,20 @@ export default function AdminClient() {
                       </span>
                       {r.phone && <span className="ml-2 text-slate-500">тел: {r.phone}</span>}
                     </div>
-                    <span className="text-[11px] text-slate-500">
-                      {new Date(r.createdAt).toLocaleDateString('kk-KZ')}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] text-slate-500">
+                        {new Date(r.createdAt).toLocaleDateString('kk-KZ')}
+                      </span>
+                      {r.id && (
+                        <button
+                          onClick={() => handleDeleteRegistration(r.id)}
+                          className="px-2 py-0.5 rounded-md bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-[10px] font-bold"
+                          title="Тіркелуді өшіру"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -2030,24 +2124,40 @@ export default function AdminClient() {
             <h3 className="font-bold text-lg text-slate-900">Жаңалық мақаласын жариялау</h3>
             <form onSubmit={handleCreateNews} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Сілтеме (Slug)</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="autumn-forum-results"
-                  value={newsForm.slug}
-                  onChange={(e) => setNewsForm({ ...newsForm, slug: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
-                />
-              </div>
-
-              <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Тақырыбы (Қазақша)</label>
                 <input
                   type="text"
                   required
+                  placeholder="Мысалы: Жаңа жылдық кеш немесе IT Hackathon"
                   value={newsForm.titleKk}
-                  onChange={(e) => setNewsForm({ ...newsForm, titleKk: e.target.value })}
+                  onChange={(e) => {
+                    const title = e.target.value;
+                    const autoSlug = title.toLowerCase().replace(/[^a-z0-9а-яёәіңғүұқөһ]/gi, '-').slice(0, 40) + '-' + Date.now().toString().slice(-4);
+                    setNewsForm({ ...newsForm, titleKk: title, slug: newsForm.slug ? newsForm.slug : autoSlug });
+                  }}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs font-semibold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Сілтеме коды (Slug)</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="post-slug"
+                  value={newsForm.slug}
+                  onChange={(e) => setNewsForm({ ...newsForm, slug: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Фото немесе сурет сілтемесі (міндетті емес)</label>
+                <input
+                  type="text"
+                  placeholder="/images/instagram/post-1.jpg немесе https://..."
+                  value={newsForm.image || ''}
+                  onChange={(e) => setNewsForm({ ...newsForm, image: e.target.value })}
                   className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                 />
               </div>

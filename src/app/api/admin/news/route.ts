@@ -27,15 +27,23 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const validated = newsSchema.parse(body);
 
+    const titleRu = validated.titleRu || validated.titleKk;
+    const contentRu = validated.contentRu || validated.contentKk;
+    const excerpt = validated.excerpt || validated.contentKk.slice(0, 160);
+
     const article = await prisma.news.create({
       data: {
         ...validated,
-        ministry: session.hasFullAccess ? validated.ministry : session.login,
+        titleRu,
+        contentRu,
+        excerpt,
+        ministry: session.hasFullAccess ? (validated.ministry || 'general') : session.login,
       },
     });
 
     return NextResponse.json({ success: true, article }, { status: 201 });
-  } catch {
+  } catch (err) {
+    console.error('Create news error:', err);
     return NextResponse.json({ error: 'Неверные данные новости' }, { status: 400 });
   }
 }
@@ -53,13 +61,17 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'ID не указан' }, { status: 400 });
   }
 
-  if (!session.hasFullAccess) {
-    const existing = await prisma.news.findUnique({ where: { id } });
-    if (!existing || existing.ministry !== session.login) {
-      return NextResponse.json({ error: 'Доступ только к новостям своей фракции' }, { status: 403 });
+  try {
+    if (!session.hasFullAccess) {
+      const existing = await prisma.news.findUnique({ where: { id } });
+      if (!existing || existing.ministry !== session.login) {
+        return NextResponse.json({ error: 'Доступ только к новостям своей фракции' }, { status: 403 });
+      }
     }
-  }
 
-  await prisma.news.delete({ where: { id } });
-  return NextResponse.json({ success: true });
+    await prisma.news.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: 'Ошибка удаления новости' }, { status: 500 });
+  }
 }

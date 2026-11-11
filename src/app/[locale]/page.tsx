@@ -51,6 +51,16 @@ export default async function HomePage({
       orderBy: { date: 'asc' },
     });
 
+    if (!nextEvent) {
+      const anyEvent = await prisma.event.findFirst({
+        where: { archived: false },
+        orderBy: { date: 'desc' },
+      });
+      if (anyEvent) {
+        nextEvent = anyEvent;
+      }
+    }
+
     pastEventsCount = await prisma.event.count({
       where: { archived: true },
     });
@@ -167,10 +177,25 @@ export default async function HomePage({
     },
   ];
 
+  const serializedNextEvent = nextEvent
+    ? {
+        id: nextEvent.id,
+        slug: nextEvent.slug,
+        titleRu: nextEvent.titleRu,
+        titleKk: nextEvent.titleKk,
+        date: nextEvent.date instanceof Date ? nextEvent.date.toISOString() : String(nextEvent.date),
+        location: nextEvent.location,
+      }
+    : null;
+
   return (
     <div className="space-y-16 sm:space-y-24 pb-16">
       {/* 1. HERO SECTION */}
-      <HeroSection locale={locale} nextEvent={nextEvent} />
+      <HeroSection
+        locale={locale}
+        nextEvent={serializedNextEvent}
+        eventSummary={{ past: pastEventsCount, upcoming: upcomingEventsCount }}
+      />
 
       {/* 2. DYNAMIC TICKER */}
       <Marquee locale={locale} />
