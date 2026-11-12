@@ -5,7 +5,9 @@ import HeroSection from '@/components/HeroSection';
 import Marquee from '@/components/Marquee';
 import StatsSection from '@/components/StatsSection';
 import InstagramFeed from '@/components/InstagramFeed';
+import NewsSection, { NewsItem } from '@/components/NewsSection';
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function generateMetadata({
@@ -40,6 +42,7 @@ export default async function HomePage({
   let pastEventsCount = 12;
   let upcomingEventsCount = 5;
   let totalTeamCount = 31;
+  let latestNews: NewsItem[] = [];
 
   try {
     const now = new Date();
@@ -81,6 +84,22 @@ export default async function HomePage({
         }
       }
     }
+
+    const rawNews = await prisma.news.findMany({
+      where: { published: true },
+      orderBy: { createdAt: 'desc' },
+      take: 4,
+    });
+    latestNews = rawNews.map((n) => ({
+      id: n.id,
+      slug: n.slug,
+      titleRu: n.titleRu,
+      titleKk: n.titleKk,
+      excerpt: n.excerpt,
+      image: n.image,
+      ministry: n.ministry,
+      createdAt: n.createdAt.toISOString(),
+    }));
   } catch (err) {
     console.error('HomePage DB query error (using fallback stats):', err);
   }
@@ -205,6 +224,11 @@ export default async function HomePage({
 
       {/* 4. INSTAGRAM FEED & REELS */}
       <InstagramFeed locale={locale} />
+
+      {/* 4.5 LATEST PARLIAMENT POSTS FROM ADMIN */}
+      {latestNews.length > 0 && (
+        <NewsSection locale={locale} news={latestNews} />
+      )}
 
       {/* 5. 6 MAIN SECTIONS OVERVIEW */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -2752,21 +2752,50 @@ export default function AdminClient() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Фото немесе сурет сілтемесі (міндетті емес)</label>
-                <input
-                  type="text"
-                  placeholder="/images/instagram/post-1.jpg немесе https://..."
-                  value={newsForm.image || ''}
-                  onChange={(e) => setNewsForm({ ...newsForm, image: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
-                />
+                <label className="block text-xs font-bold text-slate-700 mb-1">Фото немесе сурет (міндетті емес)</label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="text"
+                    placeholder="/images/instagram/post-1.jpg немесе https://..."
+                    value={newsForm.image || ''}
+                    onChange={(e) => setNewsForm({ ...newsForm, image: e.target.value })}
+                    className="flex-1 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                  />
+                  <label className="px-3 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-[#00afca] border border-sky-200 text-xs font-bold cursor-pointer inline-flex items-center justify-center gap-1.5 shrink-0">
+                    <IconCamera className="w-4 h-4" />
+                    <span>Жүктеу</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const fd = new FormData();
+                        fd.append('file', file);
+                        try {
+                          const r = await fetch('/api/admin/upload', { method: 'POST', body: fd });
+                          const d = await r.json();
+                          if (r.ok && d.url) {
+                            setNewsForm((prev) => ({ ...prev, image: d.url }));
+                            showToast('Сурет сәтті жүктелді!');
+                          } else {
+                            showToast(d.error || 'Суретті жүктеу мүмкін болмады', 'error');
+                          }
+                        } catch {
+                          showToast('Суретті жүктеу қатесі', 'error');
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Қысқаша аңдатпа (Excerpt)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Қысқаша аңдатпа (міндетті емес)</label>
                 <input
                   type="text"
-                  required
+                  placeholder="Бос қалдырсаңыз, мәтіннен автоматты алынады"
                   value={newsForm.excerpt}
                   onChange={(e) => setNewsForm({ ...newsForm, excerpt: e.target.value })}
                   className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"

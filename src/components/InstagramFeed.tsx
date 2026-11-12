@@ -21,6 +21,15 @@ interface InstagramFeedProps {
 
 const defaultPosts: InstagramPostItem[] = [
   {
+    id: 'post-dfphiqcoidw',
+    url: 'https://www.instagram.com/p/Dfphiqcoidw/',
+    image: '/images/instagram/post-4.jpg',
+    captionKk: 'AQL Council — Мектеп Парламентінің жаңа жарияланымы мен маңызды жаңалықтары.',
+    captionEn: 'AQL Council — New School Parliament post and official update.',
+    date: 'Жаңа пост',
+    type: 'post',
+  },
+  {
     id: 'post-it-quiz',
     url: 'https://www.instagram.com/reel/DfksV3kqMI0/',
     image: '/images/instagram/post-5.jpg',

@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import NewsSection, { NewsItem } from '@/components/NewsSection';
 import InstagramFeed from '@/components/InstagramFeed';
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function generateMetadata({

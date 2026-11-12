@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { getSessionInfo } from '@/lib/auth';
 import { newsSchema } from '@/lib/validations';
@@ -43,6 +44,11 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    revalidatePath('/kk');
+    revalidatePath('/en');
+    revalidatePath('/kk/news');
+    revalidatePath('/en/news');
+
     return NextResponse.json({ success: true, article }, { status: 201 });
   } catch (err) {
     console.error('Create news error:', err);
@@ -72,6 +78,10 @@ export async function DELETE(req: NextRequest) {
     }
 
     await prisma.news.delete({ where: { id } });
+    revalidatePath('/kk');
+    revalidatePath('/en');
+    revalidatePath('/kk/news');
+    revalidatePath('/en/news');
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: 'Ошибка удаления новости' }, { status: 500 });
