@@ -26,25 +26,15 @@ function getDatabaseUrl(): string {
   const sourceDbPath = path.join(process.cwd(), 'prisma', 'dev.db');
 
   if (isServerless) {
-    const tmpDbPath = path.join(os.tmpdir(), 'dev.db');
+    const tmpDbPath = path.join(os.tmpdir(), 'school_parliament_v1.db');
     try {
-      if (fs.existsSync(sourceDbPath)) {
-        let shouldCopy = !fs.existsSync(tmpDbPath);
-        if (!shouldCopy) {
-          const srcStat = fs.statSync(sourceDbPath);
-          const tmpStat = fs.statSync(tmpDbPath);
-          // If tmp db is 0 bytes or source was updated during a new deployment build
-          if (tmpStat.size === 0 || srcStat.mtimeMs > tmpStat.mtimeMs) {
-            shouldCopy = true;
-          }
-        }
-        if (shouldCopy) {
-          fs.copyFileSync(sourceDbPath, tmpDbPath);
-          try {
-            fs.chmodSync(tmpDbPath, 0o666);
-          } catch {
-            // ignore
-          }
+      const needsInit = !fs.existsSync(tmpDbPath) || fs.statSync(tmpDbPath).size === 0;
+      if (needsInit && fs.existsSync(sourceDbPath)) {
+        fs.copyFileSync(sourceDbPath, tmpDbPath);
+        try {
+          fs.chmodSync(tmpDbPath, 0o666);
+        } catch {
+          // ignore
         }
       }
       return `file:${tmpDbPath}`;

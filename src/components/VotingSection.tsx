@@ -40,6 +40,21 @@ export default function VotingSection({ locale, poll }: VotingSectionProps) {
       const saved = localStorage.getItem(`voted_poll_${poll.id}`);
       if (saved) setVotedOptionId(saved);
     }
+
+    const fetchLiveVotes = () => {
+      fetch('/api/voting', { cache: 'no-store' })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.poll?.options && Array.isArray(data.poll.options)) {
+            setOptions(data.poll.options);
+          }
+        })
+        .catch(() => {});
+    };
+
+    fetchLiveVotes();
+    const interval = setInterval(fetchLiveVotes, 3000);
+    return () => clearInterval(interval);
   }, [poll]);
 
   const totalVotes = options.reduce((acc, o) => acc + o.votesCount, 0);
@@ -85,11 +100,15 @@ export default function VotingSection({ locale, poll }: VotingSectionProps) {
       } else {
         setVotedOptionId(optionId);
         localStorage.setItem(`voted_poll_${poll.id}`, optionId);
-        setOptions((prev) =>
-          prev.map((opt) =>
-            opt.id === optionId ? { ...opt, votesCount: opt.votesCount + 1 } : opt
-          )
-        );
+        if (data.options && Array.isArray(data.options)) {
+          setOptions(data.options);
+        } else {
+          setOptions((prev) =>
+            prev.map((opt) =>
+              opt.id === optionId ? { ...opt, votesCount: opt.votesCount + 1 } : opt
+            )
+          );
+        }
       }
     } catch {
       setVoteError(locale === 'en' ? 'Network error' : 'Желі қатесі');

@@ -3,6 +3,9 @@ import prisma from '@/lib/prisma';
 import { voteSchema } from '@/lib/validations';
 import { checkRateLimit } from '@/lib/rate-limit';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const poll = await prisma.poll.findFirst({
@@ -20,7 +23,10 @@ export async function GET() {
     });
 
     if (!poll) {
-      return NextResponse.json({ poll: null });
+      return NextResponse.json(
+        { poll: null },
+        { headers: { 'Cache-Control': 'no-store, max-age=0' } }
+      );
     }
 
     const formatted = {
@@ -35,7 +41,10 @@ export async function GET() {
       })),
     };
 
-    return NextResponse.json({ poll: formatted });
+    return NextResponse.json(
+      { poll: formatted },
+      { headers: { 'Cache-Control': 'no-store, max-age=0' } }
+    );
   } catch {
     return NextResponse.json({ error: 'Ошибка получения опроса' }, { status: 500 });
   }
@@ -99,7 +108,31 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ success: true }, { status: 201 });
+    // Fetch updated counts
+    const updatedPoll = await prisma.poll.findUnique({
+      where: { id: option.pollId },
+      include: {
+        options: {
+          include: {
+            _count: {
+              select: { votes: true },
+            },
+          },
+        },
+      },
+    });
+
+    const freshOptions = updatedPoll?.options.map((opt) => ({
+      id: opt.id,
+      textRu: opt.textRu,
+      textKk: opt.textKk,
+      votesCount: opt._count.votes,
+    })) || [];
+
+    return NextResponse.json(
+      { success: true, options: freshOptions },
+      { status: 201, headers: { 'Cache-Control': 'no-store, max-age=0' } }
+    );
   } catch (err: unknown) {
     console.error('Voting error:', err);
     if (err && typeof err === 'object' && 'name' in err && err.name === 'ZodError') {
