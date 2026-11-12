@@ -2,6 +2,7 @@
 
 import React, { useRef } from 'react';
 import Image from 'next/image';
+import { IconCamera } from './Icons';
 
 export interface InstagramPostItem {
   id: string;
@@ -23,8 +24,8 @@ const defaultPosts: InstagramPostItem[] = [
     id: 'post-it-quiz',
     url: 'https://www.instagram.com/reel/DfksV3kqMI0/',
     image: '/images/instagram/post-5.jpg',
-    captionKk: '10 Қараша – Цифрландыру және ақпараттық технологиялар қызметкерлері күніне орай информатика пәнінен Kahoot викторинасы (IT квиз) өтті 💻',
-    captionEn: 'November 10 – Digitalization & IT Workers Day informatics Kahoot IT Quiz competition 💻',
+    captionKk: '10 Қараша – Цифрландыру және ақпараттық технологиялар қызметкерлері күніне орай информатика пәнінен Kahoot викторинасы (IT квиз) өтті.',
+    captionEn: 'November 10 – Digitalization & IT Workers Day informatics Kahoot IT Quiz competition.',
     date: '10 қараша',
     type: 'reel',
   },
@@ -32,8 +33,8 @@ const defaultPosts: InstagramPostItem[] = [
     id: 'post-1',
     url: 'https://www.instagram.com/reel/DetXIZGNiq0/',
     image: '/images/instagram/post-1.jpg',
-    captionKk: 'Айдарбек Саламатұлы және оның оқушылары 💙 Лицейдегі жылы жүздесу мен шабытты сәттер.',
-    captionEn: 'Aidarbek Salamatuly and his students 💙 Inspiring moments at the lyceum.',
+    captionKk: 'Айдарбек Саламатұлы және оның оқушылары. Лицейдегі жылы жүздесу мен шабытты сәттер.',
+    captionEn: 'Aidarbek Salamatuly and his students. Inspiring moments at the lyceum.',
     date: '20 қазан',
     type: 'reel',
   },
@@ -41,8 +42,8 @@ const defaultPosts: InstagramPostItem[] = [
     id: 'post-2',
     url: 'https://www.instagram.com/reel/DegakjWt1ii/',
     image: '/images/instagram/post-2.jpg',
-    captionKk: 'Әр үлкен жетістіктің артында бір ҰСТАЗ тұрады 💙 Ұстаздар күніне арналған лицей мерекесі.',
-    captionEn: 'Behind every great achievement stands a Teacher 💙 Teachers’ Day celebration.',
+    captionKk: 'Әр үлкен жетістіктің артында бір ҰСТАЗ тұрады. Ұстаздар күніне арналған лицей мерекесі.',
+    captionEn: 'Behind every great achievement stands a Teacher. Teachers’ Day celebration.',
     date: '2 қазан',
     type: 'reel',
   },
@@ -50,8 +51,8 @@ const defaultPosts: InstagramPostItem[] = [
     id: 'post-3',
     url: 'https://www.instagram.com/p/DegooevDXHo/',
     image: '/images/instagram/post-3.jpg',
-    captionKk: 'AQL RUN — жүректе қалған жылы сәттер 💙 Оқушылар мен ұстаздардың дәстүрлі спорттық жарысы.',
-    captionEn: 'AQL RUN — Warm moments in our hearts 💙 Traditional school sports marathon.',
+    captionKk: 'AQL RUN — жүректе қалған жылы сәттер. Оқушылар мен ұстаздардың дәстүрлі спорттық жарысы.',
+    captionEn: 'AQL RUN — Warm moments in our hearts. Traditional school sports marathon.',
     date: '10 қазан',
     type: 'post',
   },
@@ -168,7 +169,7 @@ export default function InstagramFeed({
                       </>
                     ) : (
                       <>
-                        <span>📷</span>
+                        <IconCamera className="w-3.5 h-3.5" />
                         <span>Пост</span>
                       </>
                     )}

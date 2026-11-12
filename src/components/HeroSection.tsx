@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { IconCrown, IconCheck, IconCalendar } from './Icons';
 
 interface NextEvent {
   id: string;
@@ -90,7 +91,7 @@ export default function HeroSection({ locale, nextEvent, eventSummary }: HeroSec
       </div>
 
       <div className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-900 text-white shadow-xl absolute top-56 right-[6%] xl:right-[10%] animate-float-reverse pointer-events-none z-10">
-        <span className="text-[#00afca] text-sm">👑</span>
+        <IconCrown className="w-4 h-4 text-[#00afca]" />
         <span className="text-xs font-bold tracking-tight">
           AQL Council • 2025–2026
         </span>
@@ -213,11 +214,13 @@ export default function HeroSection({ locale, nextEvent, eventSummary }: HeroSec
           <div className="max-w-xl mx-auto p-6 rounded-2xl bg-[#ffffff] border border-slate-200 shadow-sm animate-entrance-delay-3">
             {eventSummary && (
               <div className="flex items-center justify-center gap-2.5 mb-4 text-xs font-bold">
-                <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  {locale === 'en' ? `✅ ${eventSummary.past} Passed` : `✅ Өткені: ${eventSummary.past}`}
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <IconCheck className="w-3.5 h-3.5" />
+                  <span>{locale === 'en' ? `${eventSummary.past} Passed` : `Өткені: ${eventSummary.past}`}</span>
                 </span>
-                <span className="px-3 py-1 rounded-full bg-sky-50 text-[#00afca] border border-sky-200">
-                  {locale === 'en' ? `📅 ${eventSummary.upcoming} Upcoming` : `📅 Алдағы: ${eventSummary.upcoming}`}
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 text-[#00afca] border border-sky-200">
+                  <IconCalendar className="w-3.5 h-3.5" />
+                  <span>{locale === 'en' ? `${eventSummary.upcoming} Upcoming` : `Алдағы: ${eventSummary.upcoming}`}</span>
                 </span>
               </div>
             )}

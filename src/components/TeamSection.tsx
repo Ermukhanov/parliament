@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import MemberPortrait from './MemberPortrait';
+import { IconCrown, IconStar, IconClose, IconUsers } from './Icons';
 
 export interface AssistantItem {
   name: string;
@@ -178,11 +179,11 @@ export default function TeamSection({ locale, members }: TeamSectionProps) {
                   <div className="absolute top-4 right-4">
                     {isPresident ? (
                       <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-900 text-white flex items-center gap-1 shadow-sm">
-                        <span>👑</span> {locale === 'en' ? 'President' : 'Президент'}
+                        <IconCrown className="w-3 h-3 text-[#00afca]" /> {locale === 'en' ? 'President' : 'Президент'}
                       </span>
                     ) : isVice ? (
                       <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#00afca] text-white flex items-center gap-1 shadow-sm">
-                        <span>★</span> {locale === 'en' ? 'Vice-President' : 'Вице-президент'}
+                        <IconStar className="w-3 h-3" /> {locale === 'en' ? 'Vice-President' : 'Вице-президент'}
                       </span>
                     ) : (
                       <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600">
@@ -266,7 +267,7 @@ export default function TeamSection({ locale, members }: TeamSectionProps) {
               onClick={() => setSelectedMember(null)}
               className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:rotate-90 transition-all duration-200 font-bold"
             >
-              ✕
+                      <IconClose className="w-4 h-4 mx-auto" />
             </button>
 
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6 pb-4 border-b border-slate-100">
@@ -310,7 +311,7 @@ export default function TeamSection({ locale, members }: TeamSectionProps) {
               {parseAssistants(selectedMember.assistants).length > 0 && (
                 <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-2">
                   <div className="text-xs uppercase tracking-wider font-bold text-slate-700 flex items-center gap-2">
-                    <span>👥</span>
+                    <IconUsers className="w-3.5 h-3.5 text-[#00afca]" />
                     <span>{locale === 'en' ? 'Faction Assistants:' : 'Фракция көмекшілері:'}</span>
                   </div>
                   <div className="space-y-1.5 pt-1">

@@ -3,6 +3,8 @@ import prisma from '@/lib/prisma';
 import { getSessionInfo } from '@/lib/auth';
 import { newsSchema } from '@/lib/validations';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const session = await getSessionInfo();
   if (!session) {

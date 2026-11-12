@@ -4,6 +4,31 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import SchoolLogo from '@/components/SchoolLogo';
 import MemberPortrait from '@/components/MemberPortrait';
+import {
+  IconDashboard,
+  IconUsers,
+  IconCalendar,
+  IconMap,
+  IconVote,
+  IconLightbulb,
+  IconMail,
+  IconNewspaper,
+  IconTrendingUp,
+  IconShield,
+  IconKey,
+  IconEdit,
+  IconTrash,
+  IconPlus,
+  IconClose,
+  IconMenu,
+  IconCheck,
+  IconCheckCircle,
+  IconDownload,
+  IconCamera,
+  IconLogout,
+  IconZap,
+  IconHome,
+} from '@/components/Icons';
 
 type Tab =
   | 'overview'
@@ -86,6 +111,7 @@ interface AdminNews {
   titleRu: string;
   titleKk: string;
   excerpt: string;
+  image?: string;
   ministry?: string;
   createdAt?: string;
 }
@@ -150,7 +176,16 @@ export default function AdminClient() {
   const [currentMinistry, setCurrentMinistry] = useState('');
   const [hasFullAccess, setHasFullAccess] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('overview');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const initialTabSet = useRef(false);
+
+  const showToast = useCallback((message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ type, message });
+    setTimeout(() => {
+      setToast((prev) => (prev?.message === message ? null : prev));
+    }, 3500);
+  }, []);
 
   // Data states
   const [members, setMembers] = useState<MinisterItem[]>([]);
@@ -204,6 +239,7 @@ export default function AdminClient() {
     contentRu: '',
     contentKk: '',
     excerpt: '',
+    image: '',
     ministry: 'press',
     published: true,
   });
@@ -349,27 +385,46 @@ export default function AdminClient() {
 
     if (res.ok) {
       setSaveMessage('Мәліметтер сәтті сақталды!');
+      showToast('Министр / фракция мәліметтері сақталды');
       setTimeout(() => {
         setEditingMinister(null);
         setSaveMessage('');
       }, 1000);
       fetchAllData();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      showToast(err.error || 'Сақтау кезінде қате орын алды', 'error');
     }
   };
 
   const handleDeleteMinister = async (id: string) => {
     if (!confirm('Фракция мүшесін өшіруді растайсыз ба?')) return;
-    await fetch(`/api/admin/members?id=${id}`, { method: 'DELETE' });
+    const res = await fetch(`/api/admin/members?id=${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      showToast('Фракция мүшесі өшірілді');
+    } else {
+      const err = await res.json().catch(() => ({}));
+      showToast(err.error || 'Өшіру мүмкін болмады', 'error');
+    }
     fetchAllData();
   };
 
   const handleCreateEvent = async (e: React.FormEvent) => {
     e.preventDefault();
+    const rawSlug = (eventForm.slug || eventForm.titleKk)
+      .toLowerCase()
+      .replace(/[^a-z0-9а-яёәіңғүұқөһ]/gi, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .slice(0, 50);
+    const finalSlug = eventForm.slug.trim() || `${rawSlug || 'event'}-${Date.now().toString().slice(-4)}`;
+
     const res = await fetch('/api/admin/events', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...eventForm,
+        slug: finalSlug,
         ministry: hasFullAccess ? eventForm.ministry : (currentMinistry || currentLogin),
         maxSeats: Number(eventForm.maxSeats),
       }),
@@ -390,7 +445,11 @@ export default function AdminClient() {
         programRu: '',
         programKk: '',
       });
+      showToast('Жаңа іс-шара сәтті қосылды!');
       fetchAllData();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      showToast(err.error || 'Іс-шараны қосу кезінде қате шықты', 'error');
     }
   };
 
@@ -407,13 +466,23 @@ export default function AdminClient() {
     });
     if (res.ok) {
       setEditingEvent(null);
+      showToast('Іс-шара сәтті жаңартылды!');
       fetchAllData();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      showToast(err.error || 'Іс-шараны жаңарту мүмкін болмады', 'error');
     }
   };
 
   const handleDeleteEvent = async (id: string) => {
     if (!confirm('Іс-шараны өшіруді растайсыз ба?')) return;
-    await fetch(`/api/admin/events?id=${id}`, { method: 'DELETE' });
+    const res = await fetch(`/api/admin/events?id=${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      showToast('Іс-шара өшірілді');
+    } else {
+      const err = await res.json().catch(() => ({}));
+      showToast(err.error || 'Іс-шараны өшіру мүмкін болмады', 'error');
+    }
     fetchAllData();
   };
 
@@ -424,6 +493,8 @@ export default function AdminClient() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...timelineForm,
+        titleRu: timelineForm.titleRu || timelineForm.titleKk,
+        descRu: timelineForm.descRu || timelineForm.descKk,
         month: Number(timelineForm.month),
         year: Number(timelineForm.year),
         order: Number(timelineForm.order),
@@ -431,13 +502,33 @@ export default function AdminClient() {
     });
     if (res.ok) {
       setShowAddTimeline(false);
+      setTimelineForm({
+        titleRu: '',
+        titleKk: '',
+        descRu: '',
+        descKk: '',
+        ministry: 'general',
+        month: 9,
+        year: 2025,
+        order: 1,
+      });
+      showToast('Жоспар тармағы қосылды!');
       fetchAllData();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      showToast(err.error || 'Жоспар тармағын қосу мүмкін болмады', 'error');
     }
   };
 
   const handleDeleteTimeline = async (id: string) => {
     if (!confirm('Жоспар тармағын өшіруді растайсыз ба?')) return;
-    await fetch(`/api/admin/timeline?id=${id}`, { method: 'DELETE' });
+    const res = await fetch(`/api/admin/timeline?id=${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      showToast('Жоспар тармағы өшірілді');
+    } else {
+      const err = await res.json().catch(() => ({}));
+      showToast(err.error || 'Өшіру мүмкін болмады', 'error');
+    }
     fetchAllData();
   };
 
@@ -476,18 +567,19 @@ export default function AdminClient() {
           contentRu: '',
           contentKk: '',
           excerpt: '',
+          image: '',
           ministry: 'general',
           published: true,
         });
-        alert('✅ Жаңа пост сәтті жарияланды! Сайтта және тізімде көрінеді.');
+        showToast('Жаңа пост сәтті жарияланды! Сайтта және тізімде көрінеді.');
         setActiveTab('news');
         fetchAllData();
       } else {
         const err = await res.json().catch(() => ({ error: 'Қате' }));
-        alert(err.error || 'Постты жариялау кезінде қате орын алды');
+        showToast(err.error || 'Постты жариялау кезінде қате орын алды', 'error');
       }
     } catch {
-      alert('Сервермен байланыс қатесі');
+      showToast('Сервермен байланыс қатесі', 'error');
     }
   };
 
@@ -496,11 +588,11 @@ export default function AdminClient() {
     setNews((prev) => prev.filter((n) => n.id !== id));
     const res = await fetch(`/api/admin/news?id=${id}`, { method: 'DELETE' });
     if (res.ok) {
-      alert('✅ Пост сәтті өшірілді!');
+      showToast('Пост сәтті өшірілді!');
       fetchAllData();
     } else {
       const err = await res.json().catch(() => ({ error: 'Қате' }));
-      alert(err.error || 'Өшіру мүмкін болмады');
+      showToast(err.error || 'Өшіру мүмкін болмады', 'error');
       fetchAllData();
     }
   };
@@ -624,11 +716,11 @@ export default function AdminClient() {
     setAppeals((prev) => prev.filter((a) => a.id !== id));
     const res = await fetch(`/api/admin/appeals?id=${id}`, { method: 'DELETE' });
     if (res.ok) {
-      alert('✅ Өтініш / қолхат сәтті өшірілді!');
+      showToast('Өтініш / қолхат сәтті өшірілді!');
       fetchAllData();
     } else {
       const err = await res.json().catch(() => ({ error: 'Қате' }));
-      alert(err.error || 'Өшіру мүмкін болмады');
+      showToast(err.error || 'Өшіру мүмкін болмады', 'error');
       fetchAllData();
     }
   };
@@ -652,11 +744,11 @@ export default function AdminClient() {
     );
     const res = await fetch(`/api/admin/events/registrations?id=${id}`, { method: 'DELETE' });
     if (res.ok) {
-      alert('✅ Оқушының іс-шараға тіркелуі сәтті өшірілді!');
+      showToast('Оқушының іс-шараға тіркелуі сәтті өшірілді!');
       fetchAllData();
     } else {
       const err = await res.json().catch(() => ({ error: 'Қате' }));
-      alert(err.error || 'Тіркелуді өшіру мүмкін болмады');
+      showToast(err.error || 'Тіркелуді өшіру мүмкін болмады', 'error');
       fetchAllData();
     }
   };
@@ -708,21 +800,26 @@ export default function AdminClient() {
     setSuggestions((prev) => prev.filter((s) => s.id !== id));
     const res = await fetch(`/api/admin/suggestions?id=${id}`, { method: 'DELETE' });
     if (res.ok) {
-      alert('✅ Ұсыныс сәтті өшірілді!');
+      showToast('Ұсыныс сәтті өшірілді!');
       fetchAllData();
     } else {
       const err = await res.json().catch(() => ({ error: 'Қате' }));
-      alert(err.error || 'Ұсынысты өшіру мүмкін болмады');
+      showToast(err.error || 'Ұсынысты өшіру мүмкін болмады', 'error');
       fetchAllData();
     }
   };
 
   const handleStatUpdate = async (key: string, value: number) => {
-    await fetch('/api/admin/stats', {
+    const res = await fetch('/api/admin/stats', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ key, value: Number(value) }),
     });
+    if (res.ok) {
+      showToast('Көрсеткіш сәтті сақталды!');
+    } else {
+      showToast('Көрсеткішті жаңарту мүмкін болмады', 'error');
+    }
     fetchAllData();
   };
 
@@ -838,8 +935,8 @@ export default function AdminClient() {
 
             {/* Quick logins guide */}
             <div className="mt-5 p-3.5 rounded-2xl bg-sky-50/80 border border-sky-200 text-slate-700 text-xs">
-              <div className="font-bold text-[#00afca] mb-1 flex items-center gap-1.5">
-                <span>🔑</span>
+              <div className="font-bold text-[#00afca] mb-1.5 flex items-center gap-1.5">
+                <IconKey className="w-3.5 h-3.5 shrink-0" />
                 <span>Жүйеге кіру логиндері (Логины для входа):</span>
               </div>
               <div className="space-y-1 text-[11px] text-slate-600">
@@ -849,12 +946,13 @@ export default function AdminClient() {
               </div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+            <div className="mt-6 pt-5 border-t border-slate-100 text-center">
               <Link
                 href="/kk"
-                className="text-xs font-semibold text-slate-500 hover:text-[#00afca] transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-[#00afca] transition-colors py-2 px-4 rounded-xl hover:bg-slate-50"
               >
-                ← Негізгі сайтқа оралу
+                <IconHome className="w-3.5 h-3.5" />
+                <span>Негізгі сайтқа оралу</span>
               </Link>
             </div>
           </div>
@@ -864,240 +962,300 @@ export default function AdminClient() {
   }
 
   // =========================================================================
-  // 2. DASHBOARD VIEW (PERSONALIZED PER USER, DARK HIGH-END PALETTE)
+  // 2. DASHBOARD VIEW (MATCHES MAIN SITE DESIGN + MOBILE-FIRST NAVIGATION)
   // =========================================================================
+  const navItems: { id: Tab; label: string; shortLabel: string; count?: number; icon: React.ReactNode }[] = hasFullAccess
+    ? [
+        { id: 'overview', label: 'Шолу (KPI)', shortLabel: 'Шолу', icon: <IconDashboard className="w-4 h-4" /> },
+        { id: 'ministers', label: 'Министрлер & Фракциялар', shortLabel: 'Команда', count: members.length, icon: <IconUsers className="w-4 h-4" /> },
+        { id: 'events', label: 'Барлық іс-шаралар', shortLabel: 'Іс-шара', count: events.length, icon: <IconCalendar className="w-4 h-4" /> },
+        { id: 'timeline', label: 'Жыл жоспары', shortLabel: 'Жоспар', count: timeline.length, icon: <IconMap className="w-4 h-4" /> },
+        { id: 'polls', label: 'Сауалнамалар', shortLabel: 'Дауыс', count: polls.length, icon: <IconVote className="w-4 h-4" /> },
+        { id: 'suggestions', label: 'Ұсыныстар', shortLabel: 'Идея', count: suggestions.length, icon: <IconLightbulb className="w-4 h-4" /> },
+        { id: 'appeals', label: 'Өтініштер & Қолхаттар', shortLabel: 'Өтініш', count: appeals.length, icon: <IconMail className="w-4 h-4" /> },
+        { id: 'news', label: 'Посттар мен Жаңалықтар', shortLabel: 'Посттар', count: news.length, icon: <IconNewspaper className="w-4 h-4" /> },
+        { id: 'stats', label: 'Сандық көрсеткіштер', shortLabel: 'Статистика', icon: <IconTrendingUp className="w-4 h-4" /> },
+      ]
+    : [
+        { id: 'ministers', label: 'Менің фракциям & Көмекшілер', shortLabel: 'Фракция', icon: <IconShield className="w-4 h-4" /> },
+        { id: 'events', label: 'Фракция іс-шаралары', shortLabel: 'Іс-шара', count: events.length, icon: <IconCalendar className="w-4 h-4" /> },
+        { id: 'appeals', label: 'Түскен өтініштер & Қолхаттар', shortLabel: 'Өтініш', count: appeals.length, icon: <IconMail className="w-4 h-4" /> },
+        { id: 'news', label: 'Фракция посттары & Жаңалықтар', shortLabel: 'Посттар', count: news.length, icon: <IconNewspaper className="w-4 h-4" /> },
+        { id: 'polls', label: 'Сауалнамалар', shortLabel: 'Дауыс', count: polls.length, icon: <IconVote className="w-4 h-4" /> },
+      ];
+
+  const bottomNavItems = hasFullAccess
+    ? navItems.filter((item) => ['overview', 'events', 'polls', 'news'].includes(item.id))
+    : navItems.filter((item) => ['ministers', 'events', 'appeals', 'news'].includes(item.id));
+
+  const selectTab = (tab: Tab) => {
+    setActiveTab(tab);
+    setMobileMenuOpen(false);
+  };
+
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans">
-      {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-40 bg-white/95 border-b border-slate-200 shadow-sm backdrop-blur-md px-3 sm:px-8 py-2.5 sm:py-3.5 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#00afca] border border-sky-200 p-1 flex items-center justify-center shadow-sm">
-            <SchoolLogo className="w-full h-full object-contain" variant="white-on-blue" />
+    <div className="min-h-screen bg-[#ffffff] text-slate-900 flex flex-col font-sans overflow-x-hidden relative">
+      {/* Subtle Main-Site Ambient Glow */}
+      <div className="pointer-events-none fixed inset-x-0 top-0 h-80 bg-gradient-to-b from-sky-50/80 via-white to-transparent -z-10" />
+
+      {/* Floating Toast Notification */}
+      {toast && (
+        <div className="fixed top-20 right-4 left-4 sm:left-auto sm:max-w-sm z-50 animate-in fade-in slide-in-from-top-3 duration-200">
+          <div
+            className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl shadow-2xl border backdrop-blur-md text-xs sm:text-sm font-bold ${
+              toast.type === 'success'
+                ? 'bg-[#0b0f17]/95 text-white border-[#00afca]/50'
+                : 'bg-rose-600 text-white border-rose-400'
+            }`}
+          >
+            {toast.type === 'success' ? (
+              <IconCheckCircle className="w-5 h-5 text-[#00afca] shrink-0" />
+            ) : (
+              <IconClose className="w-5 h-5 text-white shrink-0" />
+            )}
+            <span className="flex-1">{toast.message}</span>
+            <button onClick={() => setToast(null)} className="text-white/70 hover:text-white p-1">
+              <IconClose className="w-4 h-4" />
+            </button>
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-black text-sm tracking-tight text-slate-900">AQL Council</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-sky-50 text-[#00afca] border border-sky-200">
-                {hasFullAccess ? 'Басшылық' : 'Фракция министрі'}
-              </span>
+        </div>
+      )}
+
+      {/* Floating Dark Pill Header (Matching Main Site Header.tsx) */}
+      <div className="sticky top-2 sm:top-4 z-40 px-2 sm:px-6 lg:px-8">
+        <header className="max-w-7xl mx-auto bg-[#0b0f17]/95 text-white rounded-2xl sm:rounded-full px-3 sm:px-6 py-2.5 shadow-2xl border border-white/10 backdrop-blur-md flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-xl sm:rounded-full bg-[#00afca] border border-white/20 p-1 flex items-center justify-center shadow-sm shrink-0">
+              <SchoolLogo className="w-full h-full object-contain" variant="white-on-blue" />
             </div>
-            <div className="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate max-w-[130px] sm:max-w-none">
-              {currentRoleLabel}
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="font-black text-sm tracking-tight text-white">AQL Council</span>
+                <span className="hidden xs:inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-[#00afca]/20 text-[#00afca] border border-[#00afca]/30">
+                  {hasFullAccess ? 'Басшылық' : 'Министр'}
+                </span>
+              </div>
+              <div className="text-[10px] sm:text-[11px] text-slate-400 font-medium truncate max-w-[150px] sm:max-w-xs">
+                {currentRoleLabel}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <button
+              onClick={() => setShowAddNews(true)}
+              className="flex items-center gap-1.5 px-3 sm:px-4 py-2 min-h-[40px] rounded-xl sm:rounded-full bg-[#00afca] hover:bg-[#009bb3] text-white font-black text-xs shadow-lg shadow-[#00afca]/30 active:scale-95 transition-all"
+              title="Жаңа пост жазу"
+            >
+              <IconPlus className="w-4 h-4" />
+              <span className="hidden sm:inline">ПОСТ ҚОСУ</span>
+              <span className="sm:hidden">Пост</span>
+            </button>
+
+            <button
+              onClick={() => setShowAddEvent(true)}
+              className="hidden lg:flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/10 transition-all"
+              title="Жаңа іс-шара қосу"
+            >
+              <IconCalendar className="w-3.5 h-3.5 text-[#00afca]" />
+              <span>Іс-шара</span>
+            </button>
+
+            <Link
+              href="/kk"
+              className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-slate-200 hover:text-white px-3.5 py-2 min-h-[40px] rounded-full bg-white/10 hover:bg-white/20 border border-white/10 transition-colors"
+            >
+              <IconHome className="w-3.5 h-3.5" />
+              <span>Сайтқа</span>
+            </Link>
+
+            <button
+              onClick={handleLogout}
+              className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-rose-300 hover:text-white px-3.5 py-2 min-h-[40px] rounded-full bg-rose-500/15 hover:bg-rose-500/30 border border-rose-500/20 transition-colors"
+            >
+              <IconLogout className="w-3.5 h-3.5" />
+              <span>Шығу</span>
+            </button>
+
+            {/* Mobile Menu Hamburger */}
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden flex items-center justify-center w-11 h-11 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/10 transition-colors"
+              aria-label="Мәзірді ашу"
+            >
+              <IconMenu className="w-5 h-5" />
+            </button>
+          </div>
+        </header>
+      </div>
+
+      {/* Mobile Slide-Out Navigation Drawer */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-50 md:hidden bg-black/60 backdrop-blur-sm animate-in fade-in duration-150"
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          <div
+            className="absolute right-0 top-0 bottom-0 w-[85vw] max-w-xs bg-[#0b0f17] text-white border-l border-white/10 p-5 flex flex-col justify-between overflow-y-auto shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="space-y-5">
+              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-9 h-9 rounded-full bg-[#00afca] p-1 flex items-center justify-center shrink-0">
+                    <SchoolLogo className="w-full h-full object-contain" variant="white-on-blue" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-black text-sm text-white">AQL Council</div>
+                    <div className="text-[11px] text-[#00afca] font-bold truncate">{currentRoleLabel}</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
+                  aria-label="Жабу"
+                >
+                  <IconClose className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setShowAddNews(true);
+                  }}
+                  className="min-h-[44px] px-3 py-2 rounded-xl bg-[#00afca] text-white font-black text-xs flex items-center justify-center gap-1.5"
+                >
+                  <IconPlus className="w-4 h-4" />
+                  <span>Пост қосу</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setShowAddEvent(true);
+                  }}
+                  className="min-h-[44px] px-3 py-2 rounded-xl bg-white/10 text-white font-bold text-xs flex items-center justify-center gap-1.5 border border-white/10"
+                >
+                  <IconCalendar className="w-4 h-4 text-[#00afca]" />
+                  <span>Іс-шара</span>
+                </button>
+              </div>
+
+              <nav className="space-y-1.5">
+                <div className="text-[10px] uppercase tracking-widest font-bold text-slate-400 px-2 mb-2">
+                  Басқару бөлімдері
+                </div>
+                {navItems.map((item) => {
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => selectTab(item.id)}
+                      className={`w-full min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between gap-2 transition-all ${
+                        isActive
+                          ? 'bg-[#00afca] text-white shadow-lg shadow-[#00afca]/25'
+                          : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      <span className="flex items-center gap-2.5 min-w-0">
+                        {item.icon}
+                        <span className="truncate">{item.label}</span>
+                      </span>
+                      {typeof item.count === 'number' && (
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                            isActive ? 'bg-white/20 text-white' : 'bg-white/10 text-slate-300'
+                          }`}
+                        >
+                          {item.count}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+
+            <div className="pt-4 mt-6 border-t border-white/10 space-y-2">
+              <Link
+                href="/kk"
+                className="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-white/10 text-white font-bold text-xs flex items-center justify-center gap-2"
+              >
+                <IconHome className="w-4 h-4" />
+                <span>Негізгі сайтқа оралу</span>
+              </Link>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                className="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-rose-500/20 text-rose-300 font-bold text-xs flex items-center justify-center gap-2 border border-rose-500/20"
+              >
+                <IconLogout className="w-4 h-4" />
+                <span>Жүйеден шығу</span>
+              </button>
             </div>
           </div>
         </div>
-
-        <div className="flex items-center gap-2 sm:gap-3">
-          <button
-            onClick={() => setShowAddNews(true)}
-            className="flex items-center gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-[#00afca] to-sky-600 hover:from-[#0099b0] hover:to-sky-700 text-white font-black text-xs sm:text-sm shadow-lg shadow-sky-500/30 active:scale-95 transition-all ring-2 ring-sky-300/40"
-            title="Жаңа пост жазу / Добавить пост"
-          >
-            <span className="text-base sm:text-lg">✍️</span>
-            <span>+ ПОСТ ҚОСУ / ДОБАВИТЬ ПОСТ</span>
-          </button>
-
-          <button
-            onClick={() => setShowAddEvent(true)}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-200 transition-all"
-            title="Жаңа іс-шара қосу"
-          >
-            <span>📅</span>
-            <span>+ Іс-шара</span>
-          </button>
-
-          <Link
-            href="/kk"
-            className="text-[11px] sm:text-xs font-bold text-slate-700 hover:text-[#00afca] px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-slate-100 hover:bg-sky-50 border border-slate-200 transition-colors inline-block"
-          >
-            Сайтқа ↗
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="text-[11px] sm:text-xs font-bold text-rose-600 hover:text-rose-700 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors"
-          >
-            Шығу
-          </button>
-        </div>
-      </header>
+      )}
 
       {/* Main Container */}
-      <div className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
-        {/* Unmissable Quick Action Banner */}
-        <div className="bg-gradient-to-r from-sky-500 via-[#00afca] to-teal-500 rounded-3xl p-5 sm:p-6 text-white shadow-lg shadow-sky-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-black uppercase tracking-wider backdrop-blur-sm">
+      <div className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-24 md:pb-10 space-y-4 sm:space-y-6">
+        {/* Quick Action Banner (Matches Main Site Dark + Cyan Aesthetic) */}
+        <div className="bg-[#0b0f17] rounded-3xl p-5 sm:p-6 text-white shadow-xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden">
+          <div className="absolute -right-12 -top-12 w-48 h-48 rounded-full bg-[#00afca]/20 blur-3xl pointer-events-none" />
+          <div className="relative z-10">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#00afca]/20 text-[#00afca] border border-[#00afca]/30 text-[10px] font-black uppercase tracking-wider">
                 Блог & Жаңалықтар
               </span>
-              <span className="text-xs text-white/90 font-bold">• Мектеп сайтына жариялау</span>
+              <span className="text-xs text-slate-400 font-semibold">Мектеп сайтына жариялау</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black mt-1">
+            <h2 className="text-lg sm:text-2xl font-black mt-1.5 tracking-tight">
               Жаңа пост жазу / Добавить пост
             </h2>
-            <p className="text-xs text-white/80 mt-1 max-w-xl">
-              Осы батырма арқылы мектеп сайтының «Жаңалықтар» бөліміне жаңа пост, мақала, суреттер және хабарландыру жариялай аласыз. Барлық оқушылар көреді.
+            <p className="text-xs text-slate-400 mt-1 max-w-xl">
+              Сайттың «Жаңалықтар» бөліміне жаңа пост, мақала және хабарландыру жариялаңыз.
             </p>
           </div>
           <button
             onClick={() => setShowAddNews(true)}
-            className="px-6 py-3.5 rounded-2xl bg-white text-slate-900 hover:bg-slate-50 font-black text-xs sm:text-sm shadow-xl active:scale-95 transition-all flex items-center gap-2 self-start sm:self-auto shrink-0 border border-white"
+            className="relative z-10 min-h-[44px] px-5 py-3 rounded-2xl bg-[#00afca] hover:bg-[#009bb3] text-white font-black text-xs sm:text-sm shadow-lg shadow-[#00afca]/30 active:scale-95 transition-all flex items-center justify-center gap-2 self-stretch sm:self-auto shrink-0"
           >
-            <span className="text-lg">✍️</span>
-            <span>+ ЖАҢА ПОСТ ҚОСУ (ДОБАВИТЬ ПОСТ)</span>
+            <IconEdit className="w-4 h-4" />
+            <span>ЖАҢА ПОСТ ҚОСУ</span>
           </button>
         </div>
 
-        {/* Navigation Tabs Bar */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-200 no-scrollbar -mx-3 px-3 sm:mx-0 sm:px-0">
-          {hasFullAccess ? (
-            <>
+        {/* Desktop Navigation Tabs Bar */}
+        <div className="hidden md:flex items-center gap-1.5 flex-wrap bg-slate-50/90 p-1.5 rounded-2xl border border-slate-200 shadow-sm">
+          {navItems.map((item) => {
+            const isActive = activeTab === item.id;
+            return (
               <button
-                onClick={() => setActiveTab('overview')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                  activeTab === 'overview'
-                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 ${
+                  isActive
+                    ? 'bg-[#0b0f17] text-white shadow-md'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white'
                 }`}
               >
-                📊 Шолу (KPI)
+                <span className={isActive ? 'text-[#00afca]' : 'text-slate-400'}>{item.icon}</span>
+                <span>{item.label}</span>
+                {typeof item.count === 'number' && (
+                  <span
+                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
+                      isActive ? 'bg-[#00afca] text-white' : 'bg-slate-200/80 text-slate-700'
+                    }`}
+                  >
+                    {item.count}
+                  </span>
+                )}
               </button>
-              <button
-                onClick={() => setActiveTab('ministers')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                  activeTab === 'ministers'
-                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
-                }`}
-              >
-                👥 Министрлер & Фракциялар ({members.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('events')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                  activeTab === 'events'
-                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
-                }`}
-              >
-                📅 Барлық іс-шаралар ({events.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('timeline')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                  activeTab === 'timeline'
-                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
-                }`}
-              >
-                🗺️ Жыл жоспары ({timeline.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('polls')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                  activeTab === 'polls'
-                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
-                }`}
-              >
-                🗳️ Сауалнамалар ({polls.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('suggestions')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                  activeTab === 'suggestions'
-                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
-                }`}
-              >
-                💡 Ұсыныстар ({suggestions.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('appeals')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                  activeTab === 'appeals'
-                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
-                }`}
-              >
-                📨 Өтініштер & Қолхаттар ({appeals.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('news')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                  activeTab === 'news'
-                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
-                }`}
-              >
-                📰 Посттар мен Жаңалықтар ({news.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('stats')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                  activeTab === 'stats'
-                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
-                }`}
-              >
-                📈 Сандық көрсеткіштер
-              </button>
-            </>
-          ) : (
-            // Personalized Faction Minister Tabs
-            <>
-              <button
-                onClick={() => setActiveTab('ministers')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                  activeTab === 'ministers'
-                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
-                }`}
-              >
-                🛡️ Менің фракциям & Көмекшілер
-              </button>
-              <button
-                onClick={() => setActiveTab('events')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                  activeTab === 'events'
-                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
-                }`}
-              >
-                📅 Фракция іс-шаралары ({events.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('appeals')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                  activeTab === 'appeals'
-                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
-                }`}
-              >
-                📨 Бізге түскен өтініштер & Қолхаттар ({appeals.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('news')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                  activeTab === 'news'
-                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
-                }`}
-              >
-                📰 Фракция посттары & Жаңалықтары ({news.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('polls')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                  activeTab === 'polls'
-                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
-                }`}
-              >
-                🗳️ Сауалнамалар ({polls.length})
-              </button>
-            </>
-          )}
+            );
+          })}
         </div>
 
         {/* ===================================================================
@@ -1172,7 +1330,7 @@ export default function AdminClient() {
                   onClick={() => setShowAddNews(true)}
                   className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#00afca] to-sky-600 hover:from-[#0099b0] hover:to-sky-700 text-white text-xs font-bold shadow-sm shadow-sky-500/25 transition-all flex items-center gap-1.5"
                 >
-                  <span>✍️</span>
+                  <IconEdit className="w-4 h-4" />
                   <span>+ Жаңа пост жазу</span>
                 </button>
               </div>
@@ -1214,7 +1372,7 @@ export default function AdminClient() {
                       onClick={() => openEditMinister(myMember)}
                       className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold transition-all shadow-sm shadow-[#00afca]/25"
                     >
-                      ✏️ Профиль мен көмекшілерді өңдеу
+                      Профиль мен көмекшілерді өңдеу
                     </button>
                   </div>
 
@@ -1273,7 +1431,7 @@ export default function AdminClient() {
                   {/* Minister Quick Actions */}
                   <div className="pt-6 border-t border-slate-200">
                     <h4 className="font-extrabold text-sm text-slate-900 mb-3 flex items-center gap-2">
-                      <span>⚡</span>
+                      <IconZap className="w-4 h-4 text-[#00afca]" />
                       <span>Фракцияны басқару және жедел әрекеттер:</span>
                     </h4>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -1281,7 +1439,7 @@ export default function AdminClient() {
                         onClick={() => setShowAddNews(true)}
                         className="p-4 rounded-2xl bg-gradient-to-br from-sky-500 to-[#00afca] hover:from-sky-600 hover:to-[#0099b0] text-white shadow-md shadow-sky-500/20 text-left transition-all active:scale-[0.98] flex flex-col justify-between group"
                       >
-                        <span className="text-2xl mb-2 group-hover:scale-110 transition-transform">✍️</span>
+                        <IconEdit className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />
                         <div>
                           <div className="font-black text-sm">Жаңа пост жазу</div>
                           <div className="text-[11px] text-white/80 mt-0.5">Сайтқа жаңалық немесе мақала жариялау</div>
@@ -1292,7 +1450,7 @@ export default function AdminClient() {
                         onClick={() => setShowAddEvent(true)}
                         className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 shadow-sm text-left transition-all active:scale-[0.98] flex flex-col justify-between group"
                       >
-                        <span className="text-2xl mb-2 group-hover:scale-110 transition-transform">📅</span>
+                        <IconCalendar className="w-6 h-6 mb-2 text-[#00afca] group-hover:scale-110 transition-transform" />
                         <div>
                           <div className="font-black text-sm text-slate-900">Жаңа іс-шара қосу</div>
                           <div className="text-[11px] text-slate-500 mt-0.5">Тіркелу мен қатысушылар тізімі</div>
@@ -1303,7 +1461,7 @@ export default function AdminClient() {
                         onClick={() => setActiveTab('appeals')}
                         className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 shadow-sm text-left transition-all active:scale-[0.98] flex flex-col justify-between group"
                       >
-                        <span className="text-2xl mb-2 group-hover:scale-110 transition-transform">📨</span>
+                        <IconMail className="w-6 h-6 mb-2 text-[#00afca] group-hover:scale-110 transition-transform" />
                         <div>
                           <div className="font-black text-sm text-slate-900">Өтініштерді қарау ({appeals.length})</div>
                           <div className="text-[11px] text-slate-500 mt-0.5">Оқушылардан түскен қолхаттар мен хаттар</div>
@@ -1429,7 +1587,7 @@ export default function AdminClient() {
                             )}
                             {ev.archived && (
                               <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold text-[10px] border border-emerald-200">
-                                ✅ Өтті
+                                Өтті
                               </span>
                             )}
                           </div>
@@ -1568,7 +1726,7 @@ export default function AdminClient() {
                         onClick={() => handleAppealStatus(a.id, 'resolved')}
                         className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-bold transition-colors"
                       >
-                        Шешілді ✓
+                        Шешілді
                       </button>
                       <button
                         onClick={() => handleDeleteAppeal(a.id)}
@@ -1576,7 +1734,7 @@ export default function AdminClient() {
                         title="Өтінішті / қолхатты өшіру"
                       >
                         <span>Өшіру</span>
-                        <span>🗑️</span>
+                        <IconTrash className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -1607,15 +1765,15 @@ export default function AdminClient() {
                 onClick={() => setShowAddNews(true)}
                 className="px-5 py-3 rounded-2xl bg-gradient-to-r from-[#00afca] to-sky-600 hover:from-[#0099b0] hover:to-sky-700 text-white text-xs font-black shadow-lg shadow-sky-500/25 transition-all flex items-center gap-2 shrink-0 self-start sm:self-auto active:scale-95"
               >
-                <span className="text-base">✍️</span>
+                <IconEdit className="w-4 h-4" />
                 <span>+ Жаңа пост жариялау</span>
               </button>
             </div>
 
             {news.length === 0 ? (
               <div className="p-12 rounded-3xl bg-white border border-slate-200 text-center space-y-4">
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-sky-50 flex items-center justify-center text-3xl">
-                  ✍️
+                <div className="w-16 h-16 mx-auto rounded-2xl bg-sky-50 flex items-center justify-center text-[#00afca]">
+                  <IconEdit className="w-7 h-7" />
                 </div>
                 <div className="max-w-md mx-auto">
                   <h4 className="font-extrabold text-slate-900 text-base">Әзірге ешқандай пост жарияланбаған</h4>
@@ -1627,7 +1785,7 @@ export default function AdminClient() {
                   onClick={() => setShowAddNews(true)}
                   className="px-6 py-2.5 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-md shadow-sky-500/20 transition-all inline-flex items-center gap-2"
                 >
-                  <span>✍️</span>
+                  <IconEdit className="w-4 h-4" />
                   <span>Алғашқы постты жариялау</span>
                 </button>
               </div>
@@ -1677,7 +1835,7 @@ export default function AdminClient() {
                         className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold transition-colors flex items-center gap-1"
                       >
                         <span>Өшіру</span>
-                        <span>🗑️</span>
+                        <IconTrash className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -1759,7 +1917,7 @@ export default function AdminClient() {
 
             {polls.length === 0 ? (
               <div className="p-12 rounded-3xl bg-white border border-slate-200 text-center space-y-3">
-                <span className="text-4xl block">🗳️</span>
+                <IconVote className="w-10 h-10 mx-auto text-[#00afca]" />
                 <p className="text-sm font-bold text-slate-800">Әзірге сауалнамалар жоқ</p>
                 <p className="text-xs text-slate-500 max-w-md mx-auto">
                   «+ Жаңа сауалнама ашу» батырмасын басып, оқушылар үшін жаңа дауыс беру сұрағын жариялаңыз.
@@ -1802,7 +1960,7 @@ export default function AdminClient() {
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500">
-                                ⚪ Жабық / Тоқтатылған
+                                Жабық / Тоқтатылған
                               </span>
                             )}
                             <span className="text-[10px] text-slate-400 font-semibold">
@@ -1832,7 +1990,7 @@ export default function AdminClient() {
                               title="Сайтта ашу және белсенді ету"
                               className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200 transition-colors"
                             >
-                              Ашу ✓
+                              Ашу
                             </button>
                           )}
                           <button
@@ -1840,7 +1998,7 @@ export default function AdminClient() {
                             title="Сауалнаманы өшіру"
                             className="p-1.5 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors text-xs"
                           >
-                            🗑️
+                            <IconTrash className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
@@ -1911,13 +2069,13 @@ export default function AdminClient() {
                         onClick={() => handleSuggestionStatus(sg.id, 'approved')}
                         className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-bold transition-colors"
                       >
-                        Мақұлдау ✓
+                        Мақұлдау
                       </button>
                       <button
                         onClick={() => handleSuggestionStatus(sg.id, 'rejected')}
                         className="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700 text-xs font-bold transition-colors"
                       >
-                        Қабылдамау ✕
+                        Қабылдамау
                       </button>
                       <button
                         onClick={() => handleDeleteSuggestion(sg.id)}
@@ -1925,7 +2083,7 @@ export default function AdminClient() {
                         title="Өшіру"
                       >
                         <span>Өшіру</span>
-                        <span>🗑️</span>
+                        <IconTrash className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -1981,7 +2139,7 @@ export default function AdminClient() {
                 onClick={() => setEditingMinister(null)}
                 className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600"
               >
-                ✕
+                <IconClose className="w-4 h-4" />
               </button>
             </div>
 
@@ -2040,7 +2198,7 @@ export default function AdminClient() {
                       className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-900 focus:border-[#00afca] text-xs"
                     />
                     <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold cursor-pointer transition-colors">
-                      <span>📁 Телефоннан/компьютерден жүктеу</span>
+                      <span className="inline-flex items-center gap-1.5"><IconCamera className="w-4 h-4" /><span>Телефоннан/компьютерден жүктеу</span></span>
                       <input
                         type="file"
                         accept="image/*"
@@ -2161,7 +2319,7 @@ export default function AdminClient() {
                         }
                         className="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold"
                       >
-                        ✕
+                        <IconClose className="w-4 h-4" />
                       </button>
                     </div>
                   ))}
@@ -2186,7 +2344,7 @@ export default function AdminClient() {
                   type="submit"
                   className="px-5 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-md shadow-[#00afca]/25 transition-all"
                 >
-                  Сақтау ✓
+                  Сақтау
                 </button>
               </div>
             </form>
@@ -2304,7 +2462,7 @@ export default function AdminClient() {
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all"
                 >
-                  Қосу ✓
+                  Қосу
                 </button>
               </div>
             </form>
@@ -2330,7 +2488,7 @@ export default function AdminClient() {
                 onClick={() => setEditingEvent(null)}
                 className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 font-bold"
               >
-                ✕
+                <IconClose className="w-4 h-4" />
               </button>
             </div>
 
@@ -2430,7 +2588,7 @@ export default function AdminClient() {
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all"
                 >
-                  Сақтау ✓
+                  Сақтау
                 </button>
               </div>
             </form>
@@ -2459,7 +2617,7 @@ export default function AdminClient() {
                 onClick={() => exportCsv(selectedEventTitle, selectedEventRegs)}
                 className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm"
               >
-                📥 CSV-ге жүктеу
+                <span className="inline-flex items-center gap-1.5"><IconDownload className="w-4 h-4" /><span>CSV-ге жүктеу</span></span>
               </button>
             </div>
 
@@ -2487,11 +2645,11 @@ export default function AdminClient() {
                       </span>
                       {r.id && (
                         <button
-                          onClick={() => handleDeleteRegistration(r.id)}
+                          onClick={() => r.id && handleDeleteRegistration(r.id)}
                           className="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold flex items-center gap-1 transition-colors"
                           title="Тіркелуді өшіру"
                         >
-                          <span>🗑️</span>
+                          <IconTrash className="w-4 h-4" />
                           <span>Өшіру</span>
                         </button>
                       )}
@@ -2520,7 +2678,7 @@ export default function AdminClient() {
           className="px-5 py-3.5 rounded-full bg-gradient-to-r from-[#00afca] to-sky-600 hover:from-[#0099b0] hover:to-sky-700 text-white font-black text-xs sm:text-sm shadow-2xl shadow-sky-500/50 hover:shadow-sky-500/70 active:scale-95 transition-all flex items-center gap-2.5 border-2 border-white ring-4 ring-sky-400/20 cursor-pointer"
           title="Жаңа пост жазу / Добавить пост"
         >
-          <span className="text-lg">✍️</span>
+          <IconEdit className="w-4 h-4" />
           <span>+ ПОСТ ҚОСУ / ДОБАВИТЬ ПОСТ</span>
         </button>
       </div>
@@ -2540,7 +2698,7 @@ export default function AdminClient() {
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div>
                 <h3 className="font-black text-lg text-slate-900 flex items-center gap-2">
-                  <span>✍️</span>
+                  <IconEdit className="w-4 h-4" />
                   <span>Жаңа пост / Жаңалық жариялау</span>
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
@@ -2552,7 +2710,7 @@ export default function AdminClient() {
                 onClick={() => setShowAddNews(false)}
                 className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 text-sm"
               >
-                ✕
+                <IconClose className="w-4 h-4" />
               </button>
             </div>
             <form onSubmit={handleCreateNews} className="space-y-3">
@@ -2629,7 +2787,7 @@ export default function AdminClient() {
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all"
                 >
-                  Жариялау ✓
+                  Жариялау
                 </button>
               </div>
             </form>
@@ -2658,7 +2816,7 @@ export default function AdminClient() {
 
             {pollError && (
               <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
-                <span>⚠️</span>
+                <IconShield className="w-4 h-4 shrink-0" />
                 <span>{pollError}</span>
               </div>
             )}
@@ -2739,7 +2897,7 @@ export default function AdminClient() {
                         className="p-2 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors text-xs"
                         title="Нұсқаны жою"
                       >
-                        ✕
+                        <IconClose className="w-4 h-4" />
                       </button>
                     )}
                   </div>
@@ -2780,7 +2938,7 @@ export default function AdminClient() {
                       <span>Ашылуда...</span>
                     </>
                   ) : (
-                    <span>Ашу ✓</span>
+                    <span>Ашу</span>
                   )}
                 </button>
               </div>
@@ -2863,13 +3021,42 @@ export default function AdminClient() {
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all"
                 >
-                  Қосу ✓
+                  Қосу
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
+      {/* Fixed Bottom Mobile Navigation Bar */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0b0f17]/95 text-white border-t border-white/10 backdrop-blur-md px-2 py-1.5">
+        <div className="grid grid-cols-5 gap-1 max-w-md mx-auto">
+          {bottomNavItems.map((item) => {
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => selectTab(item.id)}
+                className={`min-h-[48px] rounded-xl flex flex-col items-center justify-center gap-0.5 px-1 transition-all ${
+                  isActive
+                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                {item.icon}
+                <span className="text-[10px] font-bold truncate max-w-full">{item.shortLabel}</span>
+              </button>
+            );
+          })}
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className="min-h-[48px] rounded-xl flex flex-col items-center justify-center gap-0.5 px-1 text-slate-300 hover:text-white bg-white/5"
+          >
+            <IconMenu className="w-4 h-4" />
+            <span className="text-[10px] font-bold">Мәзір</span>
+          </button>
+        </div>
+      </nav>
     </div>
   );
 }

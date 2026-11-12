@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { IconClose } from './Icons';
 
 interface RegistrationModalProps {
   locale: string;
@@ -89,10 +90,10 @@ export default function RegistrationModal({
       <div className="relative w-full max-w-md rounded-2xl bg-[#ffffff] border-2 border-[#00afca] p-6 sm:p-8 space-y-6 text-[#00afca]">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full border-2 border-[#00afca] text-[#00afca] hover:bg-[#00afca] hover:text-[#ffffff] font-bold"
+          className="absolute top-4 right-4 w-8 h-8 rounded-full border-2 border-[#00afca] text-[#00afca] hover:bg-[#00afca] hover:text-[#ffffff] flex items-center justify-center font-bold"
           aria-label="Close"
         >
-          ✕
+          <IconClose className="w-4 h-4" />
         </button>
 
         <div>

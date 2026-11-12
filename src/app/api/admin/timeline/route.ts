@@ -3,6 +3,8 @@ import prisma from '@/lib/prisma';
 import { getSessionInfo } from '@/lib/auth';
 import { timelineSchema } from '@/lib/validations';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const session = await getSessionInfo();
   if (!session) {
@@ -30,6 +32,8 @@ export async function POST(req: NextRequest) {
     const item = await prisma.timelineItem.create({
       data: {
         ...validated,
+        titleRu: validated.titleRu || validated.titleKk,
+        descRu: validated.descRu || validated.descKk,
         ministry: session.hasFullAccess ? validated.ministry : session.login,
       },
     });
@@ -53,13 +57,17 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'ID не указан' }, { status: 400 });
   }
 
-  if (!session.hasFullAccess) {
-    const existing = await prisma.timelineItem.findUnique({ where: { id } });
-    if (!existing || existing.ministry !== session.login) {
-      return NextResponse.json({ error: 'Доступ только к плану своей фракции' }, { status: 403 });
+  try {
+    if (!session.hasFullAccess) {
+      const existing = await prisma.timelineItem.findUnique({ where: { id } });
+      if (!existing || existing.ministry !== session.login) {
+        return NextResponse.json({ error: 'Доступ только к плану своей фракции' }, { status: 403 });
+      }
     }
-  }
 
-  await prisma.timelineItem.delete({ where: { id } });
-  return NextResponse.json({ success: true });
+    await prisma.timelineItem.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: 'Тармақ табылмады' }, { status: 404 });
+  }
 }

@@ -77,14 +77,14 @@ export const newsSchema = z.object({
 });
 
 export const timelineSchema = z.object({
-  titleRu: z.string().min(1).max(200),
+  titleRu: z.string().max(200).optional().default(''),
   titleKk: z.string().min(1).max(200),
   descRu: z.string().optional().default(''),
   descKk: z.string().optional().default(''),
   ministry: z.string().optional().default('general'),
   month: z.number().int().min(1).max(12),
   year: z.number().int().min(2020).max(2035),
-  icon: z.string().optional().default('📌'),
+  icon: z.string().optional().default('calendar'),
   order: z.number().int().optional().default(0),
 });
 

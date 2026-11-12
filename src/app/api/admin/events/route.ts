@@ -3,6 +3,8 @@ import prisma from '@/lib/prisma';
 import { getSessionInfo } from '@/lib/auth';
 import { eventSchema } from '@/lib/validations';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const session = await getSessionInfo();
   if (!session) {
@@ -68,15 +70,19 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'ID не указан' }, { status: 400 });
   }
 
-  if (!session.hasFullAccess) {
-    const existing = await prisma.event.findUnique({ where: { id } });
-    if (!existing || existing.ministry !== session.login) {
-      return NextResponse.json({ error: 'Доступ только к событиям своей фракции' }, { status: 403 });
+  try {
+    if (!session.hasFullAccess) {
+      const existing = await prisma.event.findUnique({ where: { id } });
+      if (!existing || existing.ministry !== session.login) {
+        return NextResponse.json({ error: 'Доступ только к событиям своей фракции' }, { status: 403 });
+      }
     }
-  }
 
-  await prisma.event.delete({ where: { id } });
-  return NextResponse.json({ success: true });
+    await prisma.event.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: 'Іс-шара табылмады немесе өшіру мүмкін болмады' }, { status: 404 });
+  }
 }
 
 export async function PUT(req: NextRequest) {
@@ -106,6 +112,9 @@ export async function PUT(req: NextRequest) {
         ...(data.titleRu && { titleRu: data.titleRu }),
         ...(data.descKk && { descKk: data.descKk }),
         ...(data.descRu && { descRu: data.descRu }),
+        ...(data.programKk !== undefined && { programKk: data.programKk }),
+        ...(data.programRu !== undefined && { programRu: data.programRu }),
+        ...(data.image !== undefined && { image: data.image }),
         ...(data.category && { category: data.category }),
         ...(data.location && { location: data.location }),
         ...(data.maxSeats !== undefined && { maxSeats: Number(data.maxSeats) }),

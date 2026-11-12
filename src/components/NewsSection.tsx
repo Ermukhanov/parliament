@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { IconNewspaper } from './Icons';
 
 export interface NewsItem {
   id: string;
@@ -38,8 +39,8 @@ export default function NewsSection({ locale, news }: NewsSectionProps) {
 
         {news.length === 0 ? (
           <div className="text-center py-12 aql-card p-8 bg-white max-w-2xl mx-auto">
-            <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-sky-50 flex items-center justify-center text-3xl">
-              📰
+            <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-sky-50 text-[#00afca] flex items-center justify-center">
+              <IconNewspaper className="w-8 h-8" />
             </div>
             <p className="font-extrabold text-xl text-slate-800 mb-2">
               {locale === 'en' ? 'No news articles published yet' : 'Жаңалықтар әзірге жарияланбаған'}

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { MemberItem, AssistantItem } from '@/components/TeamSection';
 import SchoolLogo from '@/components/SchoolLogo';
 import MemberPortrait from '@/components/MemberPortrait';
+import { IconCrown, IconStar, IconClose } from '@/components/Icons';
 
 interface TeamPageClientProps {
   locale: string;
@@ -156,7 +157,7 @@ export default function TeamPageClient({ locale, members }: TeamPageClientProps)
                 {/* Honor Tag */}
                 <div className="flex items-center justify-between gap-4 mb-6">
                   <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#00afca] text-white text-xs font-black uppercase tracking-wider shadow-lg">
-                    <span>👑</span>
+                    <IconCrown className="w-3.5 h-3.5" />
                     <span>{locale === 'en' ? 'President of School Parliament' : 'Мектеп Президенті'}</span>
                   </div>
                   {president.grade && (
@@ -234,7 +235,7 @@ export default function TeamPageClient({ locale, members }: TeamPageClientProps)
                 {/* Honor Tag */}
                 <div className="flex items-center justify-between gap-4 mb-6">
                   <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0284c7] text-white text-xs font-black uppercase tracking-wider shadow-lg">
-                    <span>★</span>
+                    <IconStar className="w-3.5 h-3.5" />
                     <span>{locale === 'en' ? 'Vice-President of School Parliament' : 'Мектеп Вице-президенті'}</span>
                   </div>
                   {vice.grade && (
@@ -429,8 +430,9 @@ export default function TeamPageClient({ locale, members }: TeamPageClientProps)
             <button
               onClick={() => setSelectedMember(null)}
               className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors"
+              aria-label="Close"
             >
-              ✕
+              <IconClose className="w-4 h-4" />
             </button>
 
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 mb-6">

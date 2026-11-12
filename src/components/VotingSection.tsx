@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { IconVote } from './Icons';
 
 export interface PollOptionData {
   id: string;
@@ -167,8 +168,8 @@ export default function VotingSection({ locale, poll }: VotingSectionProps) {
           <div className="lg:col-span-7 aql-card p-6 sm:p-8">
             {!poll ? (
               <div className="py-12 px-4 text-center">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-sky-50 flex items-center justify-center text-3xl">
-                  🗳️
+                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-sky-50 text-[#00afca] flex items-center justify-center">
+                  <IconVote className="w-8 h-8" />
                 </div>
                 <h3 className="font-extrabold text-2xl text-slate-800 mb-2">
                   {locale === 'en'

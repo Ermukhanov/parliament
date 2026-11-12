@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { IconCheck, IconClose } from './Icons';
 
 export interface EventItem {
   id: string;
@@ -259,8 +260,9 @@ export default function EventsSection({ locale, events }: EventsSectionProps) {
                       </div>
                       <span className="text-xs font-semibold">
                         {ev.archived ? (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            {locale === 'en' ? '✅ Passed' : '✅ Өтті'}
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <IconCheck className="w-3 h-3" />
+                            <span>{locale === 'en' ? 'Passed' : 'Өтті'}</span>
                           </span>
                         ) : isFull ? (
                           <span className="text-rose-500 font-bold">{locale === 'en' ? 'Full' : 'Орын жоқ'}</span>
@@ -336,8 +338,9 @@ export default function EventsSection({ locale, events }: EventsSectionProps) {
             <button
               onClick={() => setModalEvent(null)}
               className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-900 font-bold"
+              aria-label="Close"
             >
-              ✕
+              <IconClose className="w-4 h-4" />
             </button>
 
             <div className="text-[11px] uppercase tracking-widest text-[#00afca] mb-1 font-bold">

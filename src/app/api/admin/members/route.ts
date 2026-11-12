@@ -81,7 +81,7 @@ export async function PATCH(req: NextRequest) {
       where: { id },
       data: {
         login: session.hasFullAccess ? updateData.login : existing.login,
-        password: updateData.password,
+        ...(updateData.password ? { password: updateData.password } : {}),
         ministry: session.hasFullAccess ? updateData.ministry : existing.ministry,
         ministryNameRu: updateData.ministryNameRu,
         ministryNameKk: updateData.ministryNameKk,
@@ -119,6 +119,10 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'ID не указан' }, { status: 400 });
   }
 
-  await prisma.member.delete({ where: { id } });
-  return NextResponse.json({ success: true });
+  try {
+    await prisma.member.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: 'Мүше табылмады немесе өшіру мүмкін болмады' }, { status: 404 });
+  }
 }
