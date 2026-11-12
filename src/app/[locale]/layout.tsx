@@ -13,10 +13,10 @@ export function generateStaticParams() {
 
 export const metadata: Metadata = {
   title: {
-    default: 'AQL Council | Мектеп Президенті',
+    default: 'AQL Council | Мектеп Парламенті',
     template: '%s | AQL Council',
   },
-  description: 'AQL Council — Мектеп Президентінің ресми порталы | School President Official Portal',
+  description: 'AQL Council — Мектеп Парламентінің ресми порталы | School Parliament Official Portal',
   icons: {
     icon: [{ url: '/icon.png', type: 'image/png' }],
     shortcut: '/icon.png',
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'AQL Council',
-    description: 'AQL Council — Мектеп Президентінің ресми порталы | School President Official Portal',
+    description: 'AQL Council — Мектеп Парламентінің ресми порталы | School Parliament Official Portal',
     type: 'website',
     images: ['/logo.png'],
   },

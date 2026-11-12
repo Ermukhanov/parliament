@@ -6,7 +6,7 @@ export const metadata: Metadata = {
     default: "AQL Council",
     template: "%s | AQL Council",
   },
-  description: "AQL Council — Мектеп Президентінің ресми порталы | School President Official Portal",
+  description: "AQL Council — Мектеп Парламентінің ресми порталы | School Parliament Official Portal",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },

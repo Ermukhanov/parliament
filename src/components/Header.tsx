@@ -59,7 +59,7 @@ export default function Header({ locale }: HeaderProps) {
                 AQL Council
               </span>
               <span className="text-[9px] tracking-widest text-[#00afca] uppercase font-bold mt-0.5">
-                {locale === 'en' ? 'School President' : 'Мектеп Президенті'}
+                {locale === 'en' ? 'School Parliament' : 'Мектеп Парламенті'}
               </span>
             </div>
           </Link>

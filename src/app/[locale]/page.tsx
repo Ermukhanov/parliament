@@ -15,10 +15,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const isEn = locale === 'en';
   return {
-    title: isEn ? 'Home | School President Portal' : 'Басты бет | Мектеп Президентінің Порталы',
+    title: isEn ? 'Home | School Parliament Portal' : 'Басты бет | Мектеп Парламентінің Порталы',
     description: isEn
-      ? 'AQL Council — Official School President and Student Parliament Portal.'
-      : 'AQL Council — Мектеп Президенті мен Парламентінің ресми порталы.',
+      ? 'AQL Council — Official School Parliament Portal.'
+      : 'AQL Council — Мектеп Парламентінің ресми порталы.',
   };
 }
 

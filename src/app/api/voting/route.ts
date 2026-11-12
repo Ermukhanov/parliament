@@ -7,6 +7,7 @@ export async function GET() {
   try {
     const poll = await prisma.poll.findFirst({
       where: { active: true },
+      orderBy: { createdAt: 'desc' },
       include: {
         options: {
           include: {
@@ -80,7 +81,7 @@ export async function POST(req: NextRequest) {
     if (existingVote) {
       return NextResponse.json(
         { error: 'С вашего устройства/IP уже был отдан голос в этом опросе' },
-        { status: 400 }
+        { status: 409 }
       );
     }
 

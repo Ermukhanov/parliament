@@ -28,6 +28,7 @@ export default async function VotePage({
   try {
     const poll = await prisma.poll.findFirst({
       where: { active: true },
+      orderBy: { createdAt: 'desc' },
       include: {
         options: {
           include: {

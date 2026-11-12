@@ -100,7 +100,7 @@ export default function HeroSection({ locale, nextEvent, eventSummary }: HeroSec
         {/* Handwritten script eyebrow with burst marks */}
         <div className="inline-flex items-center gap-2 mb-2 animate-entrance relative">
           <span className="hand-accent text-2xl sm:text-3xl text-[#00afca]">
-            {locale === 'en' ? 'School President Portal' : 'Мектеп Президентінің ресми порталы'}
+            {locale === 'en' ? 'School Parliament Portal' : 'Мектеп Парламентінің ресми порталы'}
           </span>
           <svg className="w-6 h-6 text-[#00afca] -mt-3 hidden sm:block animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
             <line x1="12" y1="2" x2="12" y2="6" />
@@ -114,7 +114,7 @@ export default function HeroSection({ locale, nextEvent, eventSummary }: HeroSec
           <h1 className="font-extrabold text-3xl sm:text-5xl md:text-6xl lg:text-7xl tracking-[-0.035em] text-[#0f172a] leading-[1.12] animate-entrance-delay-1">
             {locale === 'en' ? (
               <>
-                School President <br />
+                School Parliament <br />
                 <span className="relative inline-block mt-1">
                   AQL Council
                   <svg className="absolute -bottom-3 left-0 w-full h-4 text-[#00afca] overflow-visible" viewBox="0 0 300 20" fill="none">
@@ -124,7 +124,7 @@ export default function HeroSection({ locale, nextEvent, eventSummary }: HeroSec
               </>
             ) : (
               <>
-                Мектеп Президенті <br />
+                Мектеп Парламенті <br />
                 <span className="relative inline-block mt-1">
                   AQL Council
                   <svg className="absolute -bottom-3 left-0 w-full h-4 text-[#00afca] overflow-visible" viewBox="0 0 300 20" fill="none">

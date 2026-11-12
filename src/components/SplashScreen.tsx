@@ -317,7 +317,7 @@ export default function SplashScreen() {
           </h1>
 
           <p className="text-xs sm:text-sm font-bold text-[#38bdf8] tracking-widest uppercase mt-1">
-            Мектеп Президентінің Порталы
+            Мектеп Парламентінің Порталы
           </p>
         </div>
 

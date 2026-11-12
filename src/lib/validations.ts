@@ -88,17 +88,17 @@ export const timelineSchema = z.object({
 });
 
 export const pollSchema = z.object({
-  questionRu: z.string().min(1).max(500),
-  questionKk: z.string().min(1).max(500),
+  questionKk: z.string().min(1, 'Сұрақ мәтіні бос болмауы керек').max(500),
+  questionRu: z.string().max(500).optional().default(''),
   active: z.boolean().optional().default(true),
   options: z
     .array(
       z.object({
-        textRu: z.string().min(1).max(200),
-        textKk: z.string().min(1).max(200),
+        textKk: z.string().min(1, 'Нұсқа бос болмауы керек').max(200),
+        textRu: z.string().max(200).optional().default(''),
       })
     )
-    .min(2),
+    .min(2, 'Кемінде 2 жауап нұсқасы қажет'),
 });
 
 export const statSchema = z.object({

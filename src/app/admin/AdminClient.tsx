@@ -209,15 +209,16 @@ export default function AdminClient() {
   });
 
   const [showAddPoll, setShowAddPoll] = useState(false);
+  const [pollLoading, setPollLoading] = useState(false);
+  const [pollError, setPollError] = useState<string | null>(null);
   const [pollForm, setPollForm] = useState({
-    questionRu: '',
     questionKk: '',
-    option1Ru: '',
-    option1Kk: '',
-    option2Ru: '',
-    option2Kk: '',
-    option3Ru: '',
-    option3Kk: '',
+    questionRu: '',
+    active: true,
+    options: [
+      { textKk: '', textRu: '' },
+      { textKk: '', textRu: '' },
+    ],
   });
 
   const [selectedEventRegs, setSelectedEventRegs] = useState<AdminRegistration[] | null>(null);
@@ -506,14 +507,79 @@ export default function AdminClient() {
 
   const handleCreatePoll = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch('/api/admin/polls', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(pollForm),
-    });
-    if (res.ok) {
-      setShowAddPoll(false);
-      fetchAllData();
+    setPollLoading(true);
+    setPollError(null);
+
+    const cleanKk = pollForm.questionKk.trim();
+    if (!cleanKk) {
+      setPollError('Сауалнама сұрағын толтырыңыз');
+      setPollLoading(false);
+      return;
+    }
+
+    const cleanOptions = pollForm.options
+      .map((opt) => ({
+        textKk: opt.textKk.trim(),
+        textRu: (opt.textRu || opt.textKk).trim(),
+      }))
+      .filter((opt) => opt.textKk.length > 0);
+
+    if (cleanOptions.length < 2) {
+      setPollError('Кемінде 2 жауап нұсқасын толтыру қажет');
+      setPollLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/admin/polls', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          questionKk: cleanKk,
+          questionRu: (pollForm.questionRu || cleanKk).trim(),
+          active: pollForm.active,
+          options: cleanOptions,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setPollError(data.error || 'Сауалнаманы ашу кезінде қате шықты');
+      } else {
+        setShowAddPoll(false);
+        setPollForm({
+          questionKk: '',
+          questionRu: '',
+          active: true,
+          options: [
+            { textKk: '', textRu: '' },
+            { textKk: '', textRu: '' },
+          ],
+        });
+        fetchAllData();
+      }
+    } catch {
+      setPollError('Желі қатесі, қайталап көріңіз');
+    } finally {
+      setPollLoading(false);
+    }
+  };
+
+  const handleTogglePoll = async (id: string, active: boolean) => {
+    try {
+      const res = await fetch('/api/admin/polls', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, active }),
+      });
+      if (res.ok) {
+        fetchAllData();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Сауалнама күйін өзгерту мүмкін болмады');
+      }
+    } catch {
+      alert('Желі қатесі');
     }
   };
 
@@ -1643,49 +1709,141 @@ export default function AdminClient() {
            =================================================================== */}
         {activeTab === 'polls' && hasFullAccess && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-extrabold text-lg text-slate-900">Сауалнамалар мен дауыс беру</h3>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="font-extrabold text-lg text-slate-900">Сауалнамалар мен дауыс беру</h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Белсенді сауалнама сайттағы <strong>/vote</strong> бөлімінде оқушыларға көрінеді
+                </p>
+              </div>
               <button
-                onClick={() => setShowAddPoll(true)}
-                className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold transition-all shadow-sm shadow-[#00afca]/25"
+                onClick={() => {
+                  setPollError(null);
+                  setShowAddPoll(true);
+                }}
+                className="px-4 py-2.5 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold transition-all shadow-sm shadow-[#00afca]/25 flex items-center justify-center gap-1.5 shrink-0"
               >
-                + Жаңа сауалнама
+                <span>+</span> Жаңа сауалнама ашу
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {polls.map((poll) => (
-                <div
-                  key={poll.id}
-                  className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md space-y-4 transition-shadow"
+            {polls.length === 0 ? (
+              <div className="p-12 rounded-3xl bg-white border border-slate-200 text-center space-y-3">
+                <span className="text-4xl block">🗳️</span>
+                <p className="text-sm font-bold text-slate-800">Әзірге сауалнамалар жоқ</p>
+                <p className="text-xs text-slate-500 max-w-md mx-auto">
+                  «+ Жаңа сауалнама ашу» батырмасын басып, оқушылар үшін жаңа дауыс беру сұрағын жариялаңыз.
+                </p>
+                <button
+                  onClick={() => {
+                    setPollError(null);
+                    setShowAddPoll(true);
+                  }}
+                  className="mt-2 px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold transition-all inline-flex items-center gap-1.5"
                 >
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-                    <h4 className="font-bold text-base text-slate-900">{poll.questionKk}</h4>
-                    <button
-                      onClick={() => handleDeletePoll(poll.id)}
-                      className="text-xs text-rose-600 hover:text-rose-700 font-bold"
-                    >
-                      Өшіру
-                    </button>
-                  </div>
+                  + Сауалнама ашу
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {polls.map((poll) => {
+                  const totalVotes =
+                    poll.options?.reduce(
+                      (acc, o) => acc + (o.votesCount ?? o._count?.votes ?? 0),
+                      0
+                    ) || 0;
 
-                  <div className="space-y-2">
-                    {poll.options?.map((opt) => {
-                      const v = opt.votesCount ?? opt._count?.votes ?? 0;
-                      return (
-                        <div
-                          key={opt.id}
-                          className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs"
-                        >
-                          <span className="font-semibold text-slate-800">{opt.textKk}</span>
-                          <span className="font-black text-[#00afca]">{v} дауыс</span>
+                  return (
+                    <div
+                      key={poll.id}
+                      className={`p-5 rounded-2xl bg-white border transition-all ${
+                        poll.active
+                          ? 'border-[#00afca]/60 shadow-md ring-1 ring-[#00afca]/20'
+                          : 'border-slate-200 shadow-sm opacity-85'
+                      } space-y-4`}
+                    >
+                      <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
+                        <div className="space-y-1.5">
+                          <div className="flex flex-wrap items-center gap-2">
+                            {poll.active ? (
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                Белсенді (Сайтта ашық)
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500">
+                                ⚪ Жабық / Тоқтатылған
+                              </span>
+                            )}
+                            <span className="text-[10px] text-slate-400 font-semibold">
+                              Барлығы: {totalVotes} дауыс
+                            </span>
+                          </div>
+                          <h4 className="font-bold text-base text-slate-900 leading-snug">
+                            {poll.questionKk}
+                          </h4>
+                          {poll.questionRu && poll.questionRu !== poll.questionKk && (
+                            <p className="text-xs text-slate-500">{poll.questionRu}</p>
+                          )}
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
+
+                        <div className="flex items-center gap-1 shrink-0">
+                          {poll.active ? (
+                            <button
+                              onClick={() => handleTogglePoll(poll.id, false)}
+                              title="Сауалнаманы сайтта жабу"
+                              className="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold border border-amber-200 transition-colors"
+                            >
+                              Жабу
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleTogglePoll(poll.id, true)}
+                              title="Сайтта ашу және белсенді ету"
+                              className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200 transition-colors"
+                            >
+                              Ашу ✓
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDeletePoll(poll.id)}
+                            title="Сауалнаманы өшіру"
+                            className="p-1.5 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors text-xs"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        {poll.options?.map((opt) => {
+                          const v = opt.votesCount ?? opt._count?.votes ?? 0;
+                          const pct = totalVotes > 0 ? Math.round((v / totalVotes) * 100) : 0;
+                          return (
+                            <div
+                              key={opt.id}
+                              className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 relative overflow-hidden"
+                            >
+                              <div
+                                className="absolute inset-y-0 left-0 bg-[#00afca]/10 transition-all duration-500"
+                                style={{ width: `${pct}%` }}
+                              />
+                              <div className="relative flex items-center justify-between text-xs">
+                                <span className="font-semibold text-slate-800">{opt.textKk}</span>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-mono text-slate-400 text-[11px]">{pct}%</span>
+                                  <span className="font-black text-[#00afca]">{v} дауыс</span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
@@ -2461,15 +2619,29 @@ export default function AdminClient() {
             className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 text-slate-800 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="font-bold text-lg text-slate-900">Жаңа сауалнама ашу</h3>
-            <form onSubmit={handleCreatePoll} className="space-y-3">
+            <div>
+              <h3 className="font-extrabold text-lg text-slate-900">Жаңа сауалнама ашу</h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Оқушылар арасында онлайн дауыс беруді бастау
+              </p>
+            </div>
+
+            {pollError && (
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
+                <span>⚠️</span>
+                <span>{pollError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleCreatePoll} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Сауалнама сұрағы (Қазақша)
+                  Сауалнама сұрағы (Қазақша) *
                 </label>
                 <input
                   type="text"
                   required
+                  placeholder="Мысалы: Лицейде қандай үйірме ашылғанын қалайсыз?"
                   value={pollForm.questionKk}
                   onChange={(e) => setPollForm({ ...pollForm, questionKk: e.target.value })}
                   className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
@@ -2478,55 +2650,108 @@ export default function AdminClient() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  1-нұсқа (Қазақша)
+                  Сауалнама сұрағы (Орысша, толтыру міндетті емес)
                 </label>
                 <input
                   type="text"
-                  required
-                  value={pollForm.option1Kk}
-                  onChange={(e) => setPollForm({ ...pollForm, option1Kk: e.target.value })}
+                  placeholder="Какой кружок вы бы хотели открыть в лицее?"
+                  value={pollForm.questionRu}
+                  onChange={(e) => setPollForm({ ...pollForm, questionRu: e.target.value })}
                   className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  2-нұсқа (Қазақша)
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={pollForm.option2Kk}
-                  onChange={(e) => setPollForm({ ...pollForm, option2Kk: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
-                />
+              <div className="space-y-2 pt-1">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-700">
+                    Жауап нұсқалары (кемінде 2) *
+                  </label>
+                  {pollForm.options.length < 6 && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setPollForm({
+                          ...pollForm,
+                          options: [...pollForm.options, { textKk: '', textRu: '' }],
+                        })
+                      }
+                      className="text-[11px] font-bold text-[#00afca] hover:text-[#0099b0] flex items-center gap-1"
+                    >
+                      + Нұсқа қосу
+                    </button>
+                  )}
+                </div>
+
+                {pollForm.options.map((opt, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-400 w-5 shrink-0">
+                      {idx + 1}.
+                    </span>
+                    <input
+                      type="text"
+                      required
+                      placeholder={`${idx + 1}-нұсқа мәтіні`}
+                      value={opt.textKk}
+                      onChange={(e) => {
+                        const updated = [...pollForm.options];
+                        updated[idx].textKk = e.target.value;
+                        setPollForm({ ...pollForm, options: updated });
+                      }}
+                      className="flex-1 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                    />
+                    {pollForm.options.length > 2 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = pollForm.options.filter((_, i) => i !== idx);
+                          setPollForm({ ...pollForm, options: updated });
+                        }}
+                        className="p-2 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors text-xs"
+                        title="Нұсқаны жою"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                ))}
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  3-нұсқа (міндетті емес)
+              <div className="pt-2">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={pollForm.active}
+                    onChange={(e) => setPollForm({ ...pollForm, active: e.target.checked })}
+                    className="w-4 h-4 rounded text-[#00afca] focus:ring-[#00afca] border-slate-300"
+                  />
+                  <span className="text-xs font-semibold text-slate-700">
+                    Сауалнаманы сайтта бірден ашу (Белсенді ету)
+                  </span>
                 </label>
-                <input
-                  type="text"
-                  value={pollForm.option3Kk}
-                  onChange={(e) => setPollForm({ ...pollForm, option3Kk: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
-                />
               </div>
 
-              <div className="pt-2 flex justify-end gap-2">
+              <div className="pt-3 flex justify-end gap-2 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setShowAddPoll(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
+                  disabled={pollLoading}
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors disabled:opacity-50"
                 >
                   Болдырмау
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all"
+                  disabled={pollLoading}
+                  className="px-5 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all disabled:opacity-50 flex items-center gap-1.5"
                 >
-                  Ашу ✓
+                  {pollLoading ? (
+                    <>
+                      <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Ашылуда...</span>
+                    </>
+                  ) : (
+                    <span>Ашу ✓</span>
+                  )}
                 </button>
               </div>
             </form>
