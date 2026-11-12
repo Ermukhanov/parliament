@@ -30,13 +30,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const session = await getSessionInfo();
   if (!session) {
-    return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
-  }
-  if (!session.hasFullAccess) {
-    return NextResponse.json(
-      { error: 'Тек Президент, Вице-президент және IT министрі дауыс беруді қоса алады' },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: 'Авторизация қажет' }, { status: 401 });
   }
 
   try {
@@ -128,10 +122,7 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const session = await getSessionInfo();
   if (!session) {
-    return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
-  }
-  if (!session.hasFullAccess) {
-    return NextResponse.json({ error: 'Құқығыңыз жеткіліксіз' }, { status: 403 });
+    return NextResponse.json({ error: 'Авторизация қажет' }, { status: 401 });
   }
 
   try {
@@ -174,19 +165,39 @@ export async function PATCH(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const session = await getSessionInfo();
   if (!session) {
-    return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
-  }
-  if (!session.hasFullAccess) {
-    return NextResponse.json({ error: 'Нет прав на удаление' }, { status: 403 });
+    return NextResponse.json({ error: 'Авторизация қажет' }, { status: 401 });
   }
 
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');
 
   if (!id) {
-    return NextResponse.json({ error: 'ID не указан' }, { status: 400 });
+    return NextResponse.json({ error: 'ID көрсетілмеген' }, { status: 400 });
   }
 
-  await prisma.poll.delete({ where: { id } });
-  return NextResponse.json({ success: true });
+  try {
+    // Explicitly delete votes, options, and poll in transaction for SQLite reliability
+    await prisma.$transaction([
+      prisma.vote.deleteMany({
+        where: {
+          option: {
+            pollId: id,
+          },
+        },
+      }),
+      prisma.pollOption.deleteMany({
+        where: {
+          pollId: id,
+        },
+      }),
+      prisma.poll.delete({
+        where: { id },
+      }),
+    ]);
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error('Delete poll error:', err);
+    return NextResponse.json({ error: 'Сауалнаманы өшіру кезінде қате орын алды' }, { status: 500 });
+  }
 }

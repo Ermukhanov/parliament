@@ -547,6 +547,9 @@ export default function AdminClient() {
         setPollError(data.error || 'Сауалнаманы ашу кезінде қате шықты');
       } else {
         setShowAddPoll(false);
+        if (data.poll) {
+          setPolls((prev) => [data.poll, ...prev.filter((p) => p.id !== data.poll.id)]);
+        }
         setPollForm({
           questionKk: '',
           questionRu: '',
@@ -566,6 +569,9 @@ export default function AdminClient() {
   };
 
   const handleTogglePoll = async (id: string, active: boolean) => {
+    setPolls((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, active } : active ? { ...p, active: false } : p))
+    );
     try {
       const res = await fetch('/api/admin/polls', {
         method: 'PATCH',
@@ -577,16 +583,30 @@ export default function AdminClient() {
       } else {
         const data = await res.json().catch(() => ({}));
         alert(data.error || 'Сауалнама күйін өзгерту мүмкін болмады');
+        fetchAllData();
       }
     } catch {
       alert('Желі қатесі');
+      fetchAllData();
     }
   };
 
   const handleDeletePoll = async (id: string) => {
-    if (!confirm('Сауалнаманы өшіруді растайсыз ба?')) return;
-    await fetch(`/api/admin/polls?id=${id}`, { method: 'DELETE' });
-    fetchAllData();
+    if (!confirm('Сауалнаманы өшіруді растайсыз ба? Оған жиналған барлық дауыстар бірге өшеді.')) return;
+    setPolls((prev) => prev.filter((p) => p.id !== id));
+    try {
+      const res = await fetch(`/api/admin/polls?id=${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Сауалнаманы өшіру мүмкін болмады');
+        fetchAllData();
+      } else {
+        fetchAllData();
+      }
+    } catch {
+      alert('Желі қатесі орын алды');
+      fetchAllData();
+    }
   };
 
   const handleAppealStatus = async (id: string, status: string) => {
@@ -1065,6 +1085,16 @@ export default function AdminClient() {
                 }`}
               >
                 📰 Фракция посттары & Жаңалықтары ({news.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('polls')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  activeTab === 'polls'
+                    ? 'bg-[#00afca] text-white shadow-md shadow-[#00afca]/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
+                }`}
+              >
+                🗳️ Сауалнамалар ({polls.length})
               </button>
             </>
           )}
@@ -1705,9 +1735,9 @@ export default function AdminClient() {
         )}
 
         {/* ===================================================================
-            TAB: POLLS (Full Access Only)
+            TAB: POLLS
            =================================================================== */}
-        {activeTab === 'polls' && hasFullAccess && (
+        {activeTab === 'polls' && (
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>

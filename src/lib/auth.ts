@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 const ADMIN_COOKIE = 'admin_session';
 const SESSION_DURATION = 60 * 60 * 24; // 24 hours
 
-export const FULL_ACCESS_LOGINS = ['president', 'vice', 'admin'];
+export const FULL_ACCESS_LOGINS = ['president', 'vice', 'admin', 'it'];
 
 export interface SessionInfo {
   login: string;
