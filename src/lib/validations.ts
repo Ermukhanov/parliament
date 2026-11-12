@@ -20,6 +20,7 @@ export const appealSchema = z.object({
 
 export const voteSchema = z.object({
   optionId: z.string().min(1),
+  deviceId: z.string().optional(),
 });
 
 export const suggestionSchema = z.object({

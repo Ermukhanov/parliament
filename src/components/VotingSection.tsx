@@ -49,11 +49,23 @@ export default function VotingSection({ locale, poll }: VotingSectionProps) {
     setVotingLoading(true);
     setVoteError(null);
 
+    // Get or generate persistent unique device ID for voting fairness across school Wi-Fi
+    let deviceId = '';
+    try {
+      deviceId = localStorage.getItem('aql_device_id') || '';
+      if (!deviceId) {
+        deviceId = 'dev_' + Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
+        localStorage.setItem('aql_device_id', deviceId);
+      }
+    } catch {
+      // ignore
+    }
+
     try {
       const res = await fetch('/api/voting', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ optionId }),
+        body: JSON.stringify({ optionId, deviceId }),
       });
 
       const data = await res.json();

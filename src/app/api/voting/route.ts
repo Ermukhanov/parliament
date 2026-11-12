@@ -42,12 +42,13 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || '127.0.0.1';
+  const rawIp = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || '127.0.0.1';
+  const clientIp = rawIp.split(',')[0].trim();
 
-  // Limit rapid voting attempts
-  if (!checkRateLimit(ip, 6, 60000)) {
+  // Allow up to 150 votes per minute on shared school Wi-Fi
+  if (!checkRateLimit(clientIp, 150, 60000)) {
     return NextResponse.json(
-      { error: 'Слишком много запросов. Подождите.' },
+      { error: 'Сұраныстар тым көп. Біраздан соң қайталап көріңіз.' },
       { status: 429 }
     );
   }
@@ -63,15 +64,21 @@ export async function POST(req: NextRequest) {
 
     if (!option || !option.poll.active) {
       return NextResponse.json(
-        { error: 'Вариант не найден или опрос завершён' },
+        { error: 'Бұл нұсқа табылмады немесе сауалнама жабылған' },
         { status: 404 }
       );
     }
 
-    // Check if IP has already voted for this poll
+    // Determine unique voter identifier:
+    // deviceId allows classmates on same school Wi-Fi to vote independently
+    const voterKey = validated.deviceId && validated.deviceId.trim().length > 3
+      ? `dev_${validated.deviceId.trim()}`
+      : `ip_${clientIp}`;
+
+    // Check if this device/voter has already voted for this poll
     const existingVote = await prisma.vote.findFirst({
       where: {
-        ip,
+        ip: voterKey,
         option: {
           pollId: option.pollId,
         },
@@ -80,7 +87,7 @@ export async function POST(req: NextRequest) {
 
     if (existingVote) {
       return NextResponse.json(
-        { error: 'С вашего устройства/IP уже был отдан голос в этом опросе' },
+        { error: 'Сіздің құрылғыңыздан бұл сауалнамаға дауыс берілген' },
         { status: 409 }
       );
     }
@@ -88,15 +95,16 @@ export async function POST(req: NextRequest) {
     await prisma.vote.create({
       data: {
         optionId: validated.optionId,
-        ip,
+        ip: voterKey,
       },
     });
 
     return NextResponse.json({ success: true }, { status: 201 });
   } catch (err: unknown) {
+    console.error('Voting error:', err);
     if (err && typeof err === 'object' && 'name' in err && err.name === 'ZodError') {
-      return NextResponse.json({ error: 'Неверные данные' }, { status: 400 });
+      return NextResponse.json({ error: 'Қате деректер' }, { status: 400 });
     }
-    return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 });
+    return NextResponse.json({ error: 'Дауыс беру кезінде сервер қатесі орын алды' }, { status: 500 });
   }
 }

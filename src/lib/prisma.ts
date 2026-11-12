@@ -1,16 +1,60 @@
 import { PrismaClient } from '@prisma/client';
 import path from 'path';
+import fs from 'fs';
+import os from 'os';
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
 function getDatabaseUrl(): string {
   const envUrl = process.env.DATABASE_URL;
-  if (envUrl && !envUrl.startsWith('file:./') && !envUrl.startsWith('file:../')) {
+  // If remote database (Postgres, Turso, Supabase, etc.) is configured, use it!
+  if (
+    envUrl &&
+    !envUrl.startsWith('file:') &&
+    !envUrl.startsWith('./') &&
+    !envUrl.startsWith('../')
+  ) {
     return envUrl;
   }
-  // Resolve absolute path to prisma/dev.db to guarantee SQLite finds it on Vercel
-  const dbPath = path.join(process.cwd(), 'prisma', 'dev.db');
-  return `file:${dbPath}`;
+
+  const isServerless = Boolean(
+    process.env.VERCEL ||
+    process.env.AWS_LAMBDA_FUNCTION_NAME ||
+    process.env.NETLIFY
+  );
+
+  const sourceDbPath = path.join(process.cwd(), 'prisma', 'dev.db');
+
+  if (isServerless) {
+    const tmpDbPath = path.join(os.tmpdir(), 'dev.db');
+    try {
+      if (fs.existsSync(sourceDbPath)) {
+        let shouldCopy = !fs.existsSync(tmpDbPath);
+        if (!shouldCopy) {
+          const srcStat = fs.statSync(sourceDbPath);
+          const tmpStat = fs.statSync(tmpDbPath);
+          // If tmp db is 0 bytes or source was updated during a new deployment build
+          if (tmpStat.size === 0 || srcStat.mtimeMs > tmpStat.mtimeMs) {
+            shouldCopy = true;
+          }
+        }
+        if (shouldCopy) {
+          fs.copyFileSync(sourceDbPath, tmpDbPath);
+          try {
+            fs.chmodSync(tmpDbPath, 0o666);
+          } catch {
+            // ignore
+          }
+        }
+      }
+      return `file:${tmpDbPath}`;
+    } catch (err) {
+      console.error('Error setting up writable SQLite in tmpdir:', err);
+      return `file:${sourceDbPath}`;
+    }
+  }
+
+  return `file:${sourceDbPath}`;
 }
 
 export const prisma =
