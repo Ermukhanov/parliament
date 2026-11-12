@@ -69,7 +69,7 @@ async function main() {
           { name: 'Баймуратов Артур', grade: '10А', role: 'Көмекші' },
           { name: 'Қазыбаев Амир', grade: '10С', role: 'Көмекші' },
         ]),
-        photo: '',
+        photo: '/images/members/it_mernar.jpg',
         order: 3,
       },
       {

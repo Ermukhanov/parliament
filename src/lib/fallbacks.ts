@@ -79,7 +79,7 @@ export const FALLBACK_MEMBERS: FallbackMember[] = [
       { name: 'Баймуратов Артур', grade: '10А', role: 'Көмекші' },
       { name: 'Қазыбаев Амир', grade: '10С', role: 'Көмекші' },
     ]),
-    photo: '/images/members/it.png',
+    photo: '/images/members/it_mernar.jpg',
     order: 3,
   },
   {
