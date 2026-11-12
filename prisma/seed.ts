@@ -216,6 +216,25 @@ async function main() {
   });
 
   console.log('Данные успешно сохранены!');
+
+  console.log('Создание актуального опроса для звонков...');
+  await prisma.vote.deleteMany();
+  await prisma.pollOption.deleteMany();
+  await prisma.poll.deleteMany();
+  await prisma.poll.create({
+    data: {
+      questionKk: 'Қоңырауда қандай өлең тұрғанын қалайсыз?',
+      questionRu: 'Какую песню вы бы хотели слышать на звонке?',
+      active: true,
+      options: {
+        create: [
+          { textKk: 'Yenlik - 16 Qyz', textRu: 'Yenlik - 16 Qyz' },
+          { textKk: 'E.Yeah - Ninety One', textRu: 'E.Yeah - Ninety One' },
+          { textKk: 'Men Qazaq - Yerbolat Qudaibergenov', textRu: 'Men Qazaq - Yerbolat Qudaibergenov' },
+        ],
+      },
+    },
+  });
 }
 
 main()
