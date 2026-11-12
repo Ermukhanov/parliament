@@ -73,7 +73,9 @@ export async function DELETE(req: NextRequest) {
   try {
     if (!session.hasFullAccess) {
       const existing = await prisma.event.findUnique({ where: { id } });
-      if (!existing || existing.ministry !== session.login) {
+      const existingMin = (existing?.ministry || 'general').trim().toLowerCase();
+      const sessionMin = (session.login || '').trim().toLowerCase();
+      if (!existing || existingMin !== sessionMin) {
         return NextResponse.json({ error: 'Доступ только к событиям своей фракции' }, { status: 403 });
       }
     }
@@ -100,7 +102,9 @@ export async function PUT(req: NextRequest) {
 
     if (!session.hasFullAccess) {
       const existing = await prisma.event.findUnique({ where: { id } });
-      if (!existing || existing.ministry !== session.login) {
+      const existingMin = (existing?.ministry || 'general').trim().toLowerCase();
+      const sessionMin = (session.login || '').trim().toLowerCase();
+      if (!existing || existingMin !== sessionMin) {
         return NextResponse.json({ error: 'Доступ только к событиям своей фракции' }, { status: 403 });
       }
     }

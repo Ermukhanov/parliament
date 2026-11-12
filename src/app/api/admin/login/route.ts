@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Құпиясөз қате / Invalid password' }, { status: 401 });
       }
     } else {
-      if (!minister || (minister.password !== password && password !== masterPassword)) {
+      if (!minister || minister.password !== password) {
         return NextResponse.json(
           { error: 'Логин немесе құпиясөз қате / Invalid credentials' },
           { status: 401 }
