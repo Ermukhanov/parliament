@@ -135,16 +135,19 @@ export default function VotingSection({ locale, poll }: VotingSectionProps) {
           {/* Active Poll or Empty Poll Notice */}
           <div className="lg:col-span-7 aql-card p-6 sm:p-8">
             {!poll ? (
-              <div className="py-8 text-center">
+              <div className="py-12 px-4 text-center">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-sky-50 flex items-center justify-center text-3xl">
+                  🗳️
+                </div>
                 <h3 className="font-extrabold text-2xl text-slate-800 mb-2">
                   {locale === 'en'
                     ? 'No active poll right now'
-                    : 'Белсенді дауыс беру әзірге жоқ'}
+                    : 'Белсенді сауалнама әзірге жоқ'}
                 </h3>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-slate-500 max-w-md mx-auto">
                   {locale === 'en'
-                    ? 'New schoolwide polls will be launched soon. You can suggest your idea on the right!'
-                    : 'Жақында жаңа жалпымектептік сауалнама іске қосылады. Оң жақта өз идеяңызды ұсына аласыз!'}
+                    ? 'New schoolwide polls will be launched soon by the school council. You can suggest your idea on the right!'
+                    : 'Жақында жаңа жалпымектептік сауалнама іске қосылады. Оң жақта өз идеяңызды немесе ұсынысыңызды қалдыра аласыз!'}
                 </p>
               </div>
             ) : (
