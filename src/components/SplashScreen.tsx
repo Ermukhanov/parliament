@@ -53,7 +53,7 @@ export default function SplashScreen() {
   return (
     <div
       onClick={handleSkip}
-      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-gradient-to-b from-[#020b17] via-[#081e3a] to-[#041122] text-white transition-all duration-700 cursor-pointer select-none overflow-hidden ${
+      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-gradient-to-b from-[#ffffff] via-[#f0f9ff] to-[#e0f2fe] text-slate-900 transition-all duration-700 cursor-pointer select-none overflow-hidden ${
         isFading ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100'
       }`}
       aria-label="AQL Council Splash Screen"
@@ -167,21 +167,21 @@ export default function SplashScreen() {
         }
       `}</style>
 
-      {/* 1. AMBIENT BACKGROUND GLOWS (SITE COLORS: CYAN #00afca & GOLD #f59e0b) */}
-      <div className="absolute w-[500px] h-[500px] rounded-full bg-[#00afca]/20 blur-[130px] pointer-events-none animate-pulse-glow" />
-      <div className="absolute w-[340px] h-[340px] rounded-full bg-amber-500/15 blur-[90px] pointer-events-none translate-y-8" />
+      {/* 1. AMBIENT BACKGROUND GLOWS (SITE COLORS: WHITE / SKY / CYAN #00afca) */}
+      <div className="absolute w-[500px] h-[500px] rounded-full bg-[#00afca]/15 blur-[130px] pointer-events-none animate-pulse-glow" />
+      <div className="absolute w-[340px] h-[340px] rounded-full bg-sky-400/15 blur-[90px] pointer-events-none translate-y-8" />
 
-      {/* Subtle Rotating Sunburst Rays */}
-      <div className="absolute w-[600px] h-[600px] opacity-10 pointer-events-none animate-ray-rotate">
-        <svg viewBox="0 0 200 200" className="w-full h-full text-amber-300">
-          <circle cx="100" cy="100" r="90" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="4 8" />
-          <circle cx="100" cy="100" r="60" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2 6" />
+      {/* Subtle Rotating Orbit Rings */}
+      <div className="absolute w-[600px] h-[600px] opacity-20 pointer-events-none animate-ray-rotate">
+        <svg viewBox="0 0 200 200" className="w-full h-full text-[#00afca]">
+          <circle cx="100" cy="100" r="90" fill="none" stroke="currentColor" strokeWidth="0.6" strokeDasharray="4 8" />
+          <circle cx="100" cy="100" r="60" fill="none" stroke="currentColor" strokeWidth="0.6" strokeDasharray="2 6" />
         </svg>
       </div>
 
       <div className="relative z-10 flex flex-col items-center text-center px-4 max-w-md w-full">
         {/* 2. THE SOARING EAGLE (ҚЫРАН / БҮРКІТ) */}
-        <div className="relative w-64 h-32 sm:w-80 sm:h-36 mb-2 flex items-center justify-center animate-eagle-flight drop-shadow-[0_10px_30px_rgba(245,158,11,0.35)]">
+        <div className="relative w-64 h-32 sm:w-80 sm:h-36 mb-2 flex items-center justify-center animate-eagle-flight drop-shadow-[0_10px_28px_rgba(0,175,202,0.3)]">
           <svg
             viewBox="0 0 320 160"
             className="w-full h-full overflow-visible"
@@ -189,12 +189,12 @@ export default function SplashScreen() {
             xmlns="http://www.w3.org/2000/svg"
           >
             <defs>
-              {/* Steppe Gold Gradient */}
+              {/* Primary Site Cyan-Slate Gradient */}
               <linearGradient id="eagleGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#fef08a" />
-                <stop offset="35%" stopColor="#fbbf24" />
-                <stop offset="70%" stopColor="#f59e0b" />
-                <stop offset="100%" stopColor="#d97706" />
+                <stop offset="0%" stopColor="#38bdf8" />
+                <stop offset="40%" stopColor="#00afca" />
+                <stop offset="80%" stopColor="#0284c7" />
+                <stop offset="100%" stopColor="#0b0f17" />
               </linearGradient>
 
               {/* Cyan Accent Gradient */}
@@ -205,97 +205,87 @@ export default function SplashScreen() {
 
               {/* Feather Glow */}
               <filter id="goldenAura" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="3" result="blur" />
+                <feGaussianBlur stdDeviation="2.5" result="blur" />
                 <feComposite in="SourceGraphic" in2="blur" operator="over" />
               </filter>
             </defs>
 
             {/* AURA GLOW BEHIND EAGLE */}
-            <ellipse cx="160" cy="70" rx="90" ry="35" fill="url(#eagleCyanGrad)" opacity="0.25" filter="blur(14px)" />
+            <ellipse cx="160" cy="70" rx="90" ry="35" fill="url(#eagleCyanGrad)" opacity="0.2" filter="blur(14px)" />
 
             {/* LEFT WING WITH FEATHERS */}
             <g className="animate-wing-left" filter="url(#goldenAura)">
-              {/* Primary Outer Wing Curve */}
               <path
                 d="M 150 65 C 120 45, 80 15, 18 20 C 30 28, 48 38, 62 48 C 42 46, 26 50, 36 60 C 50 68, 70 72, 88 74 C 70 78, 56 86, 70 92 C 90 95, 118 85, 142 75 Z"
                 fill="url(#eagleGoldGrad)"
-                stroke="#00afca"
+                stroke="#0b0f17"
                 strokeWidth="1.2"
               />
-              {/* Primary Feather Highlights */}
-              <path d="M 28 24 L 75 52" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.6" />
-              <path d="M 45 42 L 95 64" stroke="#ffffff" strokeWidth="0.8" strokeOpacity="0.5" />
-              <path d="M 65 62 L 115 72" stroke="#ffffff" strokeWidth="0.8" strokeOpacity="0.4" />
+              <path d="M 28 24 L 75 52" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.65" />
+              <path d="M 45 42 L 95 64" stroke="#ffffff" strokeWidth="0.8" strokeOpacity="0.55" />
+              <path d="M 65 62 L 115 72" stroke="#ffffff" strokeWidth="0.8" strokeOpacity="0.45" />
             </g>
 
             {/* RIGHT WING WITH FEATHERS */}
             <g className="animate-wing-right" filter="url(#goldenAura)">
-              {/* Primary Outer Wing Curve (Symmetric) */}
               <path
                 d="M 170 65 C 200 45, 240 15, 302 20 C 290 28, 272 38, 258 48 C 278 46, 294 50, 284 60 C 270 68, 250 72, 232 74 C 250 78, 264 86, 250 92 C 230 95, 202 85, 178 75 Z"
                 fill="url(#eagleGoldGrad)"
-                stroke="#00afca"
+                stroke="#0b0f17"
                 strokeWidth="1.2"
               />
-              {/* Primary Feather Highlights */}
-              <path d="M 292 24 L 245 52" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.6" />
-              <path d="M 275 42 L 225 64" stroke="#ffffff" strokeWidth="0.8" strokeOpacity="0.5" />
-              <path d="M 255 62 L 205 72" stroke="#ffffff" strokeWidth="0.8" strokeOpacity="0.4" />
+              <path d="M 292 24 L 245 52" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.65" />
+              <path d="M 275 42 L 225 64" stroke="#ffffff" strokeWidth="0.8" strokeOpacity="0.55" />
+              <path d="M 255 62 L 205 72" stroke="#ffffff" strokeWidth="0.8" strokeOpacity="0.45" />
             </g>
 
             {/* FAN TAIL */}
             <path
               d="M 148 85 L 138 122 L 152 118 L 160 126 L 168 118 L 182 122 L 172 85 Z"
               fill="url(#eagleGoldGrad)"
-              stroke="#00afca"
+              stroke="#0b0f17"
               strokeWidth="1.2"
             />
-            <path d="M 160 88 L 160 122" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.6" />
+            <path d="M 160 88 L 160 122" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.65" />
 
             {/* CENTRAL TORSO & PROUD HEAD */}
             <g filter="url(#goldenAura)">
-              {/* Muscular Chest */}
               <path
                 d="M 148 55 C 145 70, 150 88, 160 92 C 170 88, 175 70, 172 55 Z"
                 fill="url(#eagleGoldGrad)"
-                stroke="#00afca"
+                stroke="#0b0f17"
                 strokeWidth="1.5"
               />
-              {/* Noble Head with Crown/Feathers */}
               <path
                 d="M 155 52 C 153 42, 156 34, 163 32 C 168 31, 173 35, 171 40 L 176 43 L 169 46 L 168 53 Z"
                 fill="#ffffff"
-                stroke="#d97706"
+                stroke="#0b0f17"
                 strokeWidth="1.2"
               />
-              {/* Golden Sharp Beak */}
               <path
                 d="M 172 38 L 180 43 L 171 45 Z"
-                fill="#fbbf24"
-                stroke="#b45309"
+                fill="#00afca"
+                stroke="#0b0f17"
                 strokeWidth="0.8"
               />
-              {/* Fierce Eye */}
-              <circle cx="166" cy="38" r="1.5" fill="#0b1f3f" />
+              <circle cx="166" cy="38" r="1.5" fill="#0b0f17" />
             </g>
           </svg>
         </div>
 
-        {/* 3. LYCEUM CREST LOGO BADGE (REVEALS RIGHT BENEATH THE EAGLE) */}
+        {/* 3. LYCEUM CREST LOGO BADGE */}
         <div
           className={`relative transition-all duration-500 ${
             isRevealed ? 'animate-crest-burst opacity-100' : 'opacity-0 scale-50'
           }`}
         >
           {/* Luminous Outer Energy Rings */}
-          <div className="absolute -inset-2 rounded-3xl bg-gradient-to-r from-[#00afca] via-amber-400 to-[#00afca] opacity-40 blur-md animate-pulse" />
+          <div className="absolute -inset-2 rounded-3xl bg-gradient-to-r from-[#00afca] via-sky-400 to-[#0284c7] opacity-30 blur-md animate-pulse" />
 
           {/* School Crest Container */}
-          <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-white/10 p-3.5 border-2 border-white/30 shadow-[0_12px_40px_rgba(0,175,202,0.4)] backdrop-blur-xl flex items-center justify-center">
-            {/* Pulsing inner cyan ring */}
-            <div className="absolute inset-0 rounded-3xl border border-[#00afca] opacity-60" />
+          <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-[#00afca] p-3.5 border-2 border-white shadow-[0_12px_40px_rgba(0,175,202,0.35)] flex items-center justify-center">
             <SchoolLogo
-              className="w-full h-full object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+              className="w-full h-full object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.2)]"
               variant="white-on-blue"
               priority
             />
@@ -308,30 +298,31 @@ export default function SplashScreen() {
             isRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#00afca]/15 border border-[#00afca]/40 text-[#38bdf8] text-[10px] sm:text-xs font-mono font-bold uppercase tracking-widest mb-2 shadow-sm">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0b0f17] text-white text-[10px] sm:text-xs font-mono font-bold uppercase tracking-widest mb-2.5 shadow-md">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00afca]" />
             <span>AQTOBE BILIM-INNOVATION LYCEUM</span>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight bg-gradient-to-r from-white via-amber-100 to-white bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
             AQL Council
           </h1>
 
-          <p className="text-xs sm:text-sm font-bold text-[#38bdf8] tracking-widest uppercase mt-1">
+          <p className="text-xs sm:text-sm font-extrabold text-[#00afca] tracking-widest uppercase mt-1">
             Мектеп Парламентінің Порталы
           </p>
         </div>
 
         {/* 5. MINIMAL PROGRESS LINE */}
         <div
-          className={`w-44 h-1 bg-white/15 rounded-full overflow-hidden mt-6 transition-all duration-700 ${
+          className={`w-44 h-1.5 bg-slate-200 rounded-full overflow-hidden mt-6 transition-all duration-700 ${
             isRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
           }`}
         >
-          <div className="h-full bg-gradient-to-r from-[#00afca] via-amber-400 to-white rounded-full animate-progress" />
+          <div className="h-full bg-gradient-to-r from-[#00afca] to-[#0284c7] rounded-full animate-progress" />
         </div>
 
         {/* Skip hint */}
-        <span className="mt-4 text-[10px] text-slate-400/80 tracking-wider uppercase font-medium">
+        <span className="mt-4 text-[10px] text-slate-400 tracking-wider uppercase font-semibold">
           Өту үшін басыңыз (Skip)
         </span>
       </div>
