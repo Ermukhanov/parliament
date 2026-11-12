@@ -23,10 +23,10 @@ const defaultPosts: InstagramPostItem[] = [
   {
     id: 'post-dfphiqcoidw',
     url: 'https://www.instagram.com/p/Dfphiqcoidw/',
-    image: '/images/instagram/post-4.jpg',
-    captionKk: 'AQL Council — Мектеп Парламентінің жаңа жарияланымы мен маңызды жаңалықтары.',
-    captionEn: 'AQL Council — New School Parliament post and official update.',
-    date: 'Жаңа пост',
+    image: '/images/instagram/post-jersey-day.jpg',
+    captionKk: '13 Қараша — «Any Sport» Jersey Day! Сүйікті спорттық командаңның жейдесін киіп кел.',
+    captionEn: '13th November — "Any Sport" Jersey Day! Wear your favorite sports jersey to school.',
+    date: '13 қараша',
     type: 'post',
   },
   {
