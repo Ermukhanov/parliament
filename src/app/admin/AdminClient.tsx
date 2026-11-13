@@ -1201,9 +1201,9 @@ export default function AdminClient() {
       )}
 
       {/* Main Container */}
-      <div className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-24 md:pb-10 space-y-4 sm:space-y-6">
+      <div className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-[calc(env(safe-area-inset-bottom,0px)+6rem)] md:pb-10 space-y-4 sm:space-y-6">
         {/* Quick Action Banner (Matches Main Site Dark + Cyan Aesthetic) */}
-        <div className="bg-[#0b0f17] rounded-3xl p-5 sm:p-6 text-white shadow-xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden">
+        <div className="bg-[#0b0f17] rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-white shadow-xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden">
           <div className="absolute -right-12 -top-12 w-48 h-48 rounded-full bg-[#00afca]/20 blur-3xl pointer-events-none" />
           <div className="relative z-10">
             <div className="flex flex-wrap items-center gap-2">
@@ -2128,7 +2128,7 @@ export default function AdminClient() {
           onClick={() => setEditingMinister(null)}
         >
           <div
-            className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto text-slate-800"
+            className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-4 sm:p-7 max-w-2xl w-full shadow-2xl space-y-5 max-h-[92dvh] overflow-y-auto text-slate-800"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between pb-4 border-b border-slate-200">
@@ -2155,7 +2155,7 @@ export default function AdminClient() {
                     onChange={(e) =>
                       setEditingMinister({ ...editingMinister, nameKk: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs font-bold"
+                    className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium font-bold"
                   />
                 </div>
 
@@ -2169,7 +2169,7 @@ export default function AdminClient() {
                     onChange={(e) =>
                       setEditingMinister({ ...editingMinister, grade: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs font-bold"
+                    className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium font-bold"
                   />
                 </div>
               </div>
@@ -2237,7 +2237,7 @@ export default function AdminClient() {
                   onChange={(e) =>
                     setEditingMinister({ ...editingMinister, quoteKk: e.target.value })
                   }
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                  className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                 />
               </div>
 
@@ -2251,7 +2251,7 @@ export default function AdminClient() {
                   onChange={(e) =>
                     setEditingMinister({ ...editingMinister, bioKk: e.target.value })
                   }
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                  className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                 />
               </div>
 
@@ -2267,7 +2267,7 @@ export default function AdminClient() {
                     onChange={(e) =>
                       setEditingMinister({ ...editingMinister, password: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs font-mono"
+                    className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium font-mono"
                   />
                 </div>
               )}
@@ -2299,7 +2299,7 @@ export default function AdminClient() {
                           updated[idx].name = e.target.value;
                           setEditingAssistants(updated);
                         }}
-                        className="flex-1 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                        className="flex-1 px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                       />
                       <input
                         type="text"
@@ -2310,7 +2310,7 @@ export default function AdminClient() {
                           updated[idx].grade = e.target.value;
                           setEditingAssistants(updated);
                         }}
-                        className="w-24 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                        className="w-24 px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                       />
                       <button
                         type="button"
@@ -2336,13 +2336,13 @@ export default function AdminClient() {
                 <button
                   type="button"
                   onClick={() => setEditingMinister(null)}
-                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
+                  className="min-h-[44px] px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
                 >
                   Болдырмау
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-md shadow-[#00afca]/25 transition-all"
+                  className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-md shadow-[#00afca]/25 transition-all"
                 >
                   Сақтау
                 </button>
@@ -2361,7 +2361,7 @@ export default function AdminClient() {
           onClick={() => setShowAddEvent(false)}
         >
           <div
-            className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 text-slate-800 max-h-[90vh] overflow-y-auto"
+            className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-4 sm:p-7 max-w-lg w-full shadow-2xl space-y-4 text-slate-800 max-h-[92dvh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="font-bold text-lg text-slate-900">Жаңа іс-шара қосу</h3>
@@ -2374,7 +2374,7 @@ export default function AdminClient() {
                   placeholder="chess-tournament"
                   value={eventForm.slug}
                   onChange={(e) => setEventForm({ ...eventForm, slug: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                  className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                 />
               </div>
 
@@ -2385,7 +2385,7 @@ export default function AdminClient() {
                   required
                   value={eventForm.titleKk}
                   onChange={(e) => setEventForm({ ...eventForm, titleKk: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                  className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                 />
               </div>
 
@@ -2395,7 +2395,7 @@ export default function AdminClient() {
                   <select
                     value={eventForm.category}
                     onChange={(e) => setEventForm({ ...eventForm, category: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                    className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                   >
                     <option value="Учёба">Білім</option>
                     <option value="Культура">Мәдениет</option>
@@ -2411,7 +2411,7 @@ export default function AdminClient() {
                     onChange={(e) =>
                       setEventForm({ ...eventForm, maxSeats: Number(e.target.value) })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                    className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                   />
                 </div>
               </div>
@@ -2424,7 +2424,7 @@ export default function AdminClient() {
                     required
                     value={eventForm.date}
                     onChange={(e) => setEventForm({ ...eventForm, date: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                    className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                   />
                 </div>
                 <div>
@@ -2435,7 +2435,7 @@ export default function AdminClient() {
                     placeholder="Акт залы"
                     value={eventForm.location}
                     onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                    className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                   />
                 </div>
               </div>
@@ -2446,7 +2446,7 @@ export default function AdminClient() {
                   rows={2}
                   value={eventForm.descKk}
                   onChange={(e) => setEventForm({ ...eventForm, descKk: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                  className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                 />
               </div>
 
@@ -2454,13 +2454,13 @@ export default function AdminClient() {
                 <button
                   type="button"
                   onClick={() => setShowAddEvent(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
+                  className="min-h-[44px] px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
                 >
                   Болдырмау
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all"
+                  className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all"
                 >
                   Қосу
                 </button>
@@ -2479,7 +2479,7 @@ export default function AdminClient() {
           onClick={() => setEditingEvent(null)}
         >
           <div
-            className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 text-slate-800 max-h-[90vh] overflow-y-auto"
+            className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-4 sm:p-7 max-w-lg w-full shadow-2xl space-y-4 text-slate-800 max-h-[92dvh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between pb-3 border-b border-slate-200">
@@ -2500,7 +2500,7 @@ export default function AdminClient() {
                   required
                   value={editingEvent.titleKk}
                   onChange={(e) => setEditingEvent({ ...editingEvent, titleKk: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs font-bold"
+                  className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium font-bold"
                 />
               </div>
 
@@ -2510,7 +2510,7 @@ export default function AdminClient() {
                   <select
                     value={editingEvent.category}
                     onChange={(e) => setEditingEvent({ ...editingEvent, category: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                    className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                   >
                     <option value="Учёба">Білім</option>
                     <option value="Культура">Мәдениет</option>
@@ -2526,7 +2526,7 @@ export default function AdminClient() {
                     onChange={(e) =>
                       setEditingEvent({ ...editingEvent, maxSeats: Number(e.target.value) })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                    className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                   />
                 </div>
               </div>
@@ -2547,7 +2547,7 @@ export default function AdminClient() {
                         : ''
                     }
                     onChange={(e) => setEditingEvent({ ...editingEvent, date: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                    className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                   />
                 </div>
                 <div>
@@ -2557,7 +2557,7 @@ export default function AdminClient() {
                     required
                     value={editingEvent.location}
                     onChange={(e) => setEditingEvent({ ...editingEvent, location: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                    className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                   />
                 </div>
               </div>
@@ -2568,7 +2568,7 @@ export default function AdminClient() {
                   rows={3}
                   value={editingEvent.descKk}
                   onChange={(e) => setEditingEvent({ ...editingEvent, descKk: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                  className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                 />
               </div>
 
@@ -2589,13 +2589,13 @@ export default function AdminClient() {
                 <button
                   type="button"
                   onClick={() => setEditingEvent(null)}
-                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
+                  className="min-h-[44px] px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
                 >
                   Болдырмау
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all"
+                  className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all"
                 >
                   Сақтау
                 </button>
@@ -2614,7 +2614,7 @@ export default function AdminClient() {
           onClick={() => setSelectedEventRegs(null)}
         >
           <div
-            className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl space-y-4 text-slate-800 max-h-[85vh] overflow-y-auto"
+            className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-4 sm:p-7 max-w-2xl w-full shadow-2xl space-y-4 text-slate-800 max-h-[92dvh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between pb-3 border-b border-slate-200">
@@ -2671,7 +2671,7 @@ export default function AdminClient() {
             <div className="pt-2 flex justify-end">
               <button
                 onClick={() => setSelectedEventRegs(null)}
-                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
+                className="min-h-[44px] px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
               >
                 Жабу
               </button>
@@ -2681,7 +2681,7 @@ export default function AdminClient() {
       )}
 
       {/* Floating Action Button for Adding Posts */}
-      <div className="fixed bottom-6 right-6 z-40">
+      <div className="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-40">
         <button
           onClick={() => setShowAddNews(true)}
           className="px-5 py-3.5 rounded-full bg-gradient-to-r from-[#00afca] to-sky-600 hover:from-[#0099b0] hover:to-sky-700 text-white font-black text-xs sm:text-sm shadow-2xl shadow-sky-500/50 hover:shadow-sky-500/70 active:scale-95 transition-all flex items-center gap-2.5 border-2 border-white ring-4 ring-sky-400/20 cursor-pointer"
@@ -2701,7 +2701,7 @@ export default function AdminClient() {
           onClick={() => setShowAddNews(false)}
         >
           <div
-            className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 text-slate-800 max-h-[90vh] overflow-y-auto"
+            className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-4 sm:p-7 max-w-lg w-full shadow-2xl space-y-4 text-slate-800 max-h-[92dvh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -2735,7 +2735,7 @@ export default function AdminClient() {
                     const autoSlug = title.toLowerCase().replace(/[^a-z0-9а-яёәіңғүұқөһ]/gi, '-').slice(0, 40) + '-' + Date.now().toString().slice(-4);
                     setNewsForm({ ...newsForm, titleKk: title, slug: newsForm.slug ? newsForm.slug : autoSlug });
                   }}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs font-semibold"
+                  className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium font-semibold"
                 />
               </div>
 
@@ -2747,7 +2747,7 @@ export default function AdminClient() {
                   placeholder="post-slug"
                   value={newsForm.slug}
                   onChange={(e) => setNewsForm({ ...newsForm, slug: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs font-mono"
+                  className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium font-mono"
                 />
               </div>
 
@@ -2759,7 +2759,7 @@ export default function AdminClient() {
                     placeholder="/images/instagram/post-1.jpg немесе https://..."
                     value={newsForm.image || ''}
                     onChange={(e) => setNewsForm({ ...newsForm, image: e.target.value })}
-                    className="flex-1 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                    className="flex-1 px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                   />
                   <label className="px-3 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-[#00afca] border border-sky-200 text-xs font-bold cursor-pointer inline-flex items-center justify-center gap-1.5 shrink-0">
                     <IconCamera className="w-4 h-4" />
@@ -2798,7 +2798,7 @@ export default function AdminClient() {
                   placeholder="Бос қалдырсаңыз, мәтіннен автоматты алынады"
                   value={newsForm.excerpt}
                   onChange={(e) => setNewsForm({ ...newsForm, excerpt: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                  className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                 />
               </div>
 
@@ -2809,7 +2809,7 @@ export default function AdminClient() {
                   required
                   value={newsForm.contentKk}
                   onChange={(e) => setNewsForm({ ...newsForm, contentKk: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                  className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                 />
               </div>
 
@@ -2817,13 +2817,13 @@ export default function AdminClient() {
                 <button
                   type="button"
                   onClick={() => setShowAddNews(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
+                  className="min-h-[44px] px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
                 >
                   Болдырмау
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all"
+                  className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all"
                 >
                   Жариялау
                 </button>
@@ -2842,7 +2842,7 @@ export default function AdminClient() {
           onClick={() => setShowAddPoll(false)}
         >
           <div
-            className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 text-slate-800 max-h-[90vh] overflow-y-auto"
+            className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-4 sm:p-7 max-w-lg w-full shadow-2xl space-y-4 text-slate-800 max-h-[92dvh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div>
@@ -2870,7 +2870,7 @@ export default function AdminClient() {
                   placeholder="Мысалы: Лицейде қандай үйірме ашылғанын қалайсыз?"
                   value={pollForm.questionKk}
                   onChange={(e) => setPollForm({ ...pollForm, questionKk: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                  className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                 />
               </div>
 
@@ -2883,7 +2883,7 @@ export default function AdminClient() {
                   placeholder="Какой кружок вы бы хотели открыть в лицее?"
                   value={pollForm.questionRu}
                   onChange={(e) => setPollForm({ ...pollForm, questionRu: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                  className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                 />
               </div>
 
@@ -2923,7 +2923,7 @@ export default function AdminClient() {
                         updated[idx].textKk = e.target.value;
                         setPollForm({ ...pollForm, options: updated });
                       }}
-                      className="flex-1 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                      className="flex-1 px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                     />
                     {pollForm.options.length > 2 && (
                       <button
@@ -2961,14 +2961,14 @@ export default function AdminClient() {
                   type="button"
                   onClick={() => setShowAddPoll(false)}
                   disabled={pollLoading}
-                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors disabled:opacity-50"
+                  className="min-h-[44px] px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors disabled:opacity-50"
                 >
                   Болдырмау
                 </button>
                 <button
                   type="submit"
                   disabled={pollLoading}
-                  className="px-5 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all disabled:opacity-50 flex items-center gap-1.5"
+                  className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all disabled:opacity-50 flex items-center gap-1.5"
                 >
                   {pollLoading ? (
                     <>
@@ -2994,7 +2994,7 @@ export default function AdminClient() {
           onClick={() => setShowAddTimeline(false)}
         >
           <div
-            className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 text-slate-800 max-h-[90vh] overflow-y-auto"
+            className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-4 sm:p-7 max-w-lg w-full shadow-2xl space-y-4 text-slate-800 max-h-[92dvh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="font-bold text-lg text-slate-900">Жыл жоспарына тармақ қосу</h3>
@@ -3006,7 +3006,7 @@ export default function AdminClient() {
                   required
                   value={timelineForm.titleKk}
                   onChange={(e) => setTimelineForm({ ...timelineForm, titleKk: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                  className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                 />
               </div>
 
@@ -3021,7 +3021,7 @@ export default function AdminClient() {
                     onChange={(e) =>
                       setTimelineForm({ ...timelineForm, month: Number(e.target.value) })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                    className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                   />
                 </div>
                 <div>
@@ -3032,7 +3032,7 @@ export default function AdminClient() {
                     onChange={(e) =>
                       setTimelineForm({ ...timelineForm, year: Number(e.target.value) })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                    className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                   />
                 </div>
               </div>
@@ -3043,7 +3043,7 @@ export default function AdminClient() {
                   rows={2}
                   value={timelineForm.descKk}
                   onChange={(e) => setTimelineForm({ ...timelineForm, descKk: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-1 focus:ring-[#00afca] text-xs"
+                  className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-[#00afca] focus:ring-2 focus:ring-[#00afca]/20 text-sm sm:text-xs font-medium"
                 />
               </div>
 
@@ -3051,13 +3051,13 @@ export default function AdminClient() {
                 <button
                   type="button"
                   onClick={() => setShowAddTimeline(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
+                  className="min-h-[44px] px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
                 >
                   Болдырмау
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all"
+                  className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[#00afca] hover:bg-[#0099b0] text-white text-xs font-bold shadow-sm shadow-[#00afca]/25 transition-all"
                 >
                   Қосу
                 </button>
@@ -3067,7 +3067,7 @@ export default function AdminClient() {
         </div>
       )}
       {/* Fixed Bottom Mobile Navigation Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0b0f17]/95 text-white border-t border-white/10 backdrop-blur-md px-2 py-1.5">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0b0f17]/95 text-white border-t border-white/10 backdrop-blur-md px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))]">
         <div className="grid grid-cols-5 gap-1 max-w-md mx-auto">
           {bottomNavItems.map((item) => {
             const isActive = activeTab === item.id;
