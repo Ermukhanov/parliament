@@ -29,6 +29,7 @@ import {
   IconZap,
   IconClock,
   IconHome,
+  IconSticker,
 } from '@/components/Icons';
 
 type Tab =
@@ -38,9 +39,21 @@ type Tab =
   | 'timeline'
   | 'news'
   | 'polls'
+  | 'stickers'
   | 'appeals'
   | 'suggestions'
   | 'stats';
+
+interface AdminStickerItem {
+  id: string;
+  title: string;
+  authorName: string;
+  authorGrade: string;
+  imageUrl: string;
+  status: string;
+  createdAt: string;
+  votesCount: number;
+}
 
 interface AssistantEntry {
   name: string;
@@ -261,10 +274,11 @@ export default function AdminClient() {
   const [selectedEventRegs, setSelectedEventRegs] = useState<AdminRegistration[] | null>(null);
   const [selectedEventTitle, setSelectedEventTitle] = useState('');
   const [appealFilter, setAppealFilter] = useState<'all' | 'new' | 'in_progress' | 'resolved'>('all');
+  const [adminStickers, setAdminStickers] = useState<AdminStickerItem[]>([]);
 
   const fetchAllData = useCallback(async () => {
     try {
-      const [evRes, memRes, tlRes, nwRes, plRes, apRes, sgRes, stRes] = await Promise.all([
+      const [evRes, memRes, tlRes, nwRes, plRes, apRes, sgRes, stRes, stkRes] = await Promise.all([
         fetch('/api/admin/events', { cache: 'no-store' }),
         fetch('/api/admin/members', { cache: 'no-store' }),
         fetch('/api/admin/timeline', { cache: 'no-store' }),
@@ -273,6 +287,7 @@ export default function AdminClient() {
         fetch('/api/admin/appeals', { cache: 'no-store' }),
         fetch('/api/admin/suggestions', { cache: 'no-store' }),
         fetch('/api/admin/stats', { cache: 'no-store' }),
+        fetch('/api/admin/stickers', { cache: 'no-store' }),
       ]);
 
       if (memRes.status === 401) {
@@ -304,6 +319,7 @@ export default function AdminClient() {
       if (apRes.ok) setAppeals((await apRes.json()).appeals || []);
       if (sgRes.ok) setSuggestions((await sgRes.json()).suggestions || []);
       if (stRes.ok) setStats((await stRes.json()).stats || []);
+      if (stkRes && stkRes.ok) setAdminStickers((await stkRes.json()).stickers || []);
     } catch {
       // ignore
     } finally {
@@ -702,6 +718,25 @@ export default function AdminClient() {
     }
   };
 
+  const handleDeleteSticker = async (id: string) => {
+    if (!confirm('Бұл стикерді байқаудан өшіруді растайсыз ба? Оған берілген дауыстар бірге өшеді.')) return;
+    setAdminStickers((prev) => prev.filter((s) => s.id !== id));
+    try {
+      const res = await fetch(`/api/admin/stickers?id=${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Стикерді өшіру мүмкін болмады');
+        fetchAllData();
+      } else {
+        showToast('Стикер сәтті өшірілді!');
+        fetchAllData();
+      }
+    } catch {
+      alert('Желі қатесі орын алды');
+      fetchAllData();
+    }
+  };
+
   const handleAppealStatus = async (id: string, status: string) => {
     setAppeals((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
     await fetch('/api/admin/appeals', {
@@ -971,6 +1006,7 @@ export default function AdminClient() {
         { id: 'ministers', label: 'Министрлер & Фракциялар', shortLabel: 'Команда', count: members.length, icon: <IconUsers className="w-4 h-4" /> },
         { id: 'events', label: 'Барлық іс-шаралар', shortLabel: 'Іс-шара', count: events.length, icon: <IconCalendar className="w-4 h-4" /> },
         { id: 'polls', label: 'Сауалнамалар', shortLabel: 'Дауыс', count: polls.length, icon: <IconVote className="w-4 h-4" /> },
+        { id: 'stickers', label: 'Стикерпак байқауы', shortLabel: 'Стикерлер', count: adminStickers.length, icon: <IconSticker className="w-4 h-4" /> },
         { id: 'suggestions', label: 'Ұсыныстар', shortLabel: 'Идея', count: suggestions.length, icon: <IconLightbulb className="w-4 h-4" /> },
         { id: 'appeals', label: 'Өтініштер & Қолхаттар', shortLabel: 'Өтініш', count: appeals.length, icon: <IconMail className="w-4 h-4" /> },
         { id: 'news', label: 'Посттар мен Жаңалықтар', shortLabel: 'Посттар', count: news.length, icon: <IconNewspaper className="w-4 h-4" /> },
@@ -982,6 +1018,7 @@ export default function AdminClient() {
         { id: 'appeals', label: 'Түскен өтініштер & Қолхаттар', shortLabel: 'Өтініш', count: appeals.length, icon: <IconMail className="w-4 h-4" /> },
         { id: 'news', label: 'Фракция посттары & Жаңалықтар', shortLabel: 'Посттар', count: news.length, icon: <IconNewspaper className="w-4 h-4" /> },
         { id: 'polls', label: 'Сауалнамалар', shortLabel: 'Дауыс', count: polls.length, icon: <IconVote className="w-4 h-4" /> },
+        { id: 'stickers', label: 'Стикерпак байқауы', shortLabel: 'Стикерлер', count: adminStickers.length, icon: <IconSticker className="w-4 h-4" /> },
       ];
 
   const bottomNavItems = hasFullAccess
@@ -1219,13 +1256,24 @@ export default function AdminClient() {
               Сайттың «Жаңалықтар» бөліміне жаңа пост, мақала және хабарландыру жариялаңыз.
             </p>
           </div>
-          <button
-            onClick={() => setShowAddNews(true)}
-            className="relative z-10 min-h-[44px] px-5 py-3 rounded-2xl bg-[#00afca] hover:bg-[#009bb3] text-white font-black text-xs sm:text-sm shadow-lg shadow-[#00afca]/30 active:scale-95 transition-all flex items-center justify-center gap-2 self-stretch sm:self-auto shrink-0"
-          >
-            <IconEdit className="w-4 h-4" />
-            <span>ЖАҢА ПОСТ ҚОСУ</span>
-          </button>
+          <div className="relative z-10 flex flex-wrap items-center gap-2 self-stretch sm:self-auto shrink-0">
+            <a
+              href="/kk/qr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="min-h-[44px] px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition-all flex items-center justify-center gap-2 shadow-sm"
+            >
+              <span>🖨️</span>
+              <span>А4 Плакат (QR-код)</span>
+            </a>
+            <button
+              onClick={() => setShowAddNews(true)}
+              className="min-h-[44px] px-5 py-3 rounded-2xl bg-[#00afca] hover:bg-[#009bb3] text-white font-black text-xs sm:text-sm shadow-lg shadow-[#00afca]/30 active:scale-95 transition-all flex items-center justify-center gap-2"
+            >
+              <IconEdit className="w-4 h-4" />
+              <span>ЖАҢА ПОСТ ҚОСУ</span>
+            </button>
+          </div>
         </div>
 
         {/* Desktop Navigation Tabs Bar */}
@@ -2030,6 +2078,90 @@ export default function AdminClient() {
                     </div>
                   );
                 })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ===================================================================
+            TAB: STICKERS (School Sticker Pack Contest)
+           =================================================================== */}
+        {activeTab === 'stickers' && (
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="font-extrabold text-lg text-slate-900">
+                  Мектептік стикерпак байқауы
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Оқушылар ұсынған барлық авторлық стикерлер мен жиналған дауыстар
+                </p>
+              </div>
+              <a
+                href="/kk/vote#stickers"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="min-h-[44px] px-4 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-[#00afca] text-xs font-bold border border-sky-200 transition-colors inline-flex items-center gap-1.5"
+              >
+                <span>🎨</span>
+                <span>Сайттағы байқау бетін ашу ↗</span>
+              </a>
+            </div>
+
+            {adminStickers.length === 0 ? (
+              <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 text-slate-400 text-xs">
+                Әзірге оқушылар стикер жүктемеген.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {adminStickers.map((stk, idx) => (
+                  <div
+                    key={stk.id}
+                    className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col justify-between space-y-3 relative overflow-hidden"
+                  >
+                    <div className="relative aspect-square rounded-xl bg-slate-50 p-2 flex items-center justify-center border border-slate-100">
+                      {idx === 0 && stk.votesCount > 0 && (
+                        <span className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-md bg-amber-500 text-white font-black text-[10px]">
+                          👑 Көшбасшы
+                        </span>
+                      )}
+                      <img
+                        src={stk.imageUrl}
+                        alt={stk.title}
+                        className="max-h-full max-w-full object-contain filter drop-shadow-md"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="font-bold text-sm text-slate-900 line-clamp-1">
+                        {stk.title}
+                      </div>
+                      <div className="text-xs text-slate-600 flex items-center justify-between">
+                        <span className="font-semibold text-slate-800 line-clamp-1">{stk.authorName}</span>
+                        <span className="px-1.5 py-0.5 bg-slate-100 rounded font-bold text-slate-600 text-[11px] shrink-0 ml-1">
+                          {stk.authorGrade}
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-slate-400">
+                        {new Date(stk.createdAt).toLocaleDateString('ru-RU')}
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                      <span className="text-xs font-black text-rose-500 flex items-center gap-1">
+                        <span>❤️</span>
+                        <span>{stk.votesCount} дауыс</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteSticker(stk.id)}
+                        className="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold transition-colors"
+                      >
+                        Өшіру
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>

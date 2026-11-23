@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { voteSchema } from '@/lib/validations';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { getVoterIdentity, attachVoterCookies } from '@/lib/voter';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const voter = getVoterIdentity(req);
+
     const poll = await prisma.poll.findFirst({
       where: { active: true },
       orderBy: { createdAt: 'desc' },
@@ -24,9 +27,31 @@ export async function GET() {
 
     if (!poll) {
       return NextResponse.json(
-        { poll: null },
+        { poll: null, userVotedOptionId: null },
         { headers: { 'Cache-Control': 'no-store, max-age=0' } }
       );
+    }
+
+    // Check if voter already voted
+    let userVotedOptionId: string | null = null;
+    const cookieVoted = req.cookies.get(`aql_voted_poll_${poll.id}`)?.value;
+
+    const existingVote = await prisma.vote.findFirst({
+      where: {
+        option: {
+          pollId: poll.id,
+        },
+        ip: {
+          in: voter.lookupKeys,
+        },
+      },
+      select: { optionId: true },
+    });
+
+    if (existingVote) {
+      userVotedOptionId = existingVote.optionId;
+    } else if (cookieVoted) {
+      userVotedOptionId = cookieVoted;
     }
 
     const formatted = {
@@ -41,10 +66,16 @@ export async function GET() {
       })),
     };
 
-    return NextResponse.json(
-      { poll: formatted },
+    const res = NextResponse.json(
+      { poll: formatted, userVotedOptionId },
       { headers: { 'Cache-Control': 'no-store, max-age=0' } }
     );
+
+    if (voter.isNewToken) {
+      attachVoterCookies(res, voter.token);
+    }
+
+    return res;
   } catch {
     return NextResponse.json({ error: 'Ошибка получения опроса' }, { status: 500 });
   }
@@ -78,25 +109,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Determine unique voter identifier:
-    // deviceId allows classmates on same school Wi-Fi to vote independently
-    const voterKey = validated.deviceId && validated.deviceId.trim().length > 3
-      ? `dev_${validated.deviceId.trim()}`
-      : `ip_${clientIp}`;
+    const voter = getVoterIdentity(req, validated.deviceId);
 
-    // Check if this device/voter has already voted for this poll
+    // Multi-layer check: cookie check
+    const cookieAlreadyVoted = req.cookies.get(`aql_voted_poll_${option.pollId}`)?.value;
+    if (cookieAlreadyVoted) {
+      return NextResponse.json(
+        { error: 'Сіздің құрылғыңыздан бұл сауалнамаға дауыс берілген / You have already voted' },
+        { status: 409 }
+      );
+    }
+
+    // Database check across lookupKeys
     const existingVote = await prisma.vote.findFirst({
       where: {
-        ip: voterKey,
         option: {
           pollId: option.pollId,
+        },
+        ip: {
+          in: voter.lookupKeys,
         },
       },
     });
 
     if (existingVote) {
       return NextResponse.json(
-        { error: 'Сіздің құрылғыңыздан бұл сауалнамаға дауыс берілген' },
+        { error: 'Сіздің құрылғыңыздан бұл сауалнамаға дауыс берілген / You have already voted' },
         { status: 409 }
       );
     }
@@ -104,7 +142,7 @@ export async function POST(req: NextRequest) {
     await prisma.vote.create({
       data: {
         optionId: validated.optionId,
-        ip: voterKey,
+        ip: voter.primaryKey,
       },
     });
 
@@ -129,10 +167,16 @@ export async function POST(req: NextRequest) {
       votesCount: opt._count.votes,
     })) || [];
 
-    return NextResponse.json(
-      { success: true, options: freshOptions },
+    const res = NextResponse.json(
+      { success: true, options: freshOptions, userVotedOptionId: option.id },
       { status: 201, headers: { 'Cache-Control': 'no-store, max-age=0' } }
     );
+
+    attachVoterCookies(res, voter.token, {
+      [`aql_voted_poll_${option.pollId}`]: option.id,
+    });
+
+    return res;
   } catch (err: unknown) {
     console.error('Voting error:', err);
     if (err && typeof err === 'object' && 'name' in err && err.name === 'ZodError') {

@@ -229,6 +229,12 @@ export default function Footer({ locale }: FooterProps) {
                   {locale === 'en' ? 'Open Voting' : 'Ашық дауыс беру'}
                 </Link>
               </div>
+              <div>
+                <Link href={`/${locale}/qr`} prefetch className="inline-flex items-center gap-1.5 text-xs text-[#00afca] hover:text-white transition-colors font-bold">
+                  <span>🖨️</span>
+                  <span>{locale === 'en' ? 'A4 QR Poster (Print)' : 'А4 Плакат (QR-код)'}</span>
+                </Link>
+              </div>
               <div className="pt-2">
                 <Link
                   href="/admin"

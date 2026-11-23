@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import type { Metadata } from 'next';
 import VotingSection, { PollData } from '@/components/VotingSection';
+import StickerContestSection from '@/components/StickerContestSection';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -13,10 +14,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const isEn = locale === 'en';
   return {
-    title: isEn ? 'Student Voting | AQL Council' : 'Ашық Дауыс Беру | AQL Council',
+    title: isEn
+      ? 'Sticker Contest & Student Voting | AQL Council'
+      : 'Стикерлер Байқауы және Дауыс Беру | AQL Council',
     description: isEn
-      ? 'Participate in student voting on active school questions and submit your own initiatives to the AQL Council Parliament.'
-      : 'Мектеп парламентінің сауалнамаларына дауыс беріп, өз идеяларыңызды ұсыныңыз.',
+      ? 'Add your sticker to the school sticker pack and participate in student voting on active school questions.'
+      : 'Мектептің стикерлер топтамасына өз стикеріңді қос және мектептік сауалнамаларға қатыс.',
   };
 }
 
@@ -60,7 +63,8 @@ export default async function VotePage({
   }
 
   return (
-    <div className="py-8 sm:py-12">
+    <div className="py-6 sm:py-10 space-y-10 sm:space-y-16">
+      <StickerContestSection locale={locale} />
       <VotingSection locale={locale} poll={formattedPoll} />
     </div>
   );

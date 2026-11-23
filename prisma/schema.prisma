@@ -147,3 +147,26 @@ model Stat {
   labelRu String @default("")
   labelKk String @default("")
 }
+
+model Sticker {
+  id          String        @id @default(cuid())
+  title       String        @default("")
+  authorName  String
+  authorGrade String
+  imageUrl    String
+  uploaderKey String
+  status      String        @default("approved")
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  votes       StickerVote[]
+}
+
+model StickerVote {
+  id        String   @id @default(cuid())
+  stickerId String
+  voterKey  String
+  createdAt DateTime @default(now())
+  sticker   Sticker  @relation(fields: [stickerId], references: [id], onDelete: Cascade)
+
+  @@unique([voterKey])
+}

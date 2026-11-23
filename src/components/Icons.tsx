@@ -57,6 +57,15 @@ export function IconVote({ className = 'w-4 h-4' }: IconProps) {
   );
 }
 
+export function IconSticker({ className = 'w-4 h-4' }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6l-8-8z" />
+      <path d="M14 2v6a2 2 0 0 0 2 2h6" />
+    </svg>
+  );
+}
+
 export function IconLightbulb({ className = 'w-4 h-4' }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">

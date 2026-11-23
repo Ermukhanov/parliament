@@ -49,6 +49,14 @@ export default function VotingSection({ locale, poll }: VotingSectionProps) {
           if (data?.poll?.options && Array.isArray(data.poll.options)) {
             setOptions(data.poll.options);
           }
+          if (data?.userVotedOptionId) {
+            setVotedOptionId(data.userVotedOptionId);
+            if (poll) {
+              try {
+                localStorage.setItem(`voted_poll_${poll.id}`, data.userVotedOptionId);
+              } catch {}
+            }
+          }
         })
         .catch(() => {});
     };
