@@ -21,6 +21,24 @@ interface InstagramFeedProps {
 
 const defaultPosts: InstagramPostItem[] = [
   {
+    id: 'post-df9psyncmwr',
+    url: 'https://www.instagram.com/p/Df9pSYNCMWR/',
+    image: '/images/instagram/post-art-contest.jpg',
+    captionKk: 'Өнер министрі Айжан Мұсағалидің ұйымдастыруымен «Тәртіп, заңсыз әлем қандай болар еді?» тақырыбындағы шығармашылық сурет байқауының қорытындысы.',
+    captionEn: 'Creative drawing art contest results: "What would a world without law and order be like?", organized by Minister of Culture & Arts Aizhan Mussagali.',
+    date: '20 қараша',
+    type: 'post',
+  },
+  {
+    id: 'post-df1hecvc6jb',
+    url: 'https://www.instagram.com/p/Df1heCvC6JB/',
+    image: '/images/instagram/post-parlament-cup.jpg',
+    captionKk: 'Parlament Cup 2026 — 9-11 сынып ұлдары арасында өткен футбол жарысы! 10А сыныбы жеңіске жетті.',
+    captionEn: 'Parlament Cup 2026 — Inter-class football championship among grades 9-11! Congratulations to 10A grade on the championship!',
+    date: '17 қараша',
+    type: 'post',
+  },
+  {
     id: 'post-dfphiqcoidw',
     url: 'https://www.instagram.com/p/Dfphiqcoidw/',
     image: '/images/instagram/post-jersey-day.jpg',
